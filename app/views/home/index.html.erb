@@ -1,0 +1,29 @@
+<%= render 'extras/header' %>
+
+<section class="py-12 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center text-emerald-700 mb-10">
+      Available Qurans
+    </h2>
+
+    <div class="grid md:grid-cols-3 sm:grid-cols-2 gap-8">
+      <% @qurans.each do |quran| %>
+        <div class="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition">
+          <div class="p-6">
+            <h3 class="text-xl font-semibold text-emerald-700 mb-2"><%= quran.title %></h3>
+            <ul class="text-gray-600 mb-4 space-y-1">
+              <li><strong>Writer:</strong> <%= quran.writer %></li>
+              <li><strong>Translation:</strong> <%= quran.translation %></li>
+              <li><strong>Pages:</strong> <%= quran.pages %></li>
+              <li><strong>Stock:</strong> <%= quran.stock %></li>
+            </ul>
+            <%= link_to "Order Now", new_order_path(quran_id: quran.id),
+                        class: "block w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center py-2 rounded-lg font-semibold transition" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<%= render 'extras/footer' %>

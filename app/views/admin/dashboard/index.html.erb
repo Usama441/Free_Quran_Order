@@ -1,0 +1,165 @@
+<!-- app/views/admin/dashboard/index.html.erb -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quran Orders Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    rel="stylesheet"
+    />
+</head>
+<body class="bg-gray-50 text-gray-800">
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-green-700 text-white flex flex-col">
+    <div class="p-6 text-center border-b border-green-600">
+      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+    </div>
+    <nav class="flex-1 p-4 space-y-3">
+      <%= link_to admin_dashboard_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-chart-line"></i><span>Overview</span>
+      <% end %>
+      <!-- Add more links here -->
+      <%= link_to root_path, class: "flex items-center space-x-2 p-3 rounded-lg bg-green-600 hover:bg-green-500 transition" do %>
+        <i class="fas fa-home"></i><span>Back to Site</span>
+      <% end %>
+    </nav>
+    <footer class="p-4 text-center border-t border-green-600">
+      <p class="text-sm">&copy; 2025 Free Quran Project</p>
+    </footer>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <h2 class="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-2">
+      <i class="fas fa-chart-pie"></i><span>Dashboard Overview</span>
+    </h2>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Total Orders</p>
+            <h3 class="text-2xl font-bold"><%= @total_orders %></h3>
+          </div>
+          <i class="fas fa-receipt text-green-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Countries Served</p>
+            <h3 class="text-2xl font-bold"><%= @countries_served %></h3>
+          </div>
+          <i class="fas fa-globe-asia text-green-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Qurans Distributed</p>
+            <h3 class="text-2xl font-bold"><%= @qurans_distributed %></h3>
+          </div>
+          <i class="fas fa-book-quran text-green-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Stock Remaining</p>
+            <h3 class="text-2xl font-bold"><%= @stock_remaining %></h3>
+          </div>
+          <i class="fas fa-warehouse text-green-600 text-3xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-green-700 mb-4">Monthly Orders Trend</h3>
+        <canvas id="ordersChart"></canvas>
+      </div>
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-green-700 mb-4">Stock Level by Translation</h3>
+        <canvas id="stockChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h3 class="text-xl font-semibold text-green-700 mb-4">Global Quran Orders Heatmap</h3>
+      <div id="map" class="h-96 rounded-lg"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+    // Orders Chart
+    const ordersCtx = document.getElementById("ordersChart").getContext("2d");
+    new Chart(ordersCtx, {
+        type: "line",
+        data: {
+            labels: <%= raw @monthly_orders.keys.to_json %>, // No strftime
+            datasets: [{
+                label: "Orders",
+                data: <%= raw @monthly_orders.values.to_json %>,
+                borderColor: "#16a34a",
+                backgroundColor: "rgba(22,163,74,0.1)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5
+            }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Stock Chart
+    const stockCtx = document.getElementById("stockChart").getContext("2d");
+    new Chart(stockCtx, {
+        type: "bar",
+        data: {
+            labels: <%= raw @stock_by_translation.keys.to_json %>,
+            datasets: [{
+                label: "Stock Remaining",
+                data: <%= raw @stock_by_translation.values.to_json %>,
+                backgroundColor: "#16a34a"
+            }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Heatmap
+    const map = L.map("map").setView([20, 0], 2);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors"
+    }).addTo(map);
+
+    const orders = <%= raw @orders_heatmap.map { |country,count|
+    # You may need a helper to map country names to lat/lng
+    "{ country: '#{country}', lat: #{country_lat(country)}, lng: #{country_lng(country)}, count: #{count} }"
+  }.to_json %>;
+
+    orders.forEach(o => {
+        const color = o.count > 900 ? "red" : o.count > 600 ? "orange" : "green";
+        L.circleMarker([o.lat, o.lng], {
+            radius: 10,
+            fillColor: color,
+            color: color,
+            weight: 1,
+            fillOpacity: 0.6
+        }).addTo(map).bindPopup(`<b>${o.country}</b><br>Orders: ${o.count}`);
+    });
+</script>
+</body>
+</html>

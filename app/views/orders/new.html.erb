@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order a Free Quran</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+<!-- Navbar -->
+<nav class="bg-green-700 shadow-md">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center text-white">
+    <h1 class="text-2xl font-bold">Free Quran</h1>
+    <%= link_to "Back to Home", root_path, class: "bg-white text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg transition font-semibold" %>
+  </div>
+</nav>
+
+<!-- Flash Messages -->
+<% if notice %>
+  <div class="max-w-6xl mx-auto mt-4 px-6">
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+      <%= notice %>
+    </div>
+  </div>
+<% end %>
+
+<% if alert %>
+  <div class="max-w-6xl mx-auto mt-4 px-6">
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      <%= alert %>
+    </div>
+  </div>
+<% end %>
+
+<!-- Main Section -->
+<section class="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
+  <!-- Left: Order Form -->
+  <div class="lg:col-span-2 bg-white shadow-lg rounded-2xl p-8 space-y-6">
+    <h2 class="text-2xl font-bold text-green-700 mb-4 text-center">Order Your Free Quran</h2>
+
+    <%= form_with model: @order, url: orders_path, local: true, class: "space-y-6" do |form| %>
+      <% if @order.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h3 class="text-red-800 font-semibold mb-2">Please fix the following errors:</h3>
+          <ul class="list-disc list-inside text-red-700">
+            <% @order.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <!-- Full Name -->
+      <div>
+        <%= form.label :full_name, "Full Name", class: "block font-semibold mb-2" %>
+        <%= form.text_field :full_name,
+                            placeholder: "Your Full Name",
+                            class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
+                            required: true %>
+      </div>
+
+      <!-- Phone with Country Code -->
+      <div>
+        <%= form.label :phone, "Phone Number", class: "block font-semibold mb-2" %>
+        <div class="flex space-x-2">
+          <div class="w-2/5">
+            <%= form.select :country_code,
+                            [
+                              ['🇵🇰 Pakistan +92', '+92'],
+                              ['🇺🇸 USA +1', '+1'],
+                              ['🇬🇧 UK +44', '+44'],
+                              ['🇦🇪 UAE +971', '+971'],
+                              ['🇸🇦 Saudi Arabia +966', '+966'],
+                              ['🇧🇭 Bahrain +973', '+973'],
+                              ['🇶🇦 Qatar +974', '+974'],
+                              ['🇴🇲 Oman +968', '+968'],
+                              ['🇰🇼 Kuwait +965', '+965'],
+                              ['🇪🇬 Egypt +20', '+20'],
+                              ['🇮🇳 India +91', '+91'],
+                              ['🇦🇫 Afghanistan +93', '+93'],
+                              ['🇮🇷 Iran +98', '+98'],
+                              ['🇨🇦 Canada +1', '+1'],
+                              ['🇦🇺 Australia +61', '+61'],
+                              ['🇩🇪 Germany +49', '+49'],
+                              ['🇫🇷 France +33', '+33'],
+                              ['🇮🇹 Italy +39', '+39'],
+                              ['🇪🇸 Spain +34', '+34'],
+                              ['🇹🇷 Turkey +90', '+90'],
+                              ['🇲🇾 Malaysia +60', '+60'],
+                              ['🇮🇩 Indonesia +62', '+62'],
+                              ['🇧🇩 Bangladesh +880', '+880'],
+                              ['🇱🇰 Sri Lanka +94', '+94'],
+                              ['🇳🇵 Nepal +977', '+977'],
+                              ['🇧🇹 Bhutan +975', '+975'],
+                              ['🇲🇻 Maldives +960', '+960']
+                            ],
+                            {},
+                            id: 'country_code_select',
+                            class: "w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-green-500 outline-none",
+                            onchange: "updatePhoneFormat()" %>
+          </div>
+          <div class="w-3/5">
+            <%= form.telephone_field :phone,
+                                     id: 'phone_input',
+                                     placeholder: "300 1234567",
+                                     class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
+                                     required: true %>
+          </div>
+        </div>
+        <p class="text-sm text-gray-600 mt-1" id="phone_format_hint">Format: 300 1234567</p>
+      </div>
+
+      <!-- Email -->
+      <div>
+        <%= form.label :email, "Email", class: "block font-semibold mb-2" %>
+        <%= form.email_field :email,
+                             placeholder: "Your Email Address",
+                             class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
+                             required: true %>
+      </div>
+
+      <!-- City -->
+      <div>
+        <%= form.label :city, "City", class: "block font-semibold mb-2" %>
+        <%= form.text_field :city,
+                            placeholder: "Your City",
+                            class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
+                            required: true %>
+      </div>
+
+      <!-- State / Province -->
+      <div>
+        <%= form.label :state, "State / Province", class: "block font-semibold mb-2" %>
+        <%= form.text_field :state,
+                            placeholder: "Your State or Province",
+                            class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
+                            required: true %>
+      </div>
+
+      <!-- Postal Code -->
+      <div>
+        <%= form.label :postal_code, "Postal Code", class: "block font-semibold mb-2" %>
+        <%= form.text_field :postal_code,
+                            placeholder: "e.g. 54000",
+                            class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
+                            required: true %>
+      </div>
+
+      <!-- Street Address -->
+      <div>
+        <%= form.label :address, "Street Address", class: "block font-semibold mb-2" %>
+        <%= form.text_area :address,
+                           rows: 2,
+                           placeholder: "House #, Street, Area",
+                           class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
+                           required: true %>
+      </div>
+
+      <!-- Hidden fields for quantity and translation -->
+      <%= form.hidden_field :quantity, id: 'quantity_field' %>
+      <%= form.hidden_field :translation, id: 'translation_field' %>
+
+      <!-- Special Note -->
+      <div>
+        <%= form.label :note, "Special Note (optional)", class: "block font-semibold mb-2" %>
+        <%= form.text_area :note,
+                           rows: 2,
+                           placeholder: "Any special instructions or language preference...",
+                           class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" %>
+      </div>
+
+      <!-- Submit -->
+      <div class="text-center pt-4">
+        <%= form.submit "Submit Order",
+                        class: "bg-green-700 text-white font-semibold px-8 py-3 rounded-lg hover:bg-green-800 transition cursor-pointer",
+                        data: { disable_with: "Submitting..." } %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Right: Product Details -->
+  <div class="bg-green-50 shadow-md rounded-2xl p-6 h-fit border border-green-100">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Quran_book.jpg"
+         alt="Quran English Translation" class="rounded-xl mb-4 w-full h-40 object-cover">
+
+    <h3 class="text-xl font-semibold text-green-800 mb-3">Quran with Translation</h3>
+
+    <ul class="list-disc list-inside text-gray-700 text-sm mb-6 space-y-1" id="translation_details">
+      <li><span class="font-semibold text-gray-800">Pages:</span> 604</li>
+      <li><span class="font-semibold text-gray-800">Translator:</span> Abdullah Yusuf Ali</li>
+      <li><span class="font-semibold text-gray-800">Binding:</span> Softcover Edition</li>
+      <li><span class="font-semibold text-gray-800">Publisher:</span> Islamic Publications Lahore</li>
+    </ul>
+
+    <!-- Quantity + Translation Side by Side -->
+    <div class="flex flex-col space-y-4">
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-gray-700">Quantity:</span>
+        <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+          <button type="button" onclick="decreaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">−</button>
+          <input id="quantity_display" type="number" value="1" min="1"
+                 class="w-14 text-center border-x border-gray-300 focus:outline-none" readonly>
+          <button type="button" onclick="increaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">+</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="font-semibold text-gray-700 mb-2">Select Translation:</label>
+        <select id="translation_select" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none" onchange="updateTranslationInfo()">
+          <option value="english" selected>English</option>
+          <option value="urdu">Urdu</option>
+          <option value="french">French</option>
+          <option value="spanish">Spanish</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-green-700 text-white text-center py-6 mt-12">
+  <p>&copy; 2025 Free Quran Project | All Rights Reserved</p>
+</footer>
+
+<!-- Quantity & Translation Script -->
+<script>
+    // Phone format configurations
+    const phoneFormats = {
+        '+92': { placeholder: '300 1234567', format: 'XXX XXXXXXX', hint: 'Format: 300 1234567' },
+        '+1': { placeholder: '(555) 123-4567', format: '(XXX) XXX-XXXX', hint: 'Format: (555) 123-4567' },
+        '+44': { placeholder: '7911 123456', format: 'XXXX XXXXXX', hint: 'Format: 7911 123456' },
+        '+971': { placeholder: '50 123 4567', format: 'XX XXX XXXX', hint: 'Format: 50 123 4567' },
+        '+966': { placeholder: '55 123 4567', format: 'XX XXX XXXX', hint: 'Format: 55 123 4567' },
+        '+973': { placeholder: '3600 1234', format: 'XXXX XXXX', hint: 'Format: 3600 1234' },
+        '+974': { placeholder: '3312 3456', format: 'XXXX XXXX', hint: 'Format: 3312 3456' },
+        '+968': { placeholder: '9212 3456', format: 'XXXX XXXX', hint: 'Format: 9212 3456' },
+        '+965': { placeholder: '500 12345', format: 'XXX XXXXX', hint: 'Format: 500 12345' },
+        '+20': { placeholder: '10 1234 5678', format: 'XX XXXX XXXX', hint: 'Format: 10 1234 5678' },
+        '+91': { placeholder: '98765 43210', format: 'XXXXX XXXXX', hint: 'Format: 98765 43210' },
+        '+93': { placeholder: '70 123 4567', format: 'XX XXX XXXX', hint: 'Format: 70 123 4567' },
+        '+98': { placeholder: '912 345 6789', format: 'XXX XXX XXXX', hint: 'Format: 912 345 6789' },
+        '+61': { placeholder: '412 345 678', format: 'XXX XXX XXX', hint: 'Format: 412 345 678' },
+        '+49': { placeholder: '151 12345678', format: 'XXX XXXXXXXX', hint: 'Format: 151 12345678' },
+        '+33': { placeholder: '6 12 34 56 78', format: 'X XX XX XX XX', hint: 'Format: 6 12 34 56 78' },
+        '+39': { placeholder: '312 345 6789', format: 'XXX XXX XXXX', hint: 'Format: 312 345 6789' },
+        '+34': { placeholder: '612 345 678', format: 'XXX XXX XXX', hint: 'Format: 612 345 678' },
+        '+90': { placeholder: '532 123 4567', format: 'XXX XXX XXXX', hint: 'Format: 532 123 4567' },
+        '+60': { placeholder: '12-345 6789', format: 'XX-XXX XXXX', hint: 'Format: 12-345 6789' },
+        '+62': { placeholder: '812-3456-7890', format: 'XXX-XXXX-XXXX', hint: 'Format: 812-3456-7890' },
+        '+880': { placeholder: '1812 345678', format: 'XXXX XXXXXX', hint: 'Format: 1812 345678' },
+        '+94': { placeholder: '77 123 4567', format: 'XX XXX XXXX', hint: 'Format: 77 123 4567' },
+        '+977': { placeholder: '9841 234567', format: 'XXXX XXXXXX', hint: 'Format: 9841 234567' },
+        '+975': { placeholder: '17 12 34 56', format: 'XX XX XX XX', hint: 'Format: 17 12 34 56' },
+        '+960': { placeholder: '771 2345', format: 'XXX XXXX', hint: 'Format: 771 2345' }
+    };
+
+    function updatePhoneFormat() {
+        const countrySelect = document.getElementById('country_code_select');
+        const phoneInput = document.getElementById('phone_input');
+        const formatHint = document.getElementById('phone_format_hint');
+
+        const selectedCode = countrySelect.value;
+        const formatConfig = phoneFormats[selectedCode];
+
+        if (formatConfig) {
+            phoneInput.placeholder = formatConfig.placeholder;
+            formatHint.textContent = formatConfig.hint;
+            // Clear the phone input when country changes
+            phoneInput.value = '';
+        }
+    }
+
+    function increaseQty() {
+        const qtyDisplay = document.getElementById('quantity_display');
+        const qtyField = document.getElementById('quantity_field');
+        const newValue = parseInt(qtyDisplay.value) + 1;
+        qtyDisplay.value = newValue;
+        qtyField.value = newValue;
+    }
+
+    function decreaseQty() {
+        const qtyDisplay = document.getElementById('quantity_display');
+        const qtyField = document.getElementById('quantity_field');
+        const currentValue = parseInt(qtyDisplay.value);
+        if (currentValue > 1) {
+            qtyDisplay.value = currentValue - 1;
+            qtyField.value = currentValue - 1;
+        }
+    }
+
+    function updateTranslationInfo() {
+        const translationSelect = document.getElementById('translation_select');
+        const translationField = document.getElementById('translation_field');
+        const detailsList = document.getElementById('translation_details');
+
+        const selectedTranslation = translationSelect.value;
+        translationField.value = selectedTranslation;
+
+        const data = {
+            english: {
+                pages: 604,
+                translator: "Abdullah Yusuf Ali",
+                binding: "Softcover Edition",
+                publisher: "Islamic Publications Lahore",
+            },
+            urdu: {
+                pages: 620,
+                translator: "Maulana Fateh Muhammad Jalandhari",
+                binding: "Hardcover Edition",
+                publisher: "Darussalam Publishers",
+            },
+            french: {
+                pages: 590,
+                translator: "Muhammad Hamidullah",
+                binding: "Softcover Edition",
+                publisher: "Paris Islamic Center",
+            },
+            spanish: {
+                pages: 605,
+                translator: "Julio Cortés",
+                binding: "Softcover Edition",
+                publisher: "Islamic Foundation Madrid",
+            },
+        };
+
+        const selected = data[selectedTranslation];
+        detailsList.innerHTML = `
+            <li><span class="font-semibold">Pages:</span> ${selected.pages}</li>
+            <li><span class="font-semibold">Translator:</span> ${selected.translator}</li>
+            <li><span class="font-semibold">Binding:</span> ${selected.binding}</li>
+            <li><span class="font-semibold">Publisher:</span> ${selected.publisher}</li>
+        `;
+    }
+
+    // Initialize everything when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('quantity_field').value = 1;
+        document.getElementById('translation_field').value = 'english';
+        updatePhoneFormat(); // Set initial phone format
+    });
+</script>
+</body>
+</html>
