@@ -1,0 +1,257 @@
+<!-- app/views/admin/geography/show.html.erb -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geographic Data - Quran Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    rel="stylesheet"
+    />
+</head>
+<body class="bg-gray-50 text-gray-800">
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-green-700 text-white flex flex-col">
+    <div class="p-6 text-center border-b border-green-600">
+      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+    </div>
+    <nav class="flex-1 p-4 space-y-3">
+      <%= link_to admin_dashboard_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-chart-line"></i><span>Dashboard</span>
+      <% end %>
+      <%= link_to admin_qurans_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-book-quran"></i><span>Quran Management</span>
+      <% end %>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Analytics</p>
+        <%= link_to admin_order_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-shopping-cart"></i><span>Order Analytics</span>
+        <% end %>
+        <%= link_to admin_customer_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-users"></i><span>Customer Insights</span>
+        <% end %>
+        <%= link_to admin_geographic_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition bg-gray-600" do %>
+          <i class="fas fa-globe"></i><span>Geographic Data</span>
+        <% end %>
+        <%= link_to admin_reports_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-chart-bar"></i><span>Reports</span>
+        <% end %>
+      </div>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Settings</p>
+        <%= link_to admin_configuration_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-cog"></i><span>Configuration</span>
+        <% end %>
+        <%= link_to admin_notifications_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-envelope"></i><span>Notifications</span>
+        <% end %>
+      </div>
+      <!-- Back to Site -->
+      <%= link_to root_path, class: "flex items-center space-x-2 p-3 rounded-lg bg-green-600 hover:bg-green-500 transition mt-8" do %>
+        <i class="fas fa-home"></i><span>Back to Site</span>
+      <% end %>
+    </nav>
+    <footer class="p-4 text-center border-t border-green-600">
+      <p class="text-sm">&copy; 2025 Free Quran Project</p>
+    </footer>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <h2 class="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-2">
+      <i class="fas fa-globe"></i><span>Geographic Data</span>
+    </h2>
+
+    <!-- Geographic Overview Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-blue-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Countries Reached</p>
+            <h3 class="text-2xl font-bold"><%= @total_countries_reached %></h3>
+          </div>
+          <i class="fas fa-globe-americas text-blue-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Asian Countries</p>
+            <h3 class="text-2xl font-bold"><%= @asian_countries %></h3>
+          </div>
+          <i class="fas fa-map-marked-alt text-green-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-brown-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Middle East</p>
+            <h3 class="text-2xl font-bold"><%= @middle_east_countries %></h3>
+          </div>
+          <i class="fas fa-moon text-yellow-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-purple-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Avg Orders/Country</p>
+            <h3 class="text-2xl font-bold"><%= @avg_orders_per_country %></h3>
+          </div>
+          <i class="fas fa-balance-scale text-purple-600 text-3xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regional Distribution -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-blue-700 mb-4">Regional Distribution</h3>
+        <canvas id="regionalChart"></canvas>
+      </div>
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-blue-700 mb-4">Geographic Statistics</h3>
+        <div class="space-y-4">
+          <div class="flex justify-between items-center py-2 border-b">
+            <span class="font-medium">Most Active Country:</span>
+            <span class="font-bold text-green-600"><%= @most_active_country ? "#{@most_active_country[:country]} (#{@most_active_country[:orders]} orders)" : 'No data' %></span>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b">
+            <span class="font-medium">Total Countries:</span>
+            <span class="font-bold text-blue-600"><%= @total_countries_reached %></span>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b">
+            <span class="font-medium">Avg Orders per Country:</span>
+            <span class="font-bold text-purple-600"><%= @avg_orders_per_country %></span>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b">
+            <span class="font-medium">European Countries:</span>
+            <span class="font-bold text-indigo-600"><%= @european_countries %></span>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b">
+            <span class="font-medium">American Countries:</span>
+            <span class="font-bold text-red-600"><%= @american_countries %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Performing Countries -->
+    <div class="bg-white shadow-lg rounded-xl p-6 mb-10">
+      <h3 class="text-xl font-semibold text-blue-700 mb-4">Top Performing Countries by Orders</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @top_countries.each_with_index do |country_data, index| %>
+          <div class="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl font-bold text-green-600">#<%= index + 1 %></span>
+              <div>
+                <div class="font-semibold text-gray-800"><%= country_data[:country] %></div>
+                <div class="text-sm text-gray-600"><%= country_data[:orders] %> orders</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <% if country_data[:orders] >= 50 %>
+                <i class="fas fa-trophy text-yellow-500 text-2xl"></i>
+              <% elsif country_data[:orders] >= 30 %>
+                <i class="fas fa-medal text-gray-400 text-2xl"></i>
+              <% else %>
+                <i class="fas fa-award text-orange-500 text-2xl"></i>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- World Map Visualization -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h3 class="text-xl font-semibold text-blue-700 mb-4">Global Order Distribution</h3>
+      <div class="mb-4 flex justify-between items-center">
+        <span class="text-sm text-gray-600">Interactive world map showing order distribution</span>
+        <div class="flex space-x-4 text-xs">
+          <span class="flex items-center"><span class="w-4 h-4 bg-red-500 rounded-full mr-2"></span>High Activity (>50)</span>
+          <span class="flex items-center"><span class="w-4 h-4 bg-orange-500 rounded-full mr-2"></span>Medium Activity (30-50)</span>
+          <span class="flex items-center"><span class="w-4 h-4 bg-green-500 rounded-full mr-2"></span>Low Activity (<30)</span>
+        </div>
+      </div>
+      <div id="worldMap" class="h-96 rounded-lg"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Regional Distribution Chart
+  const regionalCtx = document.getElementById("regionalChart").getContext("2d");
+  new Chart(regionalCtx, {
+      type: "doughnut",
+      data: {
+          labels: ['Asian Countries', 'Middle East', 'European Countries', 'American Countries'],
+          datasets: [{
+              data: [<%= @asian_countries %>, <%= @middle_east_countries %>, <%= @european_countries %>, <%= @american_countries %>],
+              backgroundColor: [
+                  '#10b981', // green
+                  '#f59e0b', // amber
+                  '#3b82f6', // blue
+                  '#ef4444'  // red
+              ]
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: {
+              legend: {
+                  position: 'bottom'
+              }
+          }
+      }
+  });
+
+  // World Map
+  const map = L.map("worldMap").setView([20, 0], 2);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors"
+  }).addTo(map);
+
+  const countriesData = <%= raw @countries_data.to_json %>;
+  countriesData.forEach(country => {
+      if (country.lat && country.lng) {
+          const orders = country.orders;
+          let color, radius;
+
+          if (orders > 50) {
+              color = "red";
+              radius = Math.max(12, Math.min(25, orders / 2));
+          } else if (orders >= 30) {
+              color = "orange";
+              radius = Math.max(8, Math.min(18, orders / 1.5));
+          } else {
+              color = "green";
+              radius = Math.max(6, Math.min(12, orders));
+          }
+
+          L.circleMarker([country.lat, country.lng], {
+              radius: radius,
+              fillColor: color,
+              color: color,
+              weight: 2,
+              fillOpacity: 0.7
+          }).addTo(map).bindPopup(`
+              <div class='text-center'>
+                  <h4 class='font-bold text-lg'>${country.country}</h4>
+                  <p class='text-sm'>Orders: <span class='font-semibold text-${color}-600'>${country.orders}</span></p>
+                  <p class='text-xs text-gray-600'>Click on other markers for details</p>
+              </div>
+          `);
+      }
+  });
+</script>
+</body>
+</html>

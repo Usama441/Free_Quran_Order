@@ -1,0 +1,255 @@
+<!-- app/views/admin/analytics/customers.html.erb -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Insights - Quran Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-green-700 text-white flex flex-col">
+    <div class="p-6 text-center border-b border-green-600">
+      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+    </div>
+    <nav class="flex-1 p-4 space-y-3">
+      <%= link_to admin_dashboard_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-chart-line"></i><span>Dashboard</span>
+      <% end %>
+      <%= link_to admin_qurans_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-book-quran"></i><span>Quran Management</span>
+      <% end %>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Analytics</p>
+        <%= link_to admin_order_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-shopping-cart"></i><span>Order Analytics</span>
+        <% end %>
+        <%= link_to admin_customer_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition bg-gray-600" do %>
+          <i class="fas fa-users"></i><span>Customer Insights</span>
+        <% end %>
+        <%= link_to admin_geographic_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-globe"></i><span>Geographic Data</span>
+        <% end %>
+        <%= link_to admin_reports_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-chart-bar"></i><span>Reports</span>
+        <% end %>
+      </div>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Settings</p>
+        <%= link_to admin_configuration_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-cog"></i><span>Configuration</span>
+        <% end %>
+        <%= link_to admin_notifications_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-envelope"></i><span>Notifications</span>
+        <% end %>
+      </div>
+      <!-- Back to Site -->
+      <%= link_to root_path, class: "flex items-center space-x-2 p-3 rounded-lg bg-green-600 hover:bg-green-500 transition mt-8" do %>
+        <i class="fas fa-home"></i><span>Back to Site</span>
+      <% end %>
+    </nav>
+    <footer class="p-4 text-center border-t border-green-600">
+      <p class="text-sm">&copy; 2025 Free Quran Project</p>
+    </footer>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <h2 class="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-2">
+      <i class="fas fa-users"></i><span>Customer Insights</span>
+    </h2>
+
+    <!-- Customer Overview Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-blue-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Unique Customers</p>
+            <h3 class="text-2xl font-bold"><%= @unique_customers %></h3>
+          </div>
+          <i class="fas fa-user text-blue-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-blue-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Repeat Customers</p>
+            <h3 class="text-2xl font-bold"><%= @repeat_customers %></h3>
+          </div>
+          <i class="fas fa-redo text-blue-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-blue-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">First-Time Customers</p>
+            <h3 class="text-2xl font-bold"><%= @first_time_customers %></h3>
+          </div>
+          <i class="fas fa-user-plus text-blue-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-blue-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Avg Orders/Customer</p>
+            <h3 class="text-2xl font-bold"><%= @avg_orders_per_customer %></h3>
+          </div>
+          <i class="fas fa-chart-line text-blue-600 text-3xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-blue-700 mb-4">Customer Distribution by Country</h3>
+        <canvas id="countryChart"></canvas>
+      </div>
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-blue-700 mb-4">Orders per Customer Distribution</h3>
+        <canvas id="ordersPerCustomerChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Customer Insights -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-blue-700 mb-4">Repeat vs First-Time Customers</h3>
+        <canvas id="customerTypeChart"></canvas>
+      </div>
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-blue-700 mb-4">Top Customer Emails</h3>
+        <div class="space-y-3 max-h-64 overflow-y-auto">
+          <% @customer_emails.take(10).each do |email| %>
+            <div class="flex justify-between items-center p-2 rounded bg-gray-50">
+              <span class="font-medium text-sm"><%= email %></span>
+              <span class="font-bold text-blue-600"><%= Order.where(email: email).count %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Statistics Table -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h3 class="text-xl font-semibold text-blue-700 mb-4">Customer Behavior Insights</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-2 text-left">Customer Segment</th>
+              <th class="px-4 py-2 text-left">Count</th>
+              <th class="px-4 py-2 text-left">Percentage</th>
+              <th class="px-4 py-2 text-left">Characteristics</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            <tr class="border-t">
+              <td class="px-4 py-2 font-medium">First-Time Customers</td>
+              <td class="px-4 py-2 font-bold text-green-600"><%= @first_time_customers %></td>
+              <td class="px-4 py-2 font-bold text-green-600"><%= (@first_time_customers.to_f / @unique_customers * 100).round(1) %>%</td>
+              <td class="px-4 py-2 text-gray-600">New to the program, discovering the service</td>
+            </tr>
+            <tr class="border-t bg-gray-50">
+              <td class="px-4 py-2 font-medium">Repeat Customers</td>
+              <td class="px-4 py-2 font-bold text-blue-600"><%= @repeat_customers %></td>
+              <td class="px-4 py-2 font-bold text-blue-600"><%= (@repeat_customers.to_f / @unique_customers * 100).round(1) %>%</td>
+              <td class="px-4 py-2 text-gray-600">Multiple orders, highly engaged</td>
+            </tr>
+            <tr class="border-t">
+              <td class="px-4 py-2 font-medium">Single-Order Customers</td>
+              <td class="px-4 py-2 font-bold text-purple-600"><%= @unique_customers - @repeat_customers %></td>
+              <td class="px-4 py-2 font-bold text-purple-600"><%= ((@unique_customers - @repeat_customers).to_f / @unique_customers * 100).round(1) %>%</td>
+              <td class="px-4 py-2 text-gray-600">One-time users, potential for reactivation</td>
+            </tr>
+            <tr class="border-t bg-gray-50">
+              <td class="px-4 py-2 font-medium">Total Unique Customers</td>
+              <td class="px-4 py-2 font-bold text-gray-800"><%= @unique_customers %></td>
+              <td class="px-4 py-2 font-bold text-gray-800">100%</td>
+              <td class="px-4 py-2 text-gray-600">All distinct customers who have ordered</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Country Distribution Chart
+  const countryCtx = document.getElementById("countryChart").getContext("2d");
+  new Chart(countryCtx, {
+      type: "doughnut",
+      data: {
+          labels: <%= raw @top_countries.first(10).map { |c, _| c }.to_json %>,
+          datasets: [{
+              data: <%= raw @top_countries.first(10).map { |_, count| count }.to_json %>,
+              backgroundColor: [
+                  '#16a34a', '#7c3aed', '#ea580c', '#dc2626', '#0891b2',
+                  '#84cc16', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
+              ]
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: {
+              legend: {
+                  position: 'bottom'
+              }
+          }
+      }
+  });
+
+  // Orders per Customer Distribution
+  const ordersPerCustomerCtx = document.getElementById("ordersPerCustomerChart").getContext("2d");
+  const ordersData = <%= raw @orders_per_customer.take(10).to_json %>;
+  new Chart(ordersPerCustomerCtx, {
+      type: "bar",
+      data: {
+          labels: ordersData.map((_, i) => `Customer ${i + 1}`),
+          datasets: [{
+              label: "Orders per Customer",
+              data: ordersData,
+              backgroundColor: "#3b82f6"
+          }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  title: {
+                      display: true,
+                      text: 'Number of Orders'
+                  }
+              }
+          }
+      }
+  });
+
+  // Customer Type Chart (Repeat vs First-Time)
+  const customerTypeCtx = document.getElementById("customerTypeChart").getContext("2d");
+  new Chart(customerTypeCtx, {
+      type: "pie",
+      data: {
+          labels: ['First-Time Customers', 'Repeat Customers'],
+          datasets: [{
+              data: [<%= @first_time_customers %>, <%= @repeat_customers %>],
+              backgroundColor: ['#10b981', '#3b82f6']
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: {
+              legend: {
+                  position: 'bottom'
+              }
+          }
+      }
+  });
+</script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+<!-- app/views/orders/new.html.erb -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,32 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Order a Free Quran</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <%= csrf_meta_tags %>
 </head>
 <body class="bg-gray-50 text-gray-800">
 <!-- Navbar -->
-<nav class="bg-green-700 shadow-md">
-  <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center text-white">
-    <h1 class="text-2xl font-bold">Free Quran</h1>
-    <%= link_to "Back to Home", root_path, class: "bg-white text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg transition font-semibold" %>
-  </div>
-</nav>
+<%= render 'extras/header' %>
 
-<!-- Flash Messages -->
-<% if notice %>
-  <div class="max-w-6xl mx-auto mt-4 px-6">
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-      <%= notice %>
-    </div>
-  </div>
-<% end %>
-
-<% if alert %>
-  <div class="max-w-6xl mx-auto mt-4 px-6">
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-      <%= alert %>
-    </div>
-  </div>
-<% end %>
+<!-- Flash Messages Container -->
+<div id="flash-messages" class="max-w-6xl mx-auto mt-4 px-6 hidden">
+  <div id="flash-container"></div>
+</div>
 
 <!-- Main Section -->
 <section class="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -38,144 +23,106 @@
   <div class="lg:col-span-2 bg-white shadow-lg rounded-2xl p-8 space-y-6">
     <h2 class="text-2xl font-bold text-green-700 mb-4 text-center">Order Your Free Quran</h2>
 
-    <%= form_with model: @order, url: orders_path, local: true, class: "space-y-6" do |form| %>
-      <% if @order.errors.any? %>
-        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h3 class="text-red-800 font-semibold mb-2">Please fix the following errors:</h3>
-          <ul class="list-disc list-inside text-red-700">
-            <% @order.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+    <form id="order-form" class="space-y-6">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+      <!-- Dynamic Error Container -->
+      <div id="form-errors" class="hidden bg-red-50 border border-red-200 rounded-lg p-4">
+        <h3 class="text-red-800 font-semibold mb-2">Please fix the following errors:</h3>
+        <ul id="error-list" class="list-disc list-inside text-red-700"></ul>
+      </div>
 
       <!-- Full Name -->
-      <div>
-        <%= form.label :full_name, "Full Name", class: "block font-semibold mb-2" %>
-        <%= form.text_field :full_name,
-                            placeholder: "Your Full Name",
-                            class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
-                            required: true %>
+      <div class="form-group">
+        <label for="full_name" class="block font-semibold mb-2">Full Name *</label>
+        <input type="text" id="full_name" name="order[full_name]" placeholder="Your Full Name"
+               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none"
+               required>
+        <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
 
       <!-- Phone with Country Code -->
-      <div>
-        <%= form.label :phone, "Phone Number", class: "block font-semibold mb-2" %>
+      <div class="form-group">
+        <label class="block font-semibold mb-2">Phone Number *</label>
         <div class="flex space-x-2">
           <div class="w-2/5">
-            <%= form.select :country_code,
-                            [
-                              ['🇵🇰 Pakistan +92', '+92'],
-                              ['🇺🇸 USA +1', '+1'],
-                              ['🇬🇧 UK +44', '+44'],
-                              ['🇦🇪 UAE +971', '+971'],
-                              ['🇸🇦 Saudi Arabia +966', '+966'],
-                              ['🇧🇭 Bahrain +973', '+973'],
-                              ['🇶🇦 Qatar +974', '+974'],
-                              ['🇴🇲 Oman +968', '+968'],
-                              ['🇰🇼 Kuwait +965', '+965'],
-                              ['🇪🇬 Egypt +20', '+20'],
-                              ['🇮🇳 India +91', '+91'],
-                              ['🇦🇫 Afghanistan +93', '+93'],
-                              ['🇮🇷 Iran +98', '+98'],
-                              ['🇨🇦 Canada +1', '+1'],
-                              ['🇦🇺 Australia +61', '+61'],
-                              ['🇩🇪 Germany +49', '+49'],
-                              ['🇫🇷 France +33', '+33'],
-                              ['🇮🇹 Italy +39', '+39'],
-                              ['🇪🇸 Spain +34', '+34'],
-                              ['🇹🇷 Turkey +90', '+90'],
-                              ['🇲🇾 Malaysia +60', '+60'],
-                              ['🇮🇩 Indonesia +62', '+62'],
-                              ['🇧🇩 Bangladesh +880', '+880'],
-                              ['🇱🇰 Sri Lanka +94', '+94'],
-                              ['🇳🇵 Nepal +977', '+977'],
-                              ['🇧🇹 Bhutan +975', '+975'],
-                              ['🇲🇻 Maldives +960', '+960']
-                            ],
-                            {},
-                            id: 'country_code_select',
-                            class: "w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-green-500 outline-none",
-                            onchange: "updatePhoneFormat()" %>
+            <select id="country_code_select" name="order[country_code]" class="w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-green-500 outline-none" onchange="updatePhoneFormat(); updateStates()" required>
+              <!-- Countries will be populated by JavaScript -->
+            </select>
           </div>
           <div class="w-3/5">
-            <%= form.telephone_field :phone,
-                                     id: 'phone_input',
-                                     placeholder: "300 1234567",
-                                     class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
-                                     required: true %>
+            <input type="tel" id="phone_input" name="order[phone]" placeholder="300 1234567"
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required>
           </div>
         </div>
         <p class="text-sm text-gray-600 mt-1" id="phone_format_hint">Format: 300 1234567</p>
+        <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
-
+    
       <!-- Email -->
-      <div>
-        <%= form.label :email, "Email", class: "block font-semibold mb-2" %>
-        <%= form.email_field :email,
-                             placeholder: "Your Email Address",
-                             class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
-                             required: true %>
+      <div class="form-group">
+        <label for="email" class="block font-semibold mb-2">Email *</label>
+        <input type="email" id="email" name="order[email]" placeholder="Your Email Address"
+               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required>
+        <div class="error-message hidden text-red-500 text-sm mt-1"></div>
+      </div>
+    
+      <!-- State / Province (Country-based) -->
+      <div class="form-group">
+        <label for="state" class="block font-semibold mb-2">State / Province *</label>
+        <select id="state_select" name="order[state]" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required>
+          <option value="">Select State/Province</option>
+          <!-- States will be populated by JavaScript based on country -->
+        </select>
+        <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
 
       <!-- City -->
-      <div>
-        <%= form.label :city, "City", class: "block font-semibold mb-2" %>
-        <%= form.text_field :city,
-                            placeholder: "Your City",
-                            class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
-                            required: true %>
+      <div class="form-group">
+        <label for="city" class="block font-semibold mb-2">City *</label>
+        <input type="text" id="city" name="order[city]" placeholder="Your City"
+               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required>
+        <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
 
-      <!-- State / Province -->
-      <div>
-        <%= form.label :state, "State / Province", class: "block font-semibold mb-2" %>
-        <%= form.text_field :state,
-                            placeholder: "Your State or Province",
-                            class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
-                            required: true %>
-      </div>
 
       <!-- Postal Code -->
-      <div>
-        <%= form.label :postal_code, "Postal Code", class: "block font-semibold mb-2" %>
-        <%= form.text_field :postal_code,
-                            placeholder: "e.g. 54000",
-                            class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
-                            required: true %>
+      <div class="form-group">
+        <label for="postal_code" class="block font-semibold mb-2">Postal Code *</label>
+        <input type="text" id="postal_code" name="order[postal_code]" placeholder="e.g. 54000"
+               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required>
+        <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
 
       <!-- Street Address -->
-      <div>
-        <%= form.label :address, "Street Address", class: "block font-semibold mb-2" %>
-        <%= form.text_area :address,
-                           rows: 2,
-                           placeholder: "House #, Street, Area",
-                           class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none",
-                           required: true %>
+      <div class="form-group">
+        <label for="address" class="block font-semibold mb-2">Street Address *</label>
+        <textarea id="address" name="order[address]" rows="2" placeholder="House #, Street, Area"
+                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required></textarea>
+        <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
 
       <!-- Hidden fields for quantity and translation -->
-      <%= form.hidden_field :quantity, id: 'quantity_field' %>
-      <%= form.hidden_field :translation, id: 'translation_field' %>
+      <input type="hidden" id="quantity_field" name="order[quantity]" value="1">
+      <input type="hidden" id="translation_field" name="order[translation]" value="english">
 
       <!-- Special Note -->
       <div>
-        <%= form.label :note, "Special Note (optional)", class: "block font-semibold mb-2" %>
-        <%= form.text_area :note,
-                           rows: 2,
-                           placeholder: "Any special instructions or language preference...",
-                           class: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" %>
+        <label for="note" class="block font-semibold mb-2">Special Note (optional)</label>
+        <textarea id="note" name="order[note]" rows="2" placeholder="Any special instructions or language preference..."
+                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none"></textarea>
       </div>
 
       <!-- Submit -->
       <div class="text-center pt-4">
-        <%= form.submit "Submit Order",
-                        class: "bg-green-700 text-white font-semibold px-8 py-3 rounded-lg hover:bg-green-800 transition cursor-pointer",
-                        data: { disable_with: "Submitting..." } %>
+        <button type="submit"
+                class="bg-green-700 text-white font-semibold px-8 py-3 rounded-lg hover:bg-green-800 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                id="submit-btn">
+          <span id="submit-text">Submit Order</span>
+          <span id="loading-text" class="hidden">Submitting...</span>
+        </button>
       </div>
-    <% end %>
+    </form>
   </div>
 
   <!-- Right: Product Details -->
@@ -218,13 +165,81 @@
 </section>
 
 <!-- Footer -->
-<footer class="bg-green-700 text-white text-center py-6 mt-12">
-  <p>&copy; 2025 Free Quran Project | All Rights Reserved</p>
-</footer>
+<%= render 'extras/footer' %>
 
-<!-- Quantity & Translation Script -->
+<!-- Country and State Data from Rails -->
 <script>
-    // Phone format configurations
+    // Initialize data
+    const countriesData = <%= raw @countries_data.to_json %>;
+    const phoneFormatsData = <%= raw @phone_formats.to_json %>;
+</script>
+
+<!-- Ajax Order Submission Script -->
+<script>
+    // Country states data (comprehensive for major countries)
+    const statesData = {
+        'US': ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'],
+        'CA': ['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Northwest Territories', 'Nova Scotia', 'Nunavut', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan', 'Yukon'],
+        'GB': ['England', 'Scotland', 'Wales', 'Northern Ireland'],
+        'PK': ['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Balochistan', 'Gilgit-Baltistan', 'Azad Jammu and Kashmir', 'Islamabad Capital Territory'],
+        'IN': ['Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'],
+        'BD': ['Dhaka', 'Chittagong', 'Khulna', 'Rajshahi', 'Barisal', 'Sylhet', 'Rangpur', 'Mymensingh'],
+        'LK': ['Central Province', 'Eastern Province', 'North Central Province', 'Northern Province', 'North Western Province', 'Sabaragamuwa Province', 'Southern Province', 'Uva Province', 'Western Province'],
+        'NP': ['Province No. 1', 'Madhesh Province', 'Bagmati Province', 'Gandaki Province', 'Lumbini Province', 'Karnali Province', 'Sudurpashchim Province'],
+        'AF': ['Kabul', 'Nangarhar', 'Herat', 'Balkh', 'Kandahar', 'Takhar', 'Kunduz', 'Badakhshan', 'Helmand', 'Ghazni', 'Kunarha', 'Paktia', 'Panjsher', 'Laghman', 'Farah', 'Daikundi', 'Nimruz', 'Wardak', 'Jowzjan', 'Samangan', 'Paktiya', 'Zabul', 'Khost', 'Logar', 'Urozgan', 'Sarah', 'Paktya', 'Badghis', 'Faryab', 'Kapisa', 'Nuristan'],
+        'IR': ['Tehran', 'Isfahan', 'Fars', 'Khuzestan', 'East Azerbaijan', 'Mazandaran', 'Gilān', 'West Azerbaijan', 'Razavi Khorasan', 'Hamedan', 'Kerman', 'Mazandaran', 'Yazd', 'Qom', 'Lorestan', 'Free Zone', 'Chaharmahal and Bakhtiari', 'Kohgiluyeh and Boyer-Ahmad', 'Sistan and Baluchestan', 'North Khorasan', 'South Khorasan', 'Alborz', 'Ilam', 'Bushehr', 'Zanjan', 'Semnan', 'Zanjan', 'Ardabil', 'Qazvin'],
+        'BT': ['Thimphu', 'Paro', 'Punakha', 'Wangdue Phodrang', 'Trongsa', 'Jakar', 'Pemagatshel', 'Samdrup Jongkhar', 'Trashigang', 'Trashiyangtse', 'Mongar', 'Zhemgang', 'Samtse', 'Sarpang', 'Dagana', 'Chukha', 'Ha', 'Lhuntse', 'Gasa', 'Yangtse'],
+        'MV': ['Malé', 'Addu', 'Fuvahmulak', 'Mulaku', 'Haa Alifu', 'Haa Dhaalu', 'Shaviyani', 'Noonu', 'Raa', 'Baa', 'Lhaviyani', 'Kaafu', 'Alifu Alifu', 'Alifu Dhaalu', 'Vaavu', 'Meemu', 'Faafu', 'Dhaalu', 'Thaa', 'Laamu', 'Gaafu Alifu', 'Gaafu Dhaalu', 'Gnaviyani']
+    };
+
+    // Function to populate countries dropdown
+    function populateCountries() {
+        const countrySelect = document.getElementById('country_code_select');
+        countrySelect.innerHTML = '<option value="">Select Country</option>';
+
+        countriesData.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.calling_code;
+            option.textContent = `${country.flag} ${country.name} ${country.calling_code}`;
+            option.dataset.code = country.code;
+            countrySelect.appendChild(option);
+        });
+    }
+
+    // Function to update states based on selected country
+    function updateStates() {
+        const countrySelect = document.getElementById('country_code_select');
+        const stateSelect = document.getElementById('state_select');
+        const selectedCountryCode = countrySelect.value;
+
+        // Find country data
+        let selectedCountry = null;
+        const selectedOption = countrySelect.querySelector(`option[value="${selectedCountryCode}"]`);
+        if (selectedOption) {
+            const countryCode = selectedOption.dataset.code;
+            selectedCountry = countriesData.find(c => c.code === countryCode);
+        }
+
+        // Clear current states
+        stateSelect.innerHTML = '<option value="">Select State/Province</option>';
+
+        if (selectedCountry && statesData[selectedCountry.code]) {
+            statesData[selectedCountry.code].forEach(state => {
+                const option = document.createElement('option');
+                option.value = state;
+                option.textContent = state;
+                stateSelect.appendChild(option);
+            });
+        } else {
+            // For countries without state data or when no country selected
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'N/A';
+            stateSelect.appendChild(option);
+        }
+    }
+
+    // Phone format configurations (kept for compatibility)
     const phoneFormats = {
         '+92': { placeholder: '300 1234567', format: 'XXX XXXXXXX', hint: 'Format: 300 1234567' },
         '+1': { placeholder: '(555) 123-4567', format: '(XXX) XXX-XXXX', hint: 'Format: (555) 123-4567' },
@@ -239,18 +254,6 @@
         '+91': { placeholder: '98765 43210', format: 'XXXXX XXXXX', hint: 'Format: 98765 43210' },
         '+93': { placeholder: '70 123 4567', format: 'XX XXX XXXX', hint: 'Format: 70 123 4567' },
         '+98': { placeholder: '912 345 6789', format: 'XXX XXX XXXX', hint: 'Format: 912 345 6789' },
-        '+61': { placeholder: '412 345 678', format: 'XXX XXX XXX', hint: 'Format: 412 345 678' },
-        '+49': { placeholder: '151 12345678', format: 'XXX XXXXXXXX', hint: 'Format: 151 12345678' },
-        '+33': { placeholder: '6 12 34 56 78', format: 'X XX XX XX XX', hint: 'Format: 6 12 34 56 78' },
-        '+39': { placeholder: '312 345 6789', format: 'XXX XXX XXXX', hint: 'Format: 312 345 6789' },
-        '+34': { placeholder: '612 345 678', format: 'XXX XXX XXX', hint: 'Format: 612 345 678' },
-        '+90': { placeholder: '532 123 4567', format: 'XXX XXX XXXX', hint: 'Format: 532 123 4567' },
-        '+60': { placeholder: '12-345 6789', format: 'XX-XXX XXXX', hint: 'Format: 12-345 6789' },
-        '+62': { placeholder: '812-3456-7890', format: 'XXX-XXXX-XXXX', hint: 'Format: 812-3456-7890' },
-        '+880': { placeholder: '1812 345678', format: 'XXXX XXXXXX', hint: 'Format: 1812 345678' },
-        '+94': { placeholder: '77 123 4567', format: 'XX XXX XXXX', hint: 'Format: 77 123 4567' },
-        '+977': { placeholder: '9841 234567', format: 'XXXX XXXXXX', hint: 'Format: 9841 234567' },
-        '+975': { placeholder: '17 12 34 56', format: 'XX XX XX XX', hint: 'Format: 17 12 34 56' },
         '+960': { placeholder: '771 2345', format: 'XXX XXXX', hint: 'Format: 771 2345' }
     };
 
@@ -332,10 +335,135 @@
         `;
     }
 
+    // Show flash message dynamically
+    function showFlashMessage(type, message) {
+        const flashContainer = document.getElementById('flash-container');
+        const flashMessages = document.getElementById('flash-messages');
+
+        flashContainer.innerHTML = `
+            <div class="bg-${type == 'success' ? 'green' : 'red'}-100 border border-${type == 'success' ? 'green' : 'red'}-400 text-${type == 'success' ? 'green' : 'red'}-700 px-4 py-3 rounded">
+                ${message}
+            </div>
+        `;
+        flashMessages.classList.remove('hidden');
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            flashMessages.classList.add('hidden');
+        }, 5000);
+    }
+
+    // Show form errors
+    function showFormErrors(errors) {
+        // Clear previous errors
+        document.querySelectorAll('.form-group .error-message').forEach(el => {
+            el.classList.add('hidden');
+            el.textContent = '';
+        });
+        document.querySelectorAll('.form-group input, .form-group textarea, .form-group select').forEach(el => {
+            el.classList.remove('border-red-500');
+        });
+
+        const generalErrors = document.getElementById('form-errors');
+        const errorList = document.getElementById('error-list');
+
+        generalErrors.classList.add('hidden');
+        errorList.innerHTML = '';
+
+        if (errors && errors.length > 0) {
+            errors.forEach(error => {
+                // Try to find the specific field
+                const fieldMap = {
+                    'full_name': 'full_name',
+                    'email': 'email',
+                    'phone': 'phone_input',
+                    'city': 'city',
+                    'state': 'state',
+                    'postal_code': 'postal_code',
+                    'address': 'address',
+                    'country_code': 'country_code_select'
+                };
+
+                let fieldFound = false;
+                Object.keys(fieldMap).forEach(key => {
+                    if (error.toLowerCase().includes(key.replace('_', ' '))) {
+                        const element = document.getElementById(fieldMap[key]);
+                        if (element) {
+                            const errorEl = element.closest('.form-group').querySelector('.error-message');
+                            if (errorEl) {
+                                errorEl.textContent = error;
+                                errorEl.classList.remove('hidden');
+                                element.classList.add('border-red-500');
+                                fieldFound = true;
+                            }
+                        }
+                    }
+                });
+
+                if (!fieldFound) {
+                    // Add to general errors
+                    const li = document.createElement('li');
+                    li.textContent = error;
+                    errorList.appendChild(li);
+                    generalErrors.classList.remove('hidden');
+                }
+            });
+        }
+    }
+
+    // Handle form submission via AJAX
+    document.getElementById('order-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById('submit-btn');
+        const submitText = document.getElementById('submit-text');
+        const loadingText = document.getElementById('loading-text');
+
+        // Disable button and show loading
+        submitBtn.disabled = true;
+        submitText.classList.add('hidden');
+        loadingText.classList.remove('hidden');
+
+        // Collect form data
+        const formData = new FormData(this);
+
+        // Send AJAX request
+        fetch('/orders.json', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-Token': document.querySelector('[name="authenticity_token"]').value,
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Success - redirect to thank you page
+                showFlashMessage('success', data.message);
+                window.location.href = '/orders/create';
+            } else {
+                // Validation errors
+                showFormErrors(data.errors);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showFlashMessage('error', 'An error occurred. Please try again.');
+        })
+        .finally(() => {
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            loadingText.classList.add('hidden');
+        });
+    });
+
     // Initialize everything when page loads
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('quantity_field').value = 1;
         document.getElementById('translation_field').value = 'english';
+        populateCountries(); // Populate countries dropdown
         updatePhoneFormat(); // Set initial phone format
     });
 </script>

@@ -1,0 +1,243 @@
+<!-- app/views/admin/analytics/orders.html.erb -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Analytics - Quran Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-green-700 text-white flex flex-col">
+    <div class="p-6 text-center border-b border-green-600">
+      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+    </div>
+    <nav class="flex-1 p-4 space-y-3">
+      <%= link_to admin_dashboard_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-chart-line"></i><span>Dashboard</span>
+      <% end %>
+      <%= link_to admin_qurans_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-book-quran"></i><span>Quran Management</span>
+      <% end %>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Analytics</p>
+        <%= link_to admin_order_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition bg-gray-600" do %>
+          <i class="fas fa-shopping-cart"></i><span>Order Analytics</span>
+        <% end %>
+        <%= link_to admin_customer_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-users"></i><span>Customer Insights</span>
+        <% end %>
+        <%= link_to admin_geographic_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-globe"></i><span>Geographic Data</span>
+        <% end %>
+        <%= link_to admin_reports_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-chart-bar"></i><span>Reports</span>
+        <% end %>
+      </div>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Settings</p>
+        <%= link_to admin_configuration_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-cog"></i><span>Configuration</span>
+        <% end %>
+        <%= link_to admin_notifications_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-envelope"></i><span>Notifications</span>
+        <% end %>
+      </div>
+      <!-- Back to Site -->
+      <%= link_to root_path, class: "flex items-center space-x-2 p-3 rounded-lg bg-green-600 hover:bg-green-500 transition mt-8" do %>
+        <i class="fas fa-home"></i><span>Back to Site</span>
+      <% end %>
+    </nav>
+    <footer class="p-4 text-center border-t border-green-600">
+      <p class="text-sm">&copy; 2025 Free Quran Project</p>
+    </footer>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <h2 class="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-2">
+      <i class="fas fa-shopping-cart"></i><span>Order Analytics</span>
+    </h2>
+
+    <!-- Overview Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Today</p>
+            <h3 class="text-2xl font-bold"><%= @orders_today %></h3>
+          </div>
+          <i class="fas fa-calendar-day text-green-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">This Week</p>
+            <h3 class="text-2xl font-bold"><%= @orders_this_week %></h3>
+          </div>
+          <i class="fas fa-calendar-week text-green-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">This Month</p>
+            <h3 class="text-2xl font-bold"><%= @orders_this_month %></h3>
+          </div>
+          <i class="fas fa-calendar-alt text-green-600 text-3xl"></i>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Avg Qty/Order</p>
+            <h3 class="text-2xl font-bold"><%= @avg_quantity_per_order %></h3>
+          </div>
+          <i class="fas fa-balance-scale text-green-600 text-3xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-green-700 mb-4">Daily Order Trend (30 Days)</h3>
+        <canvas id="dailyOrdersChart"></canvas>
+      </div>
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-green-700 mb-4">Quantity Distribution</h3>
+        <canvas id="quantityChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Weekly and Monthly Trends -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-green-700 mb-4">Weekly Order Trend (6 Months)</h3>
+        <canvas id="weeklyOrdersChart"></canvas>
+      </div>
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-green-700 mb-4">Monthly Order Trend (12 Months)</h3>
+        <canvas id="monthlyOrdersChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Order Statistics Table -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h3 class="text-xl font-semibold text-green-700 mb-4">Order Statistics Summary</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-2 text-left">Metric</th>
+              <th class="px-4 py-2 text-left">Value</th>
+              <th class="px-4 py-2 text-left">Description</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            <tr class="border-t">
+              <td class="px-4 py-2 font-medium">Total Orders</td>
+              <td class="px-4 py-2 font-bold text-green-600"><%= @total_orders %></td>
+              <td class="px-4 py-2 text-gray-600">All-time order count</td>
+            </tr>
+            <tr class="border-t bg-gray-50">
+              <td class="px-4 py-2 font-medium">Orders Today</td>
+              <td class="px-4 py-2 font-bold text-blue-600"><%= @orders_today %></td>
+              <td class="px-4 py-2 text-gray-600">Orders received today</td>
+            </tr>
+            <tr class="border-t">
+              <td class="px-4 py-2 font-medium">Orders This Week</td>
+              <td class="px-4 py-2 font-bold text-purple-600"><%= @orders_this_week %></td>
+              <td class="px-4 py-2 text-gray-600">Orders in the past 7 days</td>
+            </tr>
+            <tr class="border-t bg-gray-50">
+              <td class="px-4 py-2 font-medium">Orders This Month</td>
+              <td class="px-4 py-2 font-bold text-orange-600"><%= @orders_this_month %></td>
+              <td class="px-4 py-2 text-gray-600">Orders in the past 30 days</td>
+            </tr>
+            <tr class="border-t">
+              <td class="px-4 py-2 font-medium">Average Quantity/Order</td>
+              <td class="px-4 py-2 font-bold text-red-600"><%= @avg_quantity_per_order %></td>
+              <td class="px-4 py-2 text-gray-600">Average Qurans per order</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Daily Orders Chart
+  const dailyCtx = document.getElementById("dailyOrdersChart").getContext("2d");
+  new Chart(dailyCtx, {
+      type: "line",
+      data: {
+          labels: <%= raw @daily_orders.keys.map { |k| k }.to_json %>,
+          datasets: [{
+              label: "Daily Orders",
+              data: <%= raw @daily_orders.values.to_json %>,
+              borderColor: "#16a34a",
+              backgroundColor: "rgba(22,163,74,0.1)",
+              fill: true,
+              tension: 0.4,
+              pointRadius: 3
+          }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+
+  // Quantity Distribution Chart
+  const quantityCtx = document.getElementById("quantityChart").getContext("2d");
+  new Chart(quantityCtx, {
+      type: "bar",
+      data: {
+          labels: <%= raw @quantity_distribution.map { |q, c| "#{q} Quran#{q > 1 ? 's' : ''}" }.to_json %>,
+          datasets: [{
+              label: "Orders",
+              data: <%= raw @quantity_distribution.map { |q, c| c }.to_json %>,
+              backgroundColor: "#16a34a"
+          }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+
+  // Weekly Orders Chart
+  const weeklyCtx = document.getElementById("weeklyOrdersChart").getContext("2d");
+  new Chart(weeklyCtx, {
+      type: "line",
+      data: {
+          labels: <%= raw @weekly_orders.keys.map { |w| "Week #{w.strftime('%U')}" }.to_json %>,
+          datasets: [{
+              label: "Weekly Orders",
+              data: <%= raw @weekly_orders.values.to_json %>,
+              borderColor: "#7c3aed",
+              backgroundColor: "rgba(124,58,237,0.1)",
+              fill: true,
+              tension: 0.4
+          }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+
+  // Monthly Orders Chart
+  const monthlyCtx = document.getElementById("monthlyOrdersChart").getContext("2d");
+  new Chart(monthlyCtx, {
+      type: "bar",
+      data: {
+          labels: <%= raw @monthly_orders.keys.to_json %>,
+          datasets: [{
+              label: "Monthly Orders",
+              data: <%= raw @monthly_orders.values.to_json %>,
+              backgroundColor: "#ea580c"
+          }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!-- app/views/admin/qurans/new.html.erb -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add New Quran - Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    rel="stylesheet"
+    />
+</head>
+<body class="bg-gray-50 text-gray-800">
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-green-700 text-white flex flex-col">
+    <div class="p-6 text-center border-b border-green-600">
+      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+    </div>
+    <nav class="flex-1 p-4 space-y-3">
+      <%= link_to admin_dashboard_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-chart-line"></i><span>Dashboard</span>
+      <% end %>
+      <%= link_to admin_qurans_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition bg-gray-600" do %>
+        <i class="fas fa-book-quran"></i><span>Quran Management</span>
+      <% end %>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Analytics</p>
+        <%= link_to admin_order_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-shopping-cart"></i><span>Order Analytics</span>
+        <% end %>
+        <%= link_to admin_customer_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-users"></i><span>Customer Insights</span>
+        <% end %>
+        <%= link_to admin_geographic_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-globe"></i><span>Geographic Data</span>
+        <% end %>
+        <%= link_to admin_reports_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-chart-bar"></i><span>Reports</span>
+        <% end %>
+      </div>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Settings</p>
+        <%= link_to admin_configuration_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-cog"></i><span>Configuration</span>
+        <% end %>
+        <%= link_to admin_notifications_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-envelope"></i><span>Notifications</span>
+        <% end %>
+      </div>
+      <!-- Back to Site -->
+      <%= link_to root_path, class: "flex items-center space-x-2 p-3 rounded-lg bg-green-600 hover:bg-green-500 transition mt-8" do %>
+        <i class="fas fa-home"></i><span>Back to Site</span>
+      <% end %>
+    </nav>
+    <footer class="p-4 text-center border-t border-green-600">
+      <p class="text-sm">&copy; 2025 Free Quran Project</p>
+    </footer>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-3xl font-bold text-green-700 flex items-center space-x-2">
+        <i class="fas fa-plus"></i><span>Add New Quran</span>
+      </h2>
+      <%= link_to admin_qurans_path, class: "bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition flex items-center space-x-2" do %>
+        <i class="fas fa-arrow-left"></i><span>Back to List</span>
+      <% end %>
+    </div>
+
+    <!-- Flash Messages -->
+    <% if notice %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <% if alert %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <%= alert %>
+      </div>
+    <% end %>
+
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <%= form_with model: @quran, url: admin_qurans_path, method: :post, class: "space-y-6" do |f| %>
+        <% if @quran.errors.any? %>
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h3 class="text-red-800 font-semibold mb-2">Please fix the following errors:</h3>
+            <ul class="list-disc list-inside text-red-700">
+              <% @quran.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Title -->
+          <div class="md:col-span-2">
+            <%= f.label :title, "Book Title *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.text_field :title, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500", placeholder: "e.g. The Holy Quran - English Translation" %>
+            <% @quran.errors[:title].each do |error| %>
+              <p class="text-red-500 text-xs mt-1"><%= error %></p>
+            <% end %>
+          </div>
+
+          <!-- Writer -->
+          <div>
+            <%= f.label :writer, "Author/Translator *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.text_field :writer, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500", placeholder: "e.g. Dr. Muhammad Muhsin Khan" %>
+            <% @quran.errors[:writer].each do |error| %>
+              <p class="text-red-500 text-xs mt-1"><%= error %></p>
+            <% end %>
+          </div>
+
+          <!-- Translation -->
+          <div>
+            <%= f.label :translation, "Language/Translation *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :translation, [
+              ["English", "english"],
+              ["Urdu", "urdu"],
+              ["French", "french"],
+              ["Spanish", "spanish"],
+              ["Arabic", "arabic"]
+            ], {}, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" %>
+            <% @quran.errors[:translation].each do |error| %>
+              <p class="text-red-500 text-xs mt-1"><%= error %></p>
+            <% end %>
+          </div>
+
+          <!-- Pages -->
+          <div>
+            <%= f.label :pages, "Number of Pages *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.number_field :pages, min: 1, max: 5000, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500", placeholder: "e.g. 604" %>
+            <% @quran.errors[:pages].each do |error| %>
+              <p class="text-red-500 text-xs mt-1"><%= error %></p>
+            <% end %>
+          </div>
+
+          <!-- Stock -->
+          <div>
+            <%= f.label :stock, "Initial Stock Quantity *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.number_field :stock, min: 0, max: 10000, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500", placeholder: "e.g. 500" %>
+            <% @quran.errors[:stock].each do |error| %>
+              <p class="text-red-500 text-xs mt-1"><%= error %></p>
+            <% end %>
+          </div>
+
+          <!-- Images -->
+          <div class="md:col-span-2">
+            <%= f.label "Product Images (Up to 5 images) *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= f.file_field :images, multiple: true, accept: "image/*", class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" %>
+            <p class="text-xs text-gray-500 mt-1">Select up to 5 images (JPG, PNG, GIF, or WebP format). Images will be displayed as a carousel on the home page.</p>
+            <% @quran.errors[:images].each do |error| %>
+              <p class="text-red-500 text-xs mt-1"><%= error %></p>
+            <% end %>
+
+            <!-- Image preview -->
+            <div id="image-preview" class="mt-3 hidden">
+              <p class="text-sm font-medium text-gray-700 mb-2">Selected Images Preview:</p>
+              <div id="preview-images" class="flex flex-wrap gap-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_area :description, rows: 4, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500", placeholder: "Detailed description of the Quran book..." %>
+        </div>
+
+        <!-- Quick Templates -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="font-semibold text-gray-800 mb-2">Quick Fill Templates:</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <button type="button" onclick="fillTemplate('english')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-2 rounded text-sm transition">
+              English Quran
+            </button>
+            <button type="button" onclick="fillTemplate('urdu')" class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-2 rounded text-sm transition">
+              Urdu Quran
+            </button>
+            <button type="button" onclick="fillTemplate('french')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-2 rounded text-sm transition">
+              French Quran
+            </button>
+            <button type="button" onclick="fillTemplate('spanish')" class="bg-orange-100 hover:bg-orange-200 text-orange-800 px-3 py-2 rounded text-sm transition">
+              Spanish Quran
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="bg-blue-50 p-4 rounded-lg" id="preview-section" style="display: none;">
+          <h4 class="font-semibold text-gray-800 mb-2">Preview:</h4>
+          <div class="text-sm text-gray-600">
+            <p><strong>Title:</strong> <span id="preview-title">Will be updated</span></p>
+            <p><strong>Author:</strong> <span id="preview-writer">Will be updated</span></p>
+            <p><strong>Pages:</strong> <span id="preview-pages">Will be updated</span></p>
+            <p><strong>Stock:</strong> <span id="preview-stock">Will be updated</span></p>
+            <p><strong>Language:</strong> <span id="preview-translation" class="capitalize">Will be updated</span></p>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-4 pt-6 border-t">
+          <%= link_to admin_qurans_path, class: "bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition" %>
+            Cancel
+          </button>
+          <%= f.submit "Add Quran",
+                      class: "bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center space-x-2",
+                      data: { disable_with: "Creating..." } %>
+        </div>
+      <% end %>
+    </div>
+  </main>
+</div>
+
+<script>
+  function fillTemplate(language) {
+    const templates = {
+      english: {
+        title: 'The Holy Quran - English Translation',
+        writer: 'Dr. Muhammad Muhsin Khan',
+        pages: 604,
+        stock: 1000,
+        description: 'Complete English translation of the Holy Quran with clear and easy to read text.'
+      },
+      urdu: {
+        title: 'Al-Quran Al-Kareem - Urdu Translation',
+        writer: 'Maulana Fateh Muhammad Jalandhari',
+        pages: 620,
+        stock: 800,
+        description: 'Beautiful Urdu translation by renowned Islamic scholar Jalandhari Sahib.'
+      },
+      french: {
+        title: 'Quran with French Translation',
+        writer: 'Muhammad Hamidullah',
+        pages: 590,
+        stock: 600,
+        description: 'Comprehensive French translation of the Holy Quran.'
+      },
+      spanish: {
+        title: 'Quran with Spanish Translation',
+        writer: 'Julio Cortés',
+        pages: 605,
+        stock: 550,
+        description: 'Spanish translation of the Holy Quran for Hispanic communities.'
+      }
+    };
+
+    const template = templates[language];
+    if (template) {
+      document.querySelector('[name="quran[title]"]').value = template.title;
+      document.querySelector('[name="quran[writer]"]').value = template.writer;
+      document.querySelector('[name="quran[pages]"]').value = template.pages;
+      document.querySelector('[name="quran[stock]"]').value = template.stock;
+      document.querySelector('[name="quran[description]"]').value = template.description;
+      document.querySelector('[name="quran[translation]"]').value = language;
+
+      updatePreview();
+    }
+  }
+
+  function updatePreview() {
+    const title = document.querySelector('[name="quran[title]"]').value || 'Will be updated';
+    const writer = document.querySelector('[name="quran[writer]"]').value || 'Will be updated';
+    const pages = document.querySelector('[name="quran[pages]"]').value || 'Will be updated';
+    const stock = document.querySelector('[name="quran[stock]"]').value || 'Will be updated';
+    const translation = document.querySelector('[name="quran[translation]"]').value;
+
+    document.getElementById('preview-title').textContent = title;
+    document.getElementById('preview-writer').textContent = writer;
+    document.getElementById('preview-pages').textContent = pages;
+    document.getElementById('preview-stock').textContent = stock;
+    document.getElementById('preview-translation').textContent = translation || 'Will be updated';
+
+    document.getElementById('preview-section').style.display = 'block';
+  }
+
+  // Add live preview updates
+  document.addEventListener('input', updatePreview);
+  document.addEventListener('change', updatePreview);
+</script>
+</body>
+</html>

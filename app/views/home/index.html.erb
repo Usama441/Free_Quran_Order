@@ -1,29 +1,208 @@
 <%= render 'extras/header' %>
 
-<section class="py-12 bg-gray-50">
-  <div class="max-w-7xl mx-auto px-4">
-    <h2 class="text-3xl font-bold text-center text-emerald-700 mb-10">
-      Available Qurans
-    </h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Quran Distribution</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Image carousel functionality
+    const carousels = {};
 
-    <div class="grid md:grid-cols-3 sm:grid-cols-2 gap-8">
-      <% @qurans.each do |quran| %>
-        <div class="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition">
+    function initializeCarousel(quranId, totalSlides) {
+      carousels[quranId] = { currentSlide: 0, totalSlides: totalSlides };
+      updateDots(quranId, 0);
+    }
+
+    function changeSlide(quranId, direction) {
+      const carousel = carousels[quranId];
+      if (!carousel) return;
+
+      const newSlide = (carousel.currentSlide + direction + carousel.totalSlides) % carousel.totalSlides;
+      goToSlide(quranId, newSlide);
+    }
+
+    function goToSlide(quranId, slideIndex) {
+      const carousel = carousels[quranId];
+      if (!carousel) return;
+
+      // Hide all slides
+      for (let i = 0; i < carousel.totalSlides; i++) {
+        const slide = document.getElementById(`slide-${quranId}-${i}`);
+        if (slide) slide.classList.remove('opacity-100');
+        if (slide) slide.classList.add('opacity-0');
+      }
+
+      // Show current slide
+      carousel.currentSlide = slideIndex;
+      const currentSlide = document.getElementById(`slide-${quranId}-${slideIndex}`);
+      if (currentSlide) currentSlide.classList.remove('opacity-0');
+      if (currentSlide) currentSlide.classList.add('opacity-100');
+
+      updateDots(quranId, slideIndex);
+    }
+
+    function updateDots(quranId, activeIndex) {
+      const carousel = carousels[quranId];
+      if (!carousel) return;
+
+      for (let i = 0; i < carousel.totalSlides; i++) {
+        const dot = document.getElementById(`dot-${quranId}-${i}`);
+        if (dot) {
+          if (i === activeIndex) {
+            dot.classList.remove('bg-opacity-70');
+            dot.classList.add('bg-opacity-100', 'bg-white');
+          } else {
+            dot.classList.remove('bg-opacity-100', 'bg-white');
+            dot.classList.add('bg-opacity-70');
+          }
+        }
+      }
+    }
+
+    // Auto-initialize carousels when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // This would be populated by Rails with the actual Quran data
+      <% if Quran.exists? %>
+        <% Quran.where('stock > 0').limit(6).each do |quran| %>
+          <% if quran.images.attached? && quran.images.length > 0 %>
+            initializeCarousel(<%= quran.id %>, <%= quran.images.length %>);
+          <% end %>
+        <% end %>
+      <% end %>
+    });
+  </script>
+</head>
+<body class="bg-green-50 text-gray-900">
+
+<!-- Header -->
+
+
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-green-600 to-green-800 text-white py-20 text-center">
+  <div class="container mx-auto px-6">
+    <h2 class="text-4xl font-extrabold mb-4">Receive a Free Copy of the Holy Quran</h2>
+    <p class="text-lg mb-8">Select your preferred translation and we’ll deliver it to your doorstep — absolutely free.</p>
+    <a href="#available-qurans" class="bg-white text-green-700 font-semibold px-6 py-3 rounded-lg shadow hover:bg-gray-100 transition">Order Now</a>
+  </div>
+</section>
+
+<!-- Available Qurans -->
+<section id="available-qurans" class="py-16">
+  <div class="container mx-auto px-6">
+    <h3 class="text-3xl font-bold text-center mb-10 text-green-800">Available Qurans</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <% if Quran.exists? %>
+        <% Quran.where('stock > 0').limit(6).each do |quran| %>
+          <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition border border-green-100">
+            <!-- Image Carousel -->
+            <div class="relative h-48 overflow-hidden">
+              <% if quran.images.attached? && quran.images.length > 0 %>
+                <div class="carousel-container" id="carousel-<%= quran.id %>">
+                  <% quran.images.each_with_index do |image, index| %>
+                    <div class="slide absolute w-full h-full transition-opacity duration-500 <%= index == 0 ? 'opacity-100' : 'opacity-0' %>" id="slide-<%= quran.id %>-<%= index %>">
+                      <%= image_tag image, class: "w-full h-48 object-cover", alt: "#{quran.title} - Image #{index + 1}" %>
+                    </div>
+                  <% end %>
+
+                  <!-- Navigation buttons if multiple images -->
+                  <% if quran.images.length > 1 %>
+                    <div class="absolute inset-0 flex items-center justify-between px-4">
+                      <button class="bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition transform hover:scale-110"
+                              onclick="changeSlide(<%= quran.id %>, -1)">
+                        <i class="fas fa-chevron-left text-gray-700 text-sm"></i>
+                      </button>
+                      <button class="bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition transform hover:scale-110"
+                              onclick="changeSlide(<%= quran.id %>, 1)">
+                        <i class="fas fa-chevron-right text-gray-700 text-sm"></i>
+                      </button>
+                    </div>
+
+                    <!-- Dot indicators -->
+                    <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                      <% quran.images.each_with_index do |_, dot_index| %>
+                        <button class="w-2 h-2 rounded-full bg-white bg-opacity-70 hover:bg-opacity-100 transition"
+                                onclick="goToSlide(<%= quran.id %>, <%= dot_index %>)"
+                                id="dot-<%= quran.id %>-<%= dot_index %>"></button>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <!-- Default image if no images uploaded -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Quran_book.jpg" alt="<%= quran.title %>" class="w-full h-48 object-cover">
+              <% end %>
+            </div>
+
+            <div class="p-6">
+              <h4 class="text-xl font-bold mb-2 text-green-700"><%= quran.title %></h4>
+              <ul class="text-gray-700 mb-4 text-sm list-disc list-inside">
+                <li>Pages: <%= quran.pages %></li>
+                <li>Translator: <%= quran.writer %></li>
+                <li>Language: <%= quran.translation.capitalize %></li>
+                <li>Stock: <%= quran.stock %></li>
+              </ul>
+              <%= link_to 'Order Now', new_order_path, class: "inline-block bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition" %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <!-- Fallback cards if no Qurans in database -->
+        <!-- Quran Card 1 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition border border-green-100">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Quran_Kufi_script.jpg/800px-Quran_Kufi_script.jpg" alt="Quran 1" class="w-full h-48 object-cover">
           <div class="p-6">
-            <h3 class="text-xl font-semibold text-emerald-700 mb-2"><%= quran.title %></h3>
-            <ul class="text-gray-600 mb-4 space-y-1">
-              <li><strong>Writer:</strong> <%= quran.writer %></li>
-              <li><strong>Translation:</strong> <%= quran.translation %></li>
-              <li><strong>Pages:</strong> <%= quran.pages %></li>
-              <li><strong>Stock:</strong> <%= quran.stock %></li>
+            <h4 class="text-xl font-bold mb-2 text-green-700">The Noble Quran (English Translation)</h4>
+            <ul class="text-gray-700 mb-4 text-sm list-disc list-inside">
+              <li>Pages: 604</li>
+              <li>Translator: Dr. Muhammad Muhsin Khan</li>
+              <li>Language: English</li>
+              <li>Stock: 500</li>
             </ul>
-            <%= link_to "Order Now", new_order_path(quran_id: quran.id),
-                        class: "block w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center py-2 rounded-lg font-semibold transition" %>
+            <%= link_to 'Order Now', new_order_path, class: "inline-block bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition" %>
+          </div>
+        </div>
+
+        <!-- Quran Card 2 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition border border-green-100">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Mushaf_Al-Madina_Al_Nabawiyya.jpg" alt="Quran 2" class="w-full h-48 object-cover">
+          <div class="p-6">
+            <h4 class="text-xl font-bold mb-2 text-green-700">Al-Quran with Urdu Translation</h4>
+            <ul class="text-gray-700 mb-4 text-sm list-disc list-inside">
+              <li>Pages: 620</li>
+              <li>Translator: Maulana Fateh Muhammad Jalandhari</li>
+              <li>Language: Urdu</li>
+              <li>Stock: 600</li>
+            </ul>
+            <%= link_to 'Order Now', new_order_path, class: "inline-block bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition" %>
+          </div>
+        </div>
+
+        <!-- Quran Card 3 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition border border-green-100">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/f/f0/Quran_karim_ayt_arabe.jpg" alt="Quran 3" class="w-full h-48 object-cover">
+          <div class="p-6">
+            <h4 class="text-xl font-bold mb-2 text-green-700">Quran with French Translation</h4>
+            <ul class="text-gray-700 mb-4 text-sm list-disc list-inside">
+              <li>Pages: 590</li>
+              <li>Translator: Muhammad Hamidullah</li>
+              <li>Language: French</li>
+              <li>Stock: 400</li>
+            </ul>
+            <%= link_to 'Order Now', new_order_path, class: "inline-block bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition" %>
           </div>
         </div>
       <% end %>
     </div>
   </div>
 </section>
+
+<!-- Footer -->
+
+</body>
+</html>
 
 <%= render 'extras/footer' %>

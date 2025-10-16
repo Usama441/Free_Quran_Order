@@ -3,6 +3,8 @@ source "https://rubygems.org"
 #gem 'devise'       # for admin authentication
 gem 'groupdate'    # for dashboard grouping
 gem 'faker'        # for fake data
+gem 'countries'    # for country and state data
+gem 'pagy'         # for pagination
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.2.2", ">= 7.2.2.2"

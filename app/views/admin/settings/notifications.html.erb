@@ -1,0 +1,220 @@
+<!-- app/views/admin/settings/notifications.html.erb -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications - Quran Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    rel="stylesheet"
+    />
+</head>
+<body class="bg-gray-50 text-gray-800">
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-green-700 text-white flex flex-col">
+    <div class="p-6 text-center border-b border-green-600">
+      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+    </div>
+    <nav class="flex-1 p-4 space-y-3">
+      <%= link_to admin_dashboard_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-chart-line"></i><span>Dashboard</span>
+      <% end %>
+      <%= link_to admin_qurans_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-book-quran"></i><span>Quran Management</span>
+      <% end %>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Analytics</p>
+        <%= link_to admin_order_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-shopping-cart"></i><span>Order Analytics</span>
+        <% end %>
+        <%= link_to admin_customer_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-users"></i><span>Customer Insights</span>
+        <% end %>
+        <%= link_to admin_geographic_analytics_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-globe"></i><span>Geographic Data</span>
+        <% end %>
+        <%= link_to admin_reports_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-chart-bar"></i><span>Reports</span>
+        <% end %>
+      </div>
+      <div class="pt-4">
+        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Settings</p>
+        <%= link_to admin_configuration_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+          <i class="fas fa-cog"></i><span>Configuration</span>
+        <% end %>
+        <%= link_to admin_notifications_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition bg-gray-600" do %>
+          <i class="fas fa-envelope"></i><span>Notifications</span>
+        <% end %>
+      </div>
+      <!-- Back to Site -->
+      <%= link_to root_path, class: "flex items-center space-x-2 p-3 rounded-lg bg-green-600 hover:bg-green-500 transition mt-8" do %>
+        <i class="fas fa-home"></i><span>Back to Site</span>
+      <% end %>
+    </nav>
+    <footer class="p-4 text-center border-t border-green-600">
+      <p class="text-sm">&copy; 2025 Free Quran Project</p>
+    </footer>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <h2 class="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-2">
+      <i class="fas fa-envelope"></i><span>Notification Settings</span>
+    </h2>
+
+    <!-- Flash Messages -->
+    <% if notice %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <%= form_with url: admin_notifications_path, method: :patch, class: "space-y-8" do |f| %>
+      <!-- Order Notifications -->
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-green-700 mb-4 flex items-center space-x-2">
+          <i class="fas fa-shopping-cart"></i><span>Order Notifications</span>
+        </h3>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <h4 class="font-medium text-gray-800">New Order Alerts</h4>
+              <p class="text-sm text-gray-600">Receive notifications when new orders are placed</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="notification[email_on_new_order]" <%= @notification_settings['email_on_new_order'] ? 'checked' : '' %> class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <h4 class="font-medium text-gray-800">Daily Order Summary</h4>
+              <p class="text-sm text-gray-600">Get daily summary of orders at 9 AM</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="notification[email_daily_summary]" <%= @notification_settings['email_daily_summary'] ? 'checked' : '' %> class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <h4 class="font-medium text-gray-800">Weekly Reports</h4>
+              <p class="text-sm text-gray-600">Weekly performance reports every Monday</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="notification[email_weekly_report]" <%= @notification_settings['email_weekly_report'] ? 'checked' : '' %> class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Notifications -->
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-blue-700 mb-4 flex items-center space-x-2">
+          <i class="fas fa-server"></i><span>System Notifications</span>
+        </h3>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <h4 class="font-medium text-gray-800">Low Stock Alerts</h4>
+              <p class="text-sm text-gray-600">Get notified when Quran stock falls below threshold</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="notification[sms_alerts_low_stock]" <%= @notification_settings['sms_alerts_low_stock'] ? 'checked' : '' %> class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <h4 class="font-medium text-gray-800">Slack Integration</h4>
+              <p class="text-sm text-gray-600">Send notifications to Slack channel</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="notification[slack_notifications]" <%= @notification_settings['slack_notifications'] ? 'checked' : '' %> class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integration Settings -->
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-purple-700 mb-4 flex items-center space-x-2">
+          <i class="fas fa-plug"></i><span>Integration Settings</span>
+        </h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Webhook URL</label>
+            <input type="url" name="notification[webhook_url]" value="<%= @notification_settings['webhook_url'] %>" placeholder="https://hooks.slack.com/..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <p class="text-xs text-gray-500 mt-1">URL for external webhook notifications</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Notification Email Addresses</label>
+            <input type="text" name="notification[notification_emails]" value="<%= @notification_settings['notification_emails'] %>" placeholder="admin@example.com, manager@example.com" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <p class="text-xs text-gray-500 mt-1">Comma-separated list of email addresses</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center space-x-2">
+          <i class="fas fa-history"></i><span>Recent Notification Activity</span>
+        </h3>
+        <div class="space-y-3 max-h-64 overflow-y-auto">
+          <!-- Mock recent activity - would come from database in real app -->
+          <div class="flex justify-between items-center p-3 bg-green-50 border-l-4 border-green-500">
+            <div class="flex items-center space-x-3">
+              <i class="fas fa-envelope text-green-600"></i>
+              <div>
+                <div class="font-medium text-sm">New Order Notification</div>
+                <div class="text-xs text-gray-600">Order #1242 from Pakistan</div>
+              </div>
+            </div>
+            <div class="text-xs text-gray-500">2 min ago</div>
+          </div>
+
+          <div class="flex justify-between items-center p-3 bg-blue-50 border-l-4 border-blue-500">
+            <div class="flex items-center space-x-3">
+              <i class="fas fa-chart-line text-blue-600"></i>
+              <div>
+                <div class="font-medium text-sm">Daily Summary Email</div>
+                <div class="text-xs text-gray-600">45 orders processed today</div>
+              </div>
+            </div>
+            <div class="text-xs text-gray-500">1 hour ago</div>
+          </div>
+
+          <div class="flex justify-between items-center p-3 bg-orange-50 border-l-4 border-orange-500">
+            <div class="flex items-center space-x-3">
+              <i class="fas fa-exclamation-triangle text-orange-600"></i>
+              <div>
+                <div class="font-medium text-sm">Low Stock Alert</div>
+                <div class="text-xs text-gray-600">Urdu Quran stock below 50 units</div>
+              </div>
+            </div>
+            <div class="text-xs text-gray-500">3 hours ago</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="flex justify-end">
+        <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition flex items-center space-x-2">
+          <i class="fas fa-save"></i>
+          <span>Save Notification Settings</span>
+        </button>
+      </div>
+    <% end %>
+  </main>
+</div>
+</body>
+</html>
