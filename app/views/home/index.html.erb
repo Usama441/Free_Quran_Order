@@ -1,84 +1,5 @@
-<%= render 'extras/header' %>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Quran Distribution</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Image carousel functionality
-    const carousels = {};
-
-    function initializeCarousel(quranId, totalSlides) {
-      carousels[quranId] = { currentSlide: 0, totalSlides: totalSlides };
-      updateDots(quranId, 0);
-    }
-
-    function changeSlide(quranId, direction) {
-      const carousel = carousels[quranId];
-      if (!carousel) return;
-
-      const newSlide = (carousel.currentSlide + direction + carousel.totalSlides) % carousel.totalSlides;
-      goToSlide(quranId, newSlide);
-    }
-
-    function goToSlide(quranId, slideIndex) {
-      const carousel = carousels[quranId];
-      if (!carousel) return;
-
-      // Hide all slides
-      for (let i = 0; i < carousel.totalSlides; i++) {
-        const slide = document.getElementById(`slide-${quranId}-${i}`);
-        if (slide) slide.classList.remove('opacity-100');
-        if (slide) slide.classList.add('opacity-0');
-      }
-
-      // Show current slide
-      carousel.currentSlide = slideIndex;
-      const currentSlide = document.getElementById(`slide-${quranId}-${slideIndex}`);
-      if (currentSlide) currentSlide.classList.remove('opacity-0');
-      if (currentSlide) currentSlide.classList.add('opacity-100');
-
-      updateDots(quranId, slideIndex);
-    }
-
-    function updateDots(quranId, activeIndex) {
-      const carousel = carousels[quranId];
-      if (!carousel) return;
-
-      for (let i = 0; i < carousel.totalSlides; i++) {
-        const dot = document.getElementById(`dot-${quranId}-${i}`);
-        if (dot) {
-          if (i === activeIndex) {
-            dot.classList.remove('bg-opacity-70');
-            dot.classList.add('bg-opacity-100', 'bg-white');
-          } else {
-            dot.classList.remove('bg-opacity-100', 'bg-white');
-            dot.classList.add('bg-opacity-70');
-          }
-        }
-      }
-    }
-
-    // Auto-initialize carousels when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      // This would be populated by Rails with the actual Quran data
-      <% if Quran.exists? %>
-        <% Quran.where('stock > 0').limit(6).each do |quran| %>
-          <% if quran.images.attached? && quran.images.length > 0 %>
-            initializeCarousel(<%= quran.id %>, <%= quran.images.length %>);
-          <% end %>
-        <% end %>
-      <% end %>
-    });
-  </script>
-</head>
-<body class="bg-green-50 text-gray-900">
-
-<!-- Header -->
-
+<% content_for :title, "Free Quran Distribution - Receive Your Free Copy" %>
 
 <!-- Hero Section -->
 <section class="bg-gradient-to-r from-green-600 to-green-800 text-white py-20 text-center">
@@ -86,7 +7,7 @@
     <h2 class="text-4xl font-extrabold mb-4">Receive a Free Copy of the Holy Quran</h2>
     <p class="text-lg mb-8">Select your preferred translation and we’ll deliver it to your doorstep — absolutely free.</p>
     <a href="#available-qurans" class="bg-white text-green-700 font-semibold px-6 py-3 rounded-lg shadow hover:bg-gray-100 transition">Order Now</a>
-  </div>
+  </div>  
 </section>
 
 <!-- Available Qurans -->
@@ -200,9 +121,72 @@
   </div>
 </section>
 
-<!-- Footer -->
+<% content_for :page_scripts do %>
+<script>
+    // Image carousel functionality
+    const carousels = {};
 
-</body>
-</html>
+    function initializeCarousel(quranId, totalSlides) {
+      carousels[quranId] = { currentSlide: 0, totalSlides: totalSlides };
+      updateDots(quranId, 0);
+    }
 
-<%= render 'extras/footer' %>
+    function changeSlide(quranId, direction) {
+      const carousel = carousels[quranId];
+      if (!carousel) return;
+
+      const newSlide = (carousel.currentSlide + direction + carousel.totalSlides) % carousel.totalSlides;
+      goToSlide(quranId, newSlide);
+    }
+
+    function goToSlide(quranId, slideIndex) {
+      const carousel = carousels[quranId];
+      if (!carousel) return;
+
+      // Hide all slides
+      for (let i = 0; i < carousel.totalSlides; i++) {
+        const slide = document.getElementById(`slide-${quranId}-${i}`);
+        if (slide) slide.classList.remove('opacity-100');
+        if (slide) slide.classList.add('opacity-0');
+      }
+
+      // Show current slide
+      carousel.currentSlide = slideIndex;
+      const currentSlide = document.getElementById(`slide-${quranId}-${slideIndex}`);
+      if (currentSlide) currentSlide.classList.remove('opacity-0');
+      if (currentSlide) currentSlide.classList.add('opacity-100');
+
+      updateDots(quranId, slideIndex);
+    }
+
+    function updateDots(quranId, activeIndex) {
+      const carousel = carousels[quranId];
+      if (!carousel) return;
+
+      for (let i = 0; i < carousel.totalSlides; i++) {
+        const dot = document.getElementById(`dot-${quranId}-${i}`);
+        if (dot) {
+          if (i === activeIndex) {
+            dot.classList.remove('bg-opacity-70');
+            dot.classList.add('bg-opacity-100', 'bg-white');
+          } else {
+            dot.classList.remove('bg-opacity-100', 'bg-white');
+            dot.classList.add('bg-opacity-70');
+          }
+        }
+      }
+    }
+
+    // Auto-initialize carousels when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // This would be populated by Rails with the actual Quran data
+      <% if Quran.exists? %>
+        <% Quran.where('stock > 0').limit(6).each do |quran| %>
+          <% if quran.images.attached? && quran.images.length > 0 %>
+            initializeCarousel(<%= quran.id %>, <%= quran.images.length %>);
+          <% end %>
+        <% end %>
+      <% end %>
+    });
+  </script>
+<% end %>

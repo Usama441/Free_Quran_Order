@@ -1,16 +1,4 @@
-<!-- app/views/orders/new.html.erb -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order a Free Quran</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <%= csrf_meta_tags %>
-</head>
-<body class="bg-gray-50 text-gray-800">
-<!-- Navbar -->
-<%= render 'extras/header' %>
+<% content_for :title, "Order a Free Quran" %>
 
 <!-- Flash Messages Container -->
 <div id="flash-messages" class="max-w-6xl mx-auto mt-4 px-6 hidden">
@@ -164,8 +152,7 @@
   </div>
 </section>
 
-<!-- Footer -->
-<%= render 'extras/footer' %>
+<% content_for :page_scripts do %>
 
 <!-- Country and State Data from Rails -->
 <script>
@@ -467,5 +454,5 @@
         updatePhoneFormat(); // Set initial phone format
     });
 </script>
-</body>
-</html>
+
+<%end%>
