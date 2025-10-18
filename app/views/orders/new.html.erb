@@ -14,6 +14,9 @@
     <form id="order-form" class="space-y-6">
       <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
 
+      <!-- 🔹 Quran ID must be inside the form -->
+      <%= hidden_field_tag 'order[quran_id]', @quran&.id %>
+
       <!-- Dynamic Error Container -->
       <div id="form-errors" class="hidden bg-red-50 border border-red-200 rounded-lg p-4">
         <h3 class="text-red-800 font-semibold mb-2">Please fix the following errors:</h3>
@@ -55,12 +58,11 @@
         <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
     
-      <!-- State / Province (Country-based) -->
+      <!-- State / Province -->
       <div class="form-group">
         <label for="state" class="block font-semibold mb-2">State / Province *</label>
         <select id="state_select" name="order[state]" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required>
           <option value="">Select State/Province</option>
-          <!-- States will be populated by JavaScript based on country -->
         </select>
         <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
@@ -72,7 +74,6 @@
                class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required>
         <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
-
 
       <!-- Postal Code -->
       <div class="form-group">
@@ -115,42 +116,54 @@
 
   <!-- Right: Product Details -->
   <div class="bg-green-50 shadow-md rounded-2xl p-6 h-fit border border-green-100">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Quran_book.jpg"
-         alt="Quran English Translation" class="rounded-xl mb-4 w-full h-40 object-cover">
-
-    <h3 class="text-xl font-semibold text-green-800 mb-3">Quran with Translation</h3>
+    <% if @quran && @quran.images.attached? %>
+      <%= image_tag @quran.images.first, alt: @quran.title, class: "rounded-xl mb-4 w-full h-40 object-cover" %>
+    <% else %>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Quran_book.jpg"
+           alt="<%= @order.title || 'Quran' %>" class="rounded-xl mb-4 w-full h-40 object-cover">
+    <% end %>
 
     <ul class="list-disc list-inside text-gray-700 text-sm mb-6 space-y-1" id="translation_details">
-      <li><span class="font-semibold text-gray-800">Pages:</span> 604</li>
-      <li><span class="font-semibold text-gray-800">Translator:</span> Abdullah Yusuf Ali</li>
-      <li><span class="font-semibold text-gray-800">Binding:</span> Softcover Edition</li>
-      <li><span class="font-semibold text-gray-800">Publisher:</span> Islamic Publications Lahore</li>
+      <% if @quran %>
+        <li><span class="font-semibold text-gray-800">Pages:</span> <%= @quran.pages %></li>
+        <li><span class="font-semibold text-gray-800">Translator:</span> <%= @quran.writer %></li>
+        <li><span class="font-semibold text-gray-800">Language:</span> <%= @quran.translation.capitalize %></li>
+        <li><span class="font-semibold text-gray-800">Stock:</span> <%= @quran.stock %></li>
+        <li><span class="font-semibold text-gray-800">Binding:</span> Softcover Edition</li>
+      <% else %>
+        <li><span class="font-semibold text-gray-800">Pages:</span> 604</li>
+        <li><span class="font-semibold text-gray-800">Translator:</span> Abdullah Yusuf Ali</li>
+        <li><span class="font-semibold text-gray-800">Language:</span> English</li>
+        <li><span class="font-semibold text-gray-800">Binding:</span> Softcover Edition</li>
+        <li><span class="font-semibold text-gray-800">Publisher:</span> Islamic Publications Lahore</li>
+      <% end %>
     </ul>
 
-    <!-- Quantity + Translation Side by Side -->
-    <div class="flex flex-col space-y-4">
-      <div class="flex items-center justify-between">
-        <span class="font-semibold text-gray-700">Quantity:</span>
-        <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-          <button type="button" onclick="decreaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">−</button>
-          <input id="quantity_display" type="number" value="1" min="1"
-                 class="w-14 text-center border-x border-gray-300 focus:outline-none" readonly>
-          <button type="button" onclick="increaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">+</button>
-        </div>
-      </div>
-
-      <div class="flex flex-col">
-        <label class="font-semibold text-gray-700 mb-2">Select Translation:</label>
-        <select id="translation_select" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none" onchange="updateTranslationInfo()">
-          <option value="english" selected>English</option>
-          <option value="urdu">Urdu</option>
-          <option value="french">French</option>
-          <option value="spanish">Spanish</option>
-        </select>
+    <!-- Quantity -->
+    <div class="flex items-center justify-between mb-4">
+      <span class="font-semibold text-gray-700">Quantity:</span>
+      <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+        <button type="button" onclick="decreaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">−</button>
+        <input id="quantity_display" type="number" value="1" min="1" max="<%= @quran&.stock || 10 %>"
+               class="w-14 text-center border-x border-gray-300 focus:outline-none" readonly>
+        <button type="button" onclick="increaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">+</button>
       </div>
     </div>
+
+    <% unless @quran %>
+      <div class="flex flex-col">
+        <label class="font-semibold text-gray-700 mb-2">Select Translation:</label>
+        <select id="translation_select" name="order[translation]" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none" onchange="updateTranslationInfo()">
+          <option value="english" <%= 'selected' if @order.translation == 'english' %>>English</option>
+          <option value="urdu" <%= 'selected' if @order.translation == 'urdu' %>>Urdu</option>
+          <option value="french" <%= 'selected' if @order.translation == 'french' %>>French</option>
+          <option value="spanish" <%= 'selected' if @order.translation == 'spanish' %>>Spanish</option>
+        </select>
+      </div>
+    <% end %>
   </div>
 </section>
+
 
 <% content_for :page_scripts do %>
 
@@ -263,9 +276,14 @@
     function increaseQty() {
         const qtyDisplay = document.getElementById('quantity_display');
         const qtyField = document.getElementById('quantity_field');
+
+        const maxStock = parseInt(qtyDisplay.max) || 10;
         const newValue = parseInt(qtyDisplay.value) + 1;
-        qtyDisplay.value = newValue;
-        qtyField.value = newValue;
+
+        if (newValue <= maxStock) {
+          qtyDisplay.value = newValue;
+          qtyField.value = newValue;
+        }
     }
 
     function decreaseQty() {
@@ -280,11 +298,14 @@
 
     function updateTranslationInfo() {
         const translationSelect = document.getElementById('translation_select');
-        const translationField = document.getElementById('translation_field');
+        const translationField = document.querySelector('input[name="order[translation]"]');
         const detailsList = document.getElementById('translation_details');
 
-        const selectedTranslation = translationSelect.value;
-        translationField.value = selectedTranslation;
+        // const selectedTranslation = translationSelect.value;
+        // translationField.value = selectedTranslation;
+        if (translationSelect && translationField) {
+    translationField.value = translationSelect.value;
+  }
 
         const data = {
             english: {
@@ -413,7 +434,7 @@
 
         // Collect form data
         const formData = new FormData(this);
-
+        
         // Send AJAX request
         fetch('/orders.json', {
             method: 'POST',

@@ -137,9 +137,7 @@
           </h3>
           <div class="bg-gray-50 rounded-lg p-4">
             <div class="flex items-center space-x-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Quran_book.jpg"
-                   alt="<%= @order.quran&.title || 'Quran' %>"
-                   class="w-20 h-20 object-cover rounded-lg">
+              <%= image_tag @order.quran&.images.first, alt: @order.quran&.title, class: "w-16 h-16 object-cover rounded-lg" %>
               <div class="flex-1">
                 <h4 class="font-semibold text-gray-800"><%= @order.quran&.title || "Unknown Quran" %></h4>
                 <p class="text-gray-600 text-sm">By <%= @order.quran&.writer || "Unknown" %></p>
@@ -248,30 +246,32 @@
 <!-- JavaScript for AJAX status updates -->
 <script>
   function updateOrderStatus(orderId, newStatus) {
-    fetch(`/admin/orders/${orderId}/status`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('[name="authenticity_token"]').value
-      },
-      body: JSON.stringify({ status: newStatus })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Show success message
-        showFlashMessage('success', 'Order status updated successfully!');
-        // Reload page to update status
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        showFlashMessage('error', data.error || 'Failed to update status');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      showFlashMessage('error', 'Network error. Please try again.');
-    });
-  }
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+  fetch(`/admin/orders/${orderId}/status`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-CSRF-Token': csrfToken
+    },
+    body: JSON.stringify({ status: newStatus })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showFlashMessage('success', 'Order status updated successfully!');
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      showFlashMessage('error', data.error || 'Failed to update status');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showFlashMessage('error', 'Network error. Please try again.');
+  });
+}
+
 
   function showFlashMessage(type, message) {
     const existingAlert = document.querySelector('.flash-message');

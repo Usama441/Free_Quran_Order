@@ -24,12 +24,15 @@ class Admin::OrdersController < ApplicationController
 
     respond_to do |format|
       format.html # For full page loads
-      format.js { render json: { html: render_to_string(partial: 'orders_table', formats: [:html]), pending_count: @pending_count, processing_count: @processing_count, shipped_count: @shipped_count, delivered_count: @delivered_count } }
+      format.json do 
+        render json: { html: render_to_string(partial: 'orders_table', formats: [:html]),   pending_count: @pending_count,   processing_count: @processing_count,   shipped_count: @shipped_count,   delivered_count: @delivered_count }    
+      end
     end
   end
 
   def show
     @order = Order.includes(:quran).find(params[:id])
+    puts @order
   end
 
   def update_status
@@ -37,12 +40,10 @@ class Admin::OrdersController < ApplicationController
     status_param = params[:status]
     if @order.update(status: status_param)
       respond_to do |format|
-        format.html { redirect_to admin_orders_path, notice: "Order status updated successfully." }
         format.json { render json: { success: true, message: "Status updated.", new_status: @order.status } }
       end
     else
       respond_to do |format|
-        format.html { redirect_to admin_orders_path, alert: "Failed to update order status." }
         format.json { render json: { success: false, error: @order.errors.full_messages.join(', ') }, status: :unprocessable_entity }
       end
     end

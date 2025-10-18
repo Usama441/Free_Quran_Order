@@ -24,18 +24,21 @@ class Admin::AnalyticsController < ApplicationController
   end
 
   def customers
-    # Customer insights data
-    @unique_customers = Order.distinct.pluck(:email).count
-    @repeat_customers = Order.group(:email).having('COUNT(*) > 1').count.keys.count
+    @unique_customers = Order.distinct.count(:email)
+    @repeat_customers_data = Order.group(:email)
+                              .having('COUNT(*) > 1')
+                              .order(Arel.sql('COUNT(*) DESC'))
+                              .count
+    @repeat_customers = @repeat_customers_data.keys.count
     @first_time_customers = @unique_customers - @repeat_customers
 
     # Customer demographics
     @top_countries = Order.group(:country_code).count.sort_by { |k, v| -v }.first(10)
     @customer_emails = Order.pluck(:email).uniq
-
+    
     # Order patterns
     @orders_per_customer = Order.group(:email).count.values.sort.reverse
-    @avg_orders_per_customer = (@total_orders.to_f / @unique_customers).round(2)
+    @avg_orders_per_customer = (Order.count.to_f / @unique_customers).round(2)
   end
 
   def geography

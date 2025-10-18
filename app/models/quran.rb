@@ -1,4 +1,5 @@
 class Quran < ApplicationRecord
+  has_many :orders
   # Validations
   validates :title, presence: true, uniqueness: true
   validates :writer, presence: true

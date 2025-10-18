@@ -12,7 +12,7 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+<%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
 </head>
 
 <body class="bg-gray-50 text-gray-800">
@@ -28,6 +28,9 @@
       <% end %>
       <%= link_to admin_qurans_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
         <i class="fas fa-book-quran"></i><span>Quran Management</span>
+      <% end %>
+      <%= link_to admin_orders_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
+        <i class="fas fa-shopping-cart"></i><span>Order Management</span>
       <% end %>
       <div class="pt-4">
         <p class="text-xs text-green-300 uppercase font-semibold mb-2">Analytics</p>

@@ -2,7 +2,7 @@
 <% content_for :title, "Free Quran Distribution - Receive Your Free Copy" %>
 
 <!-- Hero Section -->
-<section class="bg-gradient-to-r from-green-600 to-green-800 text-white py-20 text-center">
+<section class="bg-gradient-to-r from-green-600 to-green-800 py-20 text-center">
   <div class="container mx-auto px-6">
     <h2 class="text-4xl font-extrabold mb-4">Receive a Free Copy of the Holy Quran</h2>
     <p class="text-lg mb-8">Select your preferred translation and we’ll deliver it to your doorstep — absolutely free.</p>
@@ -66,8 +66,8 @@
                 <li>Language: <%= quran.translation.capitalize %></li>
                 <li>Stock: <%= quran.stock %></li>
               </ul>
-              <%= link_to 'Order Now', new_order_path, class: "inline-block bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition" %>
-            </div>
+              <%= link_to 'Order Now', new_order_path(quran_id: quran.id), class: "inline-block bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition" %>
+             </div>
           </div>
         <% end %>
       <% else %>

@@ -2,7 +2,7 @@ class Order < ApplicationRecord
   enum status: { pending: 0, processing: 1, shipped: 2, delivered: 3, cancelled: 4 }
 
   # Association with Quran (orders belong to qurans)
-  belongs_to :quran, optional: true
+  belongs_to :quran
 
   validates :full_name, presence: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -13,6 +13,7 @@ class Order < ApplicationRecord
   validates :postal_code, presence: true
   validates :quantity, presence: true, numericality: { only_integer: true, greater_than: 0 }
   validates :country_code, presence: true
+  validates :translation, presence: true
 
   # Default values
   attribute :quantity, :integer, default: 1

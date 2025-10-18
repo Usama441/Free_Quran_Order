@@ -1,8 +1,14 @@
 class OrdersController < ApplicationController
   def new
-    @order = Order.new
     @quran = Quran.find_by(id: params[:quran_id])
-
+    @order = Order.new(quran: @quran)
+     # If a specific Quran is selected, use its details
+     if @quran
+      @order.translation = @quran.translation
+    else
+      # Default values if no specific Quran selected
+      @order.translation = 'english'
+    end
     # Initialize countries data
     @countries_data = load_countries_data
     @phone_formats = load_phone_formats
@@ -11,7 +17,6 @@ class OrdersController < ApplicationController
 
   def create
     @order = Order.new(order_params)
-    @order.translation ||= 'english' # Default translation
     @order.quantity ||= 1 # Default quantity
 
     respond_to do |format|
@@ -34,7 +39,7 @@ class OrdersController < ApplicationController
   private
 
   def order_params
-    params.require(:order).permit(:full_name, :email, :phone, :country_code, :city, :state, :postal_code, :address, :quantity, :note)
+    params.require(:order).permit(:full_name, :email, :phone, :country_code, :city, :state, :postal_code, :address, :quantity, :note, :quran_id, :translation)
   end
 
   def load_countries_data

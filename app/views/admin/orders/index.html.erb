@@ -95,6 +95,7 @@
 <!-- JavaScript for AJAX status updates -->
 <script>
   function filterOrders() {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     const status = document.getElementById('status-filter').value;
     const startDate = document.getElementById('start-date-filter').value;
     const endDate = document.getElementById('end-date-filter').value;
@@ -108,7 +109,8 @@
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'X-CSRF-Token': document.querySelector('[name="authenticity_token"]').value
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
       }
     })
     .then(response => response.json())
@@ -139,42 +141,38 @@
     window.location.href = '/admin/orders';
   }
 
+
   function updateOrderStatus(orderId, newStatus) {
-    // Before sending, replace the dropdown with loading text
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+  // Before sending, replace the dropdown with loading text
     const dropdown = event.target;
     const originalText = dropdown.options[dropdown.selectedIndex].text;
     dropdown.disabled = true;
     dropdown.innerHTML = '<option>Updating...</option>';
 
-    fetch(`/admin/orders/${orderId}/status`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('[name="authenticity_token"]').value
-      },
-      body: JSON.stringify({ status: newStatus })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Show success message and update the UI
-        showFlashMessage('success', `${originalText} successfully!`);
-
-        // Reload the entire page to update all counts and table
-        setTimeout(() => window.location.reload(), 1000);
-      } else {
-        // Restore dropdown and show error
-        dropdown.disabled = false;
-        showFlashMessage('error', data.error || 'Failed to update status');
-      }
-    })
-    .catch(error => {
-      // Restore dropdown and show error
-      dropdown.disabled = false;
-      console.error('Error:', error);
-      showFlashMessage('error', 'Network error. Please try again.');
-    });
-  }
+  fetch(`/admin/orders/${orderId}/status`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-CSRF-Token': csrfToken
+    },
+    body: JSON.stringify({ status: newStatus })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showFlashMessage('success', 'Order status updated successfully!');
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      showFlashMessage('error', data.error || 'Failed to update status');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showFlashMessage('error', 'Network error. Please try again.');
+  });
+}
 
   function showFlashMessage(type, message) {
     const existingAlert = document.querySelector('.flash-message');
