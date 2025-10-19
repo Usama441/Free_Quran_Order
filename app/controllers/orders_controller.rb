@@ -79,10 +79,11 @@ class OrdersController < ApplicationController
           discord_enabled: notification_settings['enable_discord_notifications'],
           discord_url_present: notification_settings['discord_webhook_url'].present?
         })
-  
+        if notification_settings['email_on_new_order']
         # Send notification to Discord
         webhook_result = WebhookNotificationService.send_new_order_notification(@order)
-        
+        end
+
         # Debug: Log webhook result
         log_debug_action('webhook_sent_result', {
           order_id: @order.id,

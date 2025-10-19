@@ -125,48 +125,95 @@
     </div>
   </div>
 
-      <!-- Current System Status -->
-      <div class="bg-white shadow-lg rounded-xl p-6">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center space-x-2">
-          <i class="fas fa-server"></i><span>System Status</span>
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="flex items-center space-x-3 p-3 bg-green-50 border-l-4 border-green-500">
-            <i class="fas fa-check-circle text-green-600"></i>
-            <div>
-              <div class="font-medium text-sm">Database</div>
-              <div class="text-xs text-gray-600">Connected</div>
-            </div>
-          </div>
-
-          <div class="flex items-center space-x-3 p-3 bg-green-50 border-l-4 border-green-500">
-            <i class="fas fa-check-circle text-green-600"></i>
-            <div>
-              <div class="font-medium text-sm">Background Jobs</div>
-              <div class="text-xs text-gray-600">Active</div>
-            </div>
-          </div>
-
-          <div class="flex items-center space-x-3 p-3 bg-green-50 border-l-4 border-green-500">
-            <i class="fas fa-check-circle text-green-600"></i>
-            <div>
-              <div class="font-medium text-sm">File Storage</div>
-              <div class="text-xs text-gray-600">OK</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-sm font-medium">Last System Check:</span>
-            <span class="text-sm text-gray-600"><%= Time.current.strftime('%Y-%m-%d %H:%M:%S') %></span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-sm font-medium">Uptime:</span>
-            <span class="text-sm text-gray-600"><%= distance_of_time_in_words(Time.current.beginning_of_day, Time.current) %></span>
-          </div>
-        </div>
+    <!-- Current System Status -->
+<div class="bg-white shadow-lg rounded-xl p-6">
+  <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center space-x-2">
+    <i class="fas fa-server"></i><span>System Status</span>
+    <span class="text-sm px-2 py-1 rounded-full 
+      <%= @system_status[:system_health] == 'excellent' ? 'bg-green-100 text-green-800' : '' %>
+      <%= @system_status[:system_health] == 'good' ? 'bg-blue-100 text-blue-800' : '' %>
+      <%= @system_status[:system_health] == 'fair' ? 'bg-yellow-100 text-yellow-800' : '' %>
+      <%= @system_status[:system_health] == 'poor' ? 'bg-red-100 text-red-800' : '' %>">
+      <%= @system_status[:system_health].titleize %>
+    </span>
+  </h3>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Database Status -->
+    <div class="flex items-center space-x-3 p-3 
+      <%= @system_status[:database][:healthy] ? 'bg-green-50 border-l-4 border-green-500' : 'bg-red-50 border-l-4 border-red-500' %>">
+      <i class="fas <%= @system_status[:database][:healthy] ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600' %>"></i>
+      <div>
+        <div class="font-medium text-sm">Database</div>
+        <div class="text-xs text-gray-600"><%= @system_status[:database][:message] %></div>
       </div>
+    </div>
+
+    <!-- Background Jobs Status -->
+    <div class="flex items-center space-x-3 p-3 
+      <%= @system_status[:background_jobs][:healthy] ? 'bg-green-50 border-l-4 border-green-500' : 'bg-red-50 border-l-4 border-red-500' %>">
+      <i class="fas <%= @system_status[:background_jobs][:healthy] ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600' %>"></i>
+      <div>
+        <div class="font-medium text-sm">Background Jobs</div>
+        <div class="text-xs text-gray-600"><%= @system_status[:background_jobs][:message] %></div>
+        <% if @system_status[:background_jobs][:details] %>
+          <div class="text-xs text-gray-500 mt-1">
+            Processed: <%= number_with_delimiter(@system_status[:background_jobs][:details][:processed]) %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- File Storage Status -->
+    <div class="flex items-center space-x-3 p-3 
+      <%= @system_status[:file_storage][:healthy] ? 'bg-green-50 border-l-4 border-green-500' : 'bg-red-50 border-l-4 border-red-500' %>">
+      <i class="fas <%= @system_status[:file_storage][:healthy] ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600' %>"></i>
+      <div>
+        <div class="font-medium text-sm">File Storage</div>
+        <div class="text-xs text-gray-600"><%= @system_status[:file_storage][:message] %></div>
+      </div>
+    </div>
+
+    <!-- Redis Status -->
+    <div class="flex items-center space-x-3 p-3 
+      <%= @system_status[:redis][:healthy] ? 'bg-green-50 border-l-4 border-green-500' : 'bg-red-50 border-l-4 border-red-500' %>">
+      <i class="fas <%= @system_status[:redis][:healthy] ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600' %>"></i>
+      <div>
+        <div class="font-medium text-sm">Redis</div>
+        <div class="text-xs text-gray-600"><%= @system_status[:redis][:message] %></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-sm font-medium">Last System Check:</span>
+      <span class="text-sm text-gray-600"><%= @system_status[:last_check].strftime('%Y-%m-%d %H:%M:%S') %></span>
+    </div>
+    <div class="flex justify-between items-center">
+      <span class="text-sm font-medium">Uptime:</span>
+      <span class="text-sm text-gray-600"><%= @system_status[:uptime] %></span>
+    </div>
+    <div class="flex justify-between items-center mt-2">
+      <span class="text-sm font-medium">Overall Health:</span>
+      <span class="text-sm font-medium 
+        <%= @system_status[:system_health] == 'excellent' ? 'text-green-600' : '' %>
+        <%= @system_status[:system_health] == 'good' ? 'text-blue-600' : '' %>
+        <%= @system_status[:system_health] == 'fair' ? 'text-yellow-600' : '' %>
+        <%= @system_status[:system_health] == 'poor' ? 'text-red-600' : '' %>">
+        <%= @system_status[:system_health].titleize %>
+      </span>
+    </div>
+  </div>
+
+  <!-- Refresh Button -->
+  <div class="mt-4 flex justify-end">
+    <%= button_to admin_configuration_path, method: :get, class: "bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm flex items-center space-x-2" do %>
+      <i class="fas fa-sync-alt"></i>
+      <span>Refresh Status</span>
+    <% end %>
+  </div>
+</div>
 
       <!-- Save and Advanced Actions -->
       <div class="flex justify-between items-center">

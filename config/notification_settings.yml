@@ -1,7 +1,7 @@
 ---
 email_on_new_order: true
-email_daily_summary: true
-email_weekly_report: true
+email_daily_summary: false
+email_weekly_report: false
 sms_alerts_low_stock: true
 slack_notifications: false
 webhook_url: https://discord.com/api/webhooks/1429519144675704905/vcbwrmh86w3nN2w3GrQV2sUcjC5lBk41TDGajZKrlShQBEmESYLcXKu274oZhtvVysnJ
