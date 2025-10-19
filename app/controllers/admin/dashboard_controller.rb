@@ -5,7 +5,7 @@ class Admin::DashboardController < ApplicationController
   def index
     @total_orders       = Order.count
     @countries_served   = Order.distinct.pluck(:country_code).count
-    @qurans_distributed = Order.sum(:quantity)
+    @qurans_distributed = Order.where(status: 'delivered').sum(:quantity)
     @stock_remaining    = Quran.sum(:stock)
 
     # Period filtering

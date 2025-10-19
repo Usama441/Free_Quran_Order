@@ -9,7 +9,10 @@ class ApplicationController < ActionController::Base
       super
     end
   end
-
+  
+  include SettingsHelper
+  # helper_method :site_name, :app_settings # Make available in views
+  helper_method :site_name, :debug_mode?, :maintenance_mode?, :today_orders_count, :max_daily_orders
   private
 
   def set_layout

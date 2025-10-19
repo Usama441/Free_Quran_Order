@@ -1,0 +1,8 @@
+--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+email_on_new_order: true
+email_daily_summary: true
+email_weekly_report: true
+sms_alerts_low_stock: true
+slack_notifications: true
+webhook_url: https://hooks.slack.com
+notification_emails: admin@example.com

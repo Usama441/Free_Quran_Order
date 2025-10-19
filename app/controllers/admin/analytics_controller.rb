@@ -159,7 +159,7 @@ class Admin::AnalyticsController < ApplicationController
     include_summary = params[:include_summary] == '1'
     
     if start_date.blank? || end_date.blank?
-      redirect_to admin_reports_path, alert: "Please select both start and end dates."
+      redirect_to admin_reports_analytics_path, alert: "Please select both start and end dates."
       return
     end
     
@@ -209,14 +209,14 @@ class Admin::AnalyticsController < ApplicationController
       csv_data = generate_complete_csv
       send_data csv_data, filename: "quran_orders_export_#{@export.generated_at.strftime('%Y-%m-%d')}.csv", type: 'text/csv'
     else
-      redirect_to admin_reports_path, alert: "Export file not available."
+      redirect_to admin_reports_analytics_path, alert: "Export file not available."
     end
   end
 
   def delete_export
     @export = ExportHistory.find(params[:id])
     @export.destroy
-    redirect_to admin_reports_path, notice: "Export history deleted successfully."
+    redirect_to admin_reports_analytics_path, notice: "Export history deleted successfully."
   end
 
 

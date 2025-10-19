@@ -38,10 +38,14 @@ Rails.application.routes.draw do
     get "dashboard", to: "dashboard#index", as: :dashboard
     get "analytics/orders", to: "analytics#orders", as: :order_analytics
     get "analytics/customers", to: "analytics#customers", as: :customer_analytics
-    get "analytics/geography", to: "analytics#geography", as: :geographic_analytics
     get "analytics/reports", to: "analytics#reports", as: :reports_analytics
-    get "settings/configuration", to: "settings#configuration", as: :configuration
-    get "settings/notifications", to: "settings#notifications", as: :notifications
+    get "geography", to: "geography#show", as: :geography
+    # get "settings/configuration", to: "settings#configuration", as: :configuration
+    # get "settings/notifications", to: "settings#notifications", as: :notifications
+    get 'settings/configuration', to: 'settings#configuration', as: 'configuration'
+  patch 'settings/configuration', to: 'settings#configuration'
+  get 'settings/notifications', to: 'settings#notifications', as: 'notifications'
+  patch 'settings/notifications', to: 'settings#notifications'
   end
 
   # Devise routes for Admin (authentication) with custom sessions controller

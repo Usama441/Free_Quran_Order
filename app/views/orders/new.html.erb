@@ -13,7 +13,28 @@
 
     <form id="order-form" class="space-y-6">
       <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+<% if maintenance_mode? %>
+  <!-- Maintenance mode message - already handled by before_action -->
 
+      <% elsif @daily_order_info[:limit_reached] %>
+  <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+    <p class="font-bold">Daily Order Limit Reached</p>
+    <p>We've received <%= @daily_order_info[:today_count] %> orders today and have reached our daily limit of <%= @daily_order_info[:daily_limit] %>. Please try again tomorrow.</p>
+  </div>
+<% else %>
+<% if debug_mode? %>
+    <div class="bg-purple-100 border border-purple-400 text-purple-700 px-4 py-3 rounded mb-4">
+      <p class="font-bold">🔍 Debug Information</p>
+      <p class="text-sm">Daily Orders: <%= @daily_order_info[:today_count] %> / <%= @daily_order_info[:daily_limit] %></p>
+      <p class="text-sm">Maintenance Mode: <%= maintenance_mode? ? 'Active' : 'Inactive' %></p>
+      <p class="text-sm">Default Translation: <%= default_translation %></p>
+    </div>
+  <% end %>
+  <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-6">
+    <p class="font-bold">Order Availability</p>
+    <p>Today: <%= @daily_order_info[:today_count] %> orders received (<%= @daily_order_info[:remaining] %> remaining of <%= @daily_order_info[:daily_limit] %> daily limit)</p>
+  </div>
+<% end %>
       <!-- 🔹 Quran ID must be inside the form -->
       <%= hidden_field_tag 'order[quran_id]', @quran&.id %>
 

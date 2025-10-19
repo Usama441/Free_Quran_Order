@@ -88,6 +88,13 @@
         </a>
       </div>
 
+      <% if @daily_order_info %>
+    <p class="mt-2 text-sm">
+      Daily orders: <%= @daily_order_info[:today_count] %> of <%= @daily_order_info[:daily_limit] %>
+      (<%= @daily_order_info[:remaining] %> remaining today)
+    </p>
+  <% end %>
+
       <!-- Contact Info -->
       <div class="mt-8 text-sm text-gray-500">
         <p>
