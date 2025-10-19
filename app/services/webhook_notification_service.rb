@@ -1,49 +1,6 @@
 # app/services/webhook_notification_service.rb
 class WebhookNotificationService
 
-    def self.send_test_notification
-        settings = load_notification_settings
-        
-        puts "=== WEBHOOK DEBUG INFO ===".yellow
-        puts "Discord enabled: #{settings['enable_discord_notifications']}"
-        puts "Discord URL present: #{settings['discord_webhook_url'].present?}"
-        puts "Discord URL: #{settings['discord_webhook_url']}"
-        puts "==========================".yellow
-    
-        message = "🧪 **Test Notification**\n" +
-                  "This is a test message from your Quran Distribution app.\n" +
-                  "**Time:** #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}\n" +
-                  "**App:** Quran Distribution System\n" +
-                  "**Status:** ✅ Webhook is working correctly!"
-    
-        success_count = 0
-        total_attempts = 0
-        results = []
-    
-        # Send to Discord if enabled
-        if settings['enable_discord_notifications'] && settings['discord_webhook_url'].present?
-          total_attempts += 1
-          discord_result = send_discord_notification(message, settings['discord_webhook_url'])
-          success_count += 1 if discord_result
-          results << { service: 'discord', success: discord_result }
-        end
-    
-        # Send to generic webhook if enabled
-        if settings['webhook_url'].present?
-          total_attempts += 1
-          webhook_result = send_generic_webhook(message, settings['webhook_url'])
-          success_count += 1 if webhook_result
-          results << { service: 'generic', success: webhook_result }
-        end
-    
-        {
-          success_count: success_count,
-          total_attempts: total_attempts,
-          results: results,
-          message: "Sent #{success_count}/#{total_attempts} test notifications"
-        }
-    end
-
     def self.send_low_stock_notification(quran)
         settings = load_notification_settings
         
@@ -97,13 +54,7 @@ class WebhookNotificationService
           
           response = http.request(request)
           
-          NotificationActivity.create(
-            title: "Low Stock Notification",
-            message: "Low stock alert for #{quran.title}",
-            sent_to: settings['discord_webhook_url'],
-            status: response.code.to_i == 204 ? 'success' : 'failed'
-          )
-          
+          NotificationService.send_low_stock_alert(quran.translation, quran.stock, settings['low_stock_threshold'])
         rescue => e
           NotificationActivity.create(
             title: "Low Stock Notification Failed",
@@ -112,82 +63,7 @@ class WebhookNotificationService
             status: 'failed'
           )
         end
-      end
-
-      
-      def self.send_discord_notification(message, webhook_url)
-        return false unless webhook_url.present?
-    
-        begin
-          # Parse the URL to ensure it's valid
-          uri = URI.parse(webhook_url)
-          
-          # Discord expects specific payload format
-          payload = {
-            content: message,
-            username: 'Quran Distribution Bot',
-            avatar_url: 'https://cdn-icons-png.flaticon.com/512/210/210626.png',
-            embeds: [] # Optional: you can add rich embeds here
-          }
-    
-          puts "=== DISCORD PAYLOAD ===".blue
-          puts "URL: #{webhook_url}"
-          puts "Message: #{message}"
-          puts "=======================".blue
-    
-          headers = {
-            'Content-Type' => 'application/json',
-            'User-Agent' => 'QuranDistribution/1.0'
-          }
-    
-          http = Net::HTTP.new(uri.host, uri.port)
-          http.use_ssl = (uri.scheme == 'https')
-          http.read_timeout = 10
-          http.open_timeout = 10
-          
-          request = Net::HTTP::Post.new(uri.request_uri, headers)
-          request.body = payload.to_json
-    
-          puts "=== SENDING REQUEST ===".green
-          response = http.request(request)
-          puts "Response Code: #{response.code}"
-          puts "Response Body: #{response.body}"
-          puts "=======================".green
-    
-          # Log the activity with more details
-          NotificationActivity.create(
-            title: "Discord Test Notification",
-            message: "Test message sent to Discord",
-            sent_to: webhook_url,
-            status: response.code.to_i == 204 ? 'success' : 'failed'
-          )
-    
-          # Discord returns 204 No Content on success
-          response.code.to_i == 204
-          
-        rescue URI::InvalidURIError => e
-          puts "=== INVALID URL ERROR ===".red
-          puts e.message
-          NotificationActivity.create(
-            title: "Discord Webhook Failed",
-            message: "Invalid webhook URL: #{e.message}",
-            sent_to: webhook_url,
-            status: 'failed'
-          )
-          false
-        rescue => e
-          puts "=== GENERAL ERROR ===".red
-          puts e.message
-          puts e.backtrace.first(5).join("\n")
-          NotificationActivity.create(
-            title: "Discord Webhook Failed",
-            message: "Error: #{e.message}",
-            sent_to: webhook_url,
-            status: 'failed'
-          )
-          false
-        end
-      end
+    end
   
     def self.send_whatsapp_notification(message, webhook_url, phone_numbers = [])
       return unless webhook_url.present?
@@ -198,18 +74,6 @@ class WebhookNotificationService
         to: phone_numbers, # Array of phone numbers
         platform: 'whatsapp'
       }
-  
-      send_webhook(webhook_url, payload)
-    end
-  
-    def self.send_generic_webhook(message, webhook_url, custom_payload = {})
-      return unless webhook_url.present?
-  
-      payload = custom_payload.merge(
-        message: message,
-        timestamp: Time.current.iso8601,
-        source: 'quran_distribution_app'
-      )
   
       send_webhook(webhook_url, payload)
     end
@@ -294,30 +158,18 @@ class WebhookNotificationService
           
           response = http.request(request)
           
-          # Log the activity - FIXED: use full_name instead of name
-          NotificationActivity.create(
-            title: "New Order Notification",
-            message: "Order ##{order.id} - #{order.full_name}",
-            sent_to: settings['discord_webhook_url'],
-            status: response.code.to_i == 204 ? 'success' : 'failed'
-          )
+          # Log the activity
+          NotificationService.send_new_order(order)
           
           Rails.logger.info "📧 Discord notification sent for order ##{order.id}. Response: #{response.code}"
           
           response.code.to_i == 204
           
         rescue => e
-          NotificationActivity.create(
-            title: "Order Notification Failed",
-            message: "Order ##{order.id} - Error: #{e.message}",
-            sent_to: settings['discord_webhook_url'],
-            status: 'failed'
-          )
-          
           Rails.logger.error "❌ Failed to send Discord notification for order ##{order.id}: #{e.message}"
           false
         end
-      end
+    end
   
     private
   
@@ -366,7 +218,7 @@ class WebhookNotificationService
         else
           address_parts.join(', ')
         end
-      end
+    end
   
     def self.load_notification_settings
       settings_path = Rails.root.join('config', 'notification_settings.yml')

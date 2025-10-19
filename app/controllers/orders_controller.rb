@@ -90,11 +90,6 @@ class OrdersController < ApplicationController
           discord_url: notification_settings['discord_webhook_url']
         })
   
-        # Log the notification activity
-        if email_on_new_order?
-          NotificationActivity.log_new_order(@order)
-        end
-  
         # Trigger background job for admin notification
         OrderBroadcastJob.perform_later(@order)
   

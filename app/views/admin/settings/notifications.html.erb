@@ -177,6 +177,7 @@
       <div class="space-y-3 max-h-64 overflow-y-auto">
         <% if @recent_activities.any? %>
           <% @recent_activities.each do |activity| %>
+            <%#= link_to admin_order_path(activity), class: "text-blue-600 hover:text-blue-900 mr-4" do %>
             <div class="flex justify-between items-center p-3 <%= activity.color_class %> rounded-lg border">
               <div class="flex items-center space-x-3">
                 <i class="<%= activity.icon_class %> text-lg"></i>
@@ -190,6 +191,7 @@
               </div>
               <div class="text-xs opacity-75 whitespace-nowrap"><%= activity.time_ago %></div>
             </div>
+            <%# end %>
           <% end %>
         <% else %>
           <div class="text-center py-8 text-gray-500">

@@ -7,6 +7,13 @@ class NotificationService
       # Here you would also send actual emails
       # AdminMailer.daily_summary(orders_count).deliver_later
     end
+
+    def self.send_new_order(order)
+      NotificationActivity.log_new_order(order)
+      
+      # Here you would also send actual emails
+      # AdminMailer.new_order(order).deliver_later
+    end
   
     def self.send_low_stock_alert(quran_type, current_stock, threshold)
       NotificationActivity.log_low_stock_alert(quran_type, current_stock, threshold)
