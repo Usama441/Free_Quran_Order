@@ -1,0 +1,2 @@
+class ExportHistory < ApplicationRecord
+end
