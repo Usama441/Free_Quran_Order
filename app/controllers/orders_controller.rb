@@ -32,79 +32,76 @@ class OrdersController < ApplicationController
 
 
   def create  
-    @order = Order.new(order_params)
-    @order.quantity ||= 1 # Default quantity
-    
-    #Debug: Log order creation attempt
-    log_debug_action('order_creation_attempt', {
-      order_params: order_params.to_h,
+  @order = Order.new(order_params)
+  @order.quantity ||= 1 # Default quantity
+  
+  #Debug: Log order creation attempt
+  log_debug_action('order_creation_attempt', {
+    order_params: order_params.to_h,
+    daily_orders: today_orders_count,
+    daily_limit: max_daily_orders,
+    maintenance_mode: maintenance_mode?
+  })
+
+  # Check if we've reached daily limits (redundant check for safety)
+  if daily_order_limit_reached?
+    log_debug_action('order_rejected_daily_limit', {
       daily_orders: today_orders_count,
-      daily_limit: max_daily_orders,
-      maintenance_mode: maintenance_mode?
+      daily_limit: max_daily_orders
     })
-
-    # Check if we've reached daily limits (redundant check for safety)
-    if daily_order_limit_reached?
-
-      log_debug_action('order_rejected_daily_limit', {
-        daily_orders: today_orders_count,
-        daily_limit: max_daily_orders
-      })
-      
-      respond_to do |format|
-        format.html do 
-          redirect_to new_order_path, 
-          alert: "We've reached our daily order limit. Please try again tomorrow."
-        end
-        format.json do 
-          render json: { 
-            success: false, 
-            errors: ["We've reached our daily order limit. Please try again tomorrow."] 
-          }, status: :unprocessable_entity 
-        end
-      end
-      return
-    end
-
+    
     respond_to do |format|
-      if @order.save
-
-        # Debug: Log successful order creation
-        log_debug_action('order_created_successfully', {
-          order_id: @order.id,
-          order_email: @order.email,
-          daily_orders: today_orders_count,
-          remaining_orders: max_daily_orders - today_orders_count
-        })
-
-        # Trigger background job for admin notification
-        OrderBroadcastJob.perform_later(@order)
-
-        # if @daily_order_info[:remaining] <= 5
-        #   AdminNotificationJob.perform_later(
-        #     "Low Order Capacity", 
-        #     "Only #{@daily_order_info[:remaining]} orders remaining today. Total: #{@daily_order_info[:today_count]}/#{@daily_order_info[:daily_limit]}")
-        # end
-
-        format.html { redirect_to order_create_success_path, notice: "Thank you for your order request! We'll send you your free Quran copy soon." }
-        format.json { render json: { success: true, message: "Order submitted successfully!" }, status: :created }
-      else
-        # Debug: Log order creation errors
-        log_debug_action('order_creation_failed', {
-          errors: @order.errors.full_messages,
-          order_params: order_params.to_h
-        })
-
-        # Re-initialize for the form in case of errors
-        @countries_data = load_countries_data
-        @phone_formats = load_phone_formats
-        @daily_order_info = get_daily_order_info
-        
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: { success: false, errors: @order.errors.full_messages }, status: :unprocessable_entity }
+      format.html do 
+        redirect_to new_order_path, 
+        alert: "We've reached our daily order limit. Please try again tomorrow."
       end
+      format.json do 
+        render json: { 
+          success: false, 
+          errors: ["We've reached our daily order limit. Please try again tomorrow."] 
+        }, status: :unprocessable_entity 
+      end
+    end
+    return
+  end
+
+  respond_to do |format|
+    if @order.save
+      # Debug: Log successful order creation
+      log_debug_action('order_created_successfully', {
+        order_id: @order.id,
+        order_email: @order.email,
+        daily_orders: today_orders_count,
+        remaining_orders: max_daily_orders - today_orders_count
+      })
+
+     # Log the notification activity
+if email_on_new_order?
+  NotificationActivity.log_new_order(@order)
+end
+
+      # Trigger background job for admin notification
+      OrderBroadcastJob.perform_later(@order)
+
+      format.html { redirect_to order_create_success_path, notice: "Thank you for your order request! We'll send you your free Quran copy soon." }
+      format.json { render json: { success: true, message: "Order submitted successfully!" }, status: :created }
+    else
+      # Debug: Log order creation errors
+      log_debug_action('order_creation_failed', {
+        errors: @order.errors.full_messages,
+        order_params: order_params.to_h
+      })
+
+      # Re-initialize for the form in case of errors
+      @countries_data = load_countries_data
+      @phone_formats = load_phone_formats
+      @daily_order_info = get_daily_order_info
+      
+      format.html { render :new, status: :unprocessable_entity }
+      format.json { render json: { success: false, errors: @order.errors.full_messages }, status: :unprocessable_entity }
     end
   end
+end
 
   def create_success
     @daily_order_info = get_daily_order_info

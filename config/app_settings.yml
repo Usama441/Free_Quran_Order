@@ -5,7 +5,7 @@ order_limit_per_day: 100
 email_notifications: true
 auto_refresh_interval: 60
 max_daily_orders: 200
-debug_mode: true
+debug_mode: false
 maintenance_mode: false
 low_stock_threshold: 100
 auto_reorder_point: 50

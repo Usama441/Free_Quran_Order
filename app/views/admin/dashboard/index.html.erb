@@ -327,7 +327,7 @@
     // Auto-refresh every 30 seconds
     setInterval(function() {
         location.reload();
-    }, 30000);
+    }, <%= auto_refresh_interval * 1000%>);
 </script>
 
 <% end %>

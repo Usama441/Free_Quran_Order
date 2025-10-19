@@ -19,6 +19,9 @@ class Admin::SettingsController < ApplicationController
   def notifications
     @notification_settings = load_notification_settings
 
+    # Load recent notification activities
+    @recent_activities = NotificationActivity.recent.limit(10)
+
     if request.patch?
       if update_notification_settings(notification_params)
         flash[:notice] = "Notification settings updated successfully!"
@@ -28,6 +31,12 @@ class Admin::SettingsController < ApplicationController
         render :notifications
       end
     end
+  end
+
+  # Add a new action to clear notification history
+  def clear_notification_history
+    NotificationActivity.destroy_all
+    redirect_to admin_notifications_path, notice: "Notification history cleared successfully!"
   end
 
   private

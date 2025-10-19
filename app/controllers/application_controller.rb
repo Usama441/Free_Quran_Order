@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
   
   include SettingsHelper
   # helper_method :site_name, :app_settings # Make available in views
-  helper_method :site_name, :debug_mode?, :maintenance_mode?, :today_orders_count, :max_daily_orders
+  helper_method :site_name, :debug_mode?, :maintenance_mode?, :today_orders_count, :max_daily_orders, :auto_refresh_interval
   private
 
   def set_layout

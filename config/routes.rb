@@ -43,9 +43,10 @@ Rails.application.routes.draw do
     # get "settings/configuration", to: "settings#configuration", as: :configuration
     # get "settings/notifications", to: "settings#notifications", as: :notifications
     get 'settings/configuration', to: 'settings#configuration', as: 'configuration'
-  patch 'settings/configuration', to: 'settings#configuration'
-  get 'settings/notifications', to: 'settings#notifications', as: 'notifications'
-  patch 'settings/notifications', to: 'settings#notifications'
+    patch 'settings/configuration', to: 'settings#configuration'
+    get 'settings/notifications', to: 'settings#notifications', as: 'notifications'
+    patch 'settings/notifications', to: 'settings#notifications'
+    delete 'settings/clear_notification_history', to: 'settings#clear_notification_history', as: 'clear_notification_history'
   end
 
   # Devise routes for Admin (authentication) with custom sessions controller

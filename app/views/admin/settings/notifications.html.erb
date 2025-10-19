@@ -98,48 +98,63 @@
 
       <!-- Recent Activity -->
       <div class="bg-white shadow-lg rounded-xl p-6">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center space-x-2">
-          <i class="fas fa-history"></i><span>Recent Notification Activity</span>
-        </h3>
-        <div class="space-y-3 max-h-64 overflow-y-auto">
-          <!-- Mock recent activity - would come from database in real app -->
-          <div class="flex justify-between items-center p-3 bg-green-50 border-l-4 border-green-500">
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-envelope text-green-600"></i>
-              <div>
-                <div class="font-medium text-sm">New Order Notification</div>
-                <div class="text-xs text-gray-600">Order #1242 from Pakistan</div>
-              </div>
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-xl font-semibold text-gray-700 flex items-center space-x-2">
+      <i class="fas fa-history"></i>
+      <span>Recent Notification Activity</span>
+    </h3>
+    <% if @recent_activities.any? %>
+      <%= button_to admin_clear_notification_history_path, 
+          method: :delete, 
+          data: { confirm: 'Are you sure you want to clear all notification history?' },
+          class: "bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600 transition text-sm flex items-center space-x-1" do %>
+        <i class="fas fa-trash"></i>
+        <span>Clear History</span>
+      <% end %>
+    <% end %>
+  </div>
+  
+  <div class="space-y-3 max-h-64 overflow-y-auto">
+    <% if @recent_activities.any? %>
+      <% @recent_activities.each do |activity| %>
+        <div class="flex justify-between items-center p-3 <%= activity.color_class %> rounded">
+          <div class="flex items-center space-x-3">
+            <i class="<%= activity.icon_class %>"></i>
+            <div>
+              <div class="font-medium text-sm"><%= activity.title %></div>
+              <div class="text-xs opacity-75"><%= activity.message %></div>
+              <% if activity.sent_to.present? %>
+                <div class="text-xs opacity-60">Sent via: <%= activity.sent_to %></div>
+              <% end %>
             </div>
-            <div class="text-xs text-gray-500">2 min ago</div>
           </div>
-
-          <div class="flex justify-between items-center p-3 bg-blue-50 border-l-4 border-blue-500">
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-chart-line text-blue-600"></i>
-              <div>
-                <div class="font-medium text-sm">Daily Summary Email</div>
-                <div class="text-xs text-gray-600">45 orders processed today</div>
-              </div>
-            </div>
-            <div class="text-xs text-gray-500">1 hour ago</div>
-          </div>
-
-          <div class="flex justify-between items-center p-3 bg-orange-50 border-l-4 border-orange-500">
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-exclamation-triangle text-orange-600"></i>
-              <div>
-                <div class="font-medium text-sm">Low Stock Alert</div>
-                <div class="text-xs text-gray-600">Urdu Quran stock below 50 units</div>
-              </div>
-            </div>
-            <div class="text-xs text-gray-500">3 hours ago</div>
-          </div>
+          <div class="text-xs opacity-75"><%= activity.time_ago %></div>
         </div>
+      <% end %>
+    <% else %>
+      <div class="text-center py-8 text-gray-500">
+        <i class="fas fa-bell-slash text-3xl mb-2"></i>
+        <p>No notification activity yet</p>
+        <p class="text-sm">Notifications will appear here when they are sent</p>
       </div>
+    <% end %>
+  </div>
+  
+  <% if @recent_activities.any? %>
+    <div class="mt-4 text-center">
+      <p class="text-sm text-gray-600">
+        Showing <%= @recent_activities.count %> most recent activities
+        <% total_count = NotificationActivity.count %>
+        <% if total_count > @recent_activities.count %>
+          (of <%= total_count %> total)
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+</div>
 
       <!-- Save Button -->
-      <div class="flex justify-end">
+      <div class="flex justify-end mt-4">
         <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition flex items-center space-x-2">
           <i class="fas fa-save"></i>
           <span>Save Notification Settings</span>
