@@ -15,7 +15,7 @@ class OrdersController < ApplicationController
   end
 
 
-  def create
+  def create  
     @order = Order.new(order_params)
     @order.quantity ||= 1 # Default quantity
 

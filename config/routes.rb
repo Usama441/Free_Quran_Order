@@ -12,10 +12,14 @@ get "orders/create", to: "orders#create_success", as: :create_success
     resources :qurans, except: [:show]
 
     # Order management
-    get "orders", to: "orders#index", as: :orders
-    get "orders/:id", to: "orders#show", as: :order
-    patch "orders/:id/status", to: "orders#update_status", as: :update_order_status
-
+    resources :orders, only: [:index, :show] do
+      collection do
+        get :export_csv
+      end
+      member do
+        patch :update_status
+      end
+    end
     # Admin dashboard and analytics
     get "dashboard", to: "dashboard#index", as: :dashboard
     get "analytics/orders", to: "analytics#orders", as: :order_analytics

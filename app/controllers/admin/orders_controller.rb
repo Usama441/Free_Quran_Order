@@ -1,3 +1,5 @@
+require 'csv'
+
 class Admin::OrdersController < ApplicationController
   before_action :authenticate_admin!
   before_action :set_order, only: [:show, :update_status]
@@ -28,6 +30,42 @@ class Admin::OrdersController < ApplicationController
         render json: { html: render_to_string(partial: 'orders_table', formats: [:html]),   pending_count: @pending_count,   processing_count: @processing_count,   shipped_count: @shipped_count,   delivered_count: @delivered_count }    
       end
     end
+  end
+
+  def export_csv
+    @orders = Order.order(created_at: :desc)
+
+    # Apply same filters as index
+    if params[:status].present?
+      status_value = Order.statuses[params[:status]]
+      @orders = @orders.where(status: status_value) if status_value.present?
+    end
+
+    if params[:start_date].present? || params[:end_date].present?
+      start_date = params[:start_date].presence || Date.new(2000, 1, 1)
+      end_date = params[:end_date].presence || Date.today
+      @orders = @orders.where(created_at: start_date.beginning_of_day..end_date.end_of_day)
+    end
+
+    csv_data = CSV.generate(headers: true) do |csv|
+      csv << ["ID", "Full Name", "Email", "Phone", "Address", "Status", "Quran Name", "Created At"]
+      @orders.each do |order|
+        csv << [
+          order.id,
+          order.full_name,
+          order.email,
+          order.phone,
+          order.address,
+          order.status ? order.status.titleize : "N/A",
+          order.quran&.title, # assuming belongs_to :quran
+          order.created_at.strftime("%Y-%m-%d %H:%M")
+        ]
+      end
+    end
+
+    send_data csv_data,
+              filename: "orders_#{Time.zone.now.strftime('%Y%m%d_%H%M%S')}.csv",
+              type: 'text/csv'
   end
 
   def show

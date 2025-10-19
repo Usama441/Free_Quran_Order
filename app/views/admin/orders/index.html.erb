@@ -5,7 +5,9 @@
         <i class="fas fa-shopping-cart"></i><span>Order Management</span>
       </h2>
       <!-- Export Button -->
-      <%= link_to '#', class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center space-x-2" do %>
+      <%= link_to export_csv_admin_orders_path(request.query_parameters),
+        class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center space-x-2",
+        data: { turbo: false } do %>
         <i class="fas fa-download"></i><span>Export CSV</span>
       <% end %>
     </div>
@@ -150,7 +152,7 @@
     dropdown.disabled = true;
     dropdown.innerHTML = '<option>Updating...</option>';
 
-  fetch(`/admin/orders/${orderId}/status`, {
+  fetch(`/admin/orders/${orderId}/update_status`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

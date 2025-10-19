@@ -126,9 +126,7 @@
   <button type="button" onclick="removeAllImages()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition" id="remove-all-btn" <%= 'hidden' if !@quran.images.attached? %>>
     Remove All Images
   </button>
-  <%= link_to admin_qurans_path, class: "bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition" %>
-    Cancel
-  </button>
+  <%= link_to "Cancel", admin_qurans_path, class: "bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition" %>
   <%= f.submit "Update Quran",
               class: "bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center space-x-2",
               data: { disable_with: "Updating..." } %>

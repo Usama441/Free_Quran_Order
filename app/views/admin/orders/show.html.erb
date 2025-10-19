@@ -1,277 +1,301 @@
-
 <% content_for :title, "Order ##{@order.id} - Admin" %>
 
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-3xl font-bold text-green-700 flex items-center space-x-2">
-        <i class="fas fa-eye"></i><span>Order #<%= @order.id %> Details</span>
-      </h2>
-      <div class="flex space-x-3">
-        <%= link_to admin_orders_path, class: "bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex items-center space-x-2" do %>
-          <i class="fas fa-arrow-left"></i><span>Back to Orders</span>
-        <% end %>
-        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
-          <i class="fas fa-print"></i><span>Print</span>
-        </button>
-      </div>
-    </div>
+<div class="flex justify-between items-center mb-6">
+  <h2 class="text-3xl font-bold text-green-700 flex items-center space-x-2">
+    <i class="fas fa-eye"></i><span>Order #<%= @order.id %> Details</span>
+  </h2>
+  <div class="flex space-x-3">
+    <%= link_to admin_orders_path, class: "bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex items-center space-x-2" do %>
+      <i class="fas fa-arrow-left"></i><span>Back to Orders</span>
+    <% end %>
+    <button onclick="printOrderReport()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
+      <i class="fas fa-print"></i><span>Print Report</span>
+    </button>
+  </div>
+</div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Left Column: Order Details -->
-      <div class="lg:col-span-2 space-y-6">
-        <!-- Order Status Card -->
-        <div class="bg-white shadow-lg rounded-xl p-6">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h3 class="text-xl font-semibold text-gray-800">Order Status</h3>
-              <div class="flex items-center mt-2">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <!-- Left Column: Order Details -->
+  <div class="lg:col-span-2 space-y-6">
+    <!-- Order Status Card -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800">Order Status</h3>
+          <div class="flex items-center mt-2">
+            <div class="flex items-center">
+              <% ['pending', 'processing', 'shipped', 'delivered'].each_with_index do |status, index| %>
+                <% current_index = { 'pending' => 0, 'processing' => 1, 'shipped' => 2, 'delivered' => 3 }[@order.status] || -1 %>
                 <div class="flex items-center">
-                  <% ['pending', 'processing', 'shipped', 'delivered'].each_with_index do |status, index| %>
-                    <% current_index = { 'pending' => 0, 'processing' => 1, 'shipped' => 2, 'delivered' => 3 }[@order.status] || -1 %>
-                    <div class="flex items-center">
-                      <div class="w-3 h-3 rounded-full <%= index <= current_index ? 'bg-green-500' : 'bg-gray-300' %>"></div>
-                      <% unless status == 'delivered' %>
-                        <div class="w-8 h-0.5 <%= index < current_index ? 'bg-green-500' : 'bg-gray-300' %>"></div>
-                      <% end %>
-                    </div>
+                  <div class="w-3 h-3 rounded-full <%= index <= current_index ? 'bg-green-500' : 'bg-gray-300' %>"></div>
+                  <% unless status == 'delivered' %>
+                    <div class="w-8 h-0.5 <%= index < current_index ? 'bg-green-500' : 'bg-gray-300' %>"></div>
                   <% end %>
-                </div>
-              </div>
-              <div class="flex justify-between mt-2 text-sm">
-                <span class="text-gray-600">Placed</span>
-                <span class="text-gray-600">Processing</span>
-                <span class="text-gray-600">Shipped</span>
-                <span class="text-gray-600">Delivered</span>
-              </div>
-            </div>
-            <div class="text-right">
-              <span class="px-3 py-1 text-sm font-semibold rounded-full <%=
-                case @order.status
-                when 'pending' then 'bg-red-100 text-red-800'
-                when 'processing' then 'bg-yellow-100 text-yellow-800'
-                when 'shipped' then 'bg-blue-100 text-blue-800'
-                when 'delivered' then 'bg-green-100 text-green-800'
-                when 'cancelled' then 'bg-red-100 text-red-800'
-                else 'bg-gray-100 text-gray-800'
-                end
-              %>">
-                <%= @order.status&.titleize || "Unknown" %>
-              </span>
-              <div class="mt-2">
-                <select onchange="updateOrderStatus(<%= @order.id %>, this.value)" class="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-green-500 outline-none">
-                  <option value="<%= @order.status %>"><%= @order.status&.titleize || @order.status || "Unknown" %> (Current)</option>
-                  <option value="pending">Pending</option>
-                  <option value="processing">Processing</option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Order Timeline -->
-          <div class="border-t pt-4">
-            <h4 class="font-semibold text-gray-800 mb-3">Order Timeline</h4>
-            <div class="space-y-3">
-              <div class="flex items-start">
-                <div class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                <div class="ml-3">
-                  <p class="text-sm font-medium text-gray-800">Order Created</p>
-                  <p class="text-sm text-gray-600"><%= @order.created_at.strftime('%B %d, %Y at %I:%M %p') %></p>
-                </div>
-              </div>
-
-              <% if @order.updated_at != @order.created_at %>
-                <div class="flex items-start">
-                  <div class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-800">Status Updated</p>
-                    <p class="text-sm text-gray-600"><%= @order.updated_at.strftime('%B %d, %Y at %I:%M %p') %></p>
-                  </div>
                 </div>
               <% end %>
             </div>
           </div>
-        </div>
-
-        <!-- Customer Information -->
-        <div class="bg-white shadow-lg rounded-xl p-6">
-          <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <i class="fas fa-user text-green-600 mr-2"></i>
-            Customer Information
-          </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 class="font-medium text-gray-700 mb-2">Personal Details</h4>
-              <div class="space-y-2">
-                <p><span class="font-medium">Full Name:</span> <%= @order.full_name %></p>
-                <p><span class="font-medium">Email:</span> <a href="mailto:<%= @order.email %>" class="text-blue-600 hover:text-blue-800"><%= @order.email %></a></p>
-                <p><span class="font-medium">Phone:</span> <%= @order.phone %></p>
-                <p><span class="font-medium">Country:</span> <%= @order.country_code %></p>
-              </div>
-            </div>
-            <div>
-              <h4 class="font-medium text-gray-700 mb-2">Address Details</h4>
-              <div class="space-y-2">
-                <p><span class="font-medium">City:</span> <%= @order.city %></p>
-                <p><span class="font-medium">State/Province:</span> <%= @order.state %></p>
-                <p><span class="font-medium">Postal Code:</span> <%= @order.postal_code %></p>
-                <p><span class="font-medium">Address:</span> <%= @order.address %></p>
-              </div>
-            </div>
+          <div class="flex justify-between mt-2 text-sm">
+            <span class="text-gray-600">Placed</span>
+            <span class="text-gray-600">Processing</span>
+            <span class="text-gray-600">Shipped</span>
+            <span class="text-gray-600">Delivered</span>
           </div>
-
-          <% if @order.note.present? %>
-            <div class="mt-4 pt-4 border-t">
-              <h4 class="font-medium text-gray-700 mb-2">Special Notes</h4>
-              <p class="text-gray-600 bg-gray-50 p-3 rounded-lg"><%= @order.note %></p>
-            </div>
-          <% end %>
         </div>
-
-        <!-- Order Items -->
-        <div class="bg-white shadow-lg rounded-xl p-6">
-          <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <i class="fas fa-book text-green-600 mr-2"></i>
-            Order Details
-          </h3>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <div class="flex items-center space-x-4">
-              <%= image_tag @order.quran&.images.first, alt: @order.quran&.title, class: "w-16 h-16 object-cover rounded-lg" %>
-              <div class="flex-1">
-                <h4 class="font-semibold text-gray-800"><%= @order.quran&.title || "Unknown Quran" %></h4>
-                <p class="text-gray-600 text-sm">By <%= @order.quran&.writer || "Unknown" %></p>
-                <p class="text-gray-600 text-sm"><%= @order.quran&.pages || 0 %> pages</p>
-                <p class="text-gray-600 text-sm">Language: <%= @order.translation&.titleize || "Not specified" %></p>
-              </div>
-              <div class="text-right">
-                <p class="font-semibold text-gray-800">Quantity: <%= @order.quantity %></p>
-                <p class="text-green-600 font-medium">FREE</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Order Summary -->
-          <div class="mt-6 bg-green-50 rounded-lg p-4">
-            <div class="flex justify-between items-center">
-              <span class="font-medium text-gray-700">Total Items:</span>
-              <span class="font-semibold text-gray-800"><%= @order.quantity %> copy</span>
-            </div>
-            <div class="flex justify-between items-center mt-2 pt-2 border-t border-green-200">
-              <span class="font-medium text-gray-700">Total Cost:</span>
-              <span class="text-xl font-bold text-green-600">FREE</span>
-            </div>
+        <div class="text-right">
+          <span class="px-3 py-1 text-sm font-semibold rounded-full <%=
+            case @order.status
+            when 'pending' then 'bg-red-100 text-red-800'
+            when 'processing' then 'bg-yellow-100 text-yellow-800'
+            when 'shipped' then 'bg-blue-100 text-blue-800'
+            when 'delivered' then 'bg-green-100 text-green-800'
+            when 'cancelled' then 'bg-red-100 text-red-800'
+            else 'bg-gray-100 text-gray-800'
+            end
+          %>">
+            <%= @order.status&.titleize || "Unknown" %>
+          </span>
+          <div class="mt-2">
+            <select onchange="updateOrderStatus(<%= @order.id %>, this.value)" class="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-green-500 outline-none">
+              <option value="<%= @order.status %>"><%= @order.status&.titleize || @order.status || "Unknown" %> (Current)</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Quick Actions & Order Info -->
-      <div class="space-y-6">
-        <!-- Order Actions -->
-        <div class="bg-white shadow-lg rounded-xl p-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
-          <div class="space-y-3">
-            <button onclick="updateOrderStatus(<%= @order.id %>, 'processing')" class="w-full bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition">
-              <i class="fas fa-cog mr-2"></i>Mark as Processing
-            </button>
-            <button onclick="updateOrderStatus(<%= @order.id %>, 'shipped')" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-              <i class="fas fa-truck mr-2"></i>Mark as Shipped
-            </button>
-            <button onclick="updateOrderStatus(<%= @order.id %>, 'delivered')" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-              <i class="fas fa-check-circle mr-2"></i>Mark as Delivered
-            </button>
+      <!-- Order Timeline -->
+      <div class="border-t pt-4">
+        <h4 class="font-semibold text-gray-800 mb-3">Order Timeline</h4>
+        <div class="space-y-3">
+          <div class="flex items-start">
+            <div class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-800">Order Created</p>
+              <p class="text-sm text-gray-600"><%= @order.created_at.strftime('%B %d, %Y at %I:%M %p') %></p>
+            </div>
           </div>
-        </div>
 
-        <!-- Order Information -->
-        <div class="bg-white shadow-lg rounded-xl p-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Order Information</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between">
-              <span class="text-gray-600">Order ID:</span>
-              <span class="font-medium">#<%= @order.id %></span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">Order Date:</span>
-              <span class="font-medium"><%= @order.created_at.strftime('%b %d, %Y') %></span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">Order Time:</span>
-              <span class="font-medium"><%= @order.created_at.strftime('%I:%M %p') %></span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">IP Address:</span>
-              <span class="font-medium"><%= 'N/A' %></span>
-            </div>
-
-            <!-- Order Labels -->
-            <div class="pt-3 border-t">
-              <div class="flex flex-wrap gap-2">
-                <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Free Shipping</span>
-                <span class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full">Donation</span>
-                <% if @order.quantity > 1 %>
-                  <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Bulk Order</span>
-                <% end %>
+          <% if @order.updated_at != @order.created_at %>
+            <div class="flex items-start">
+              <div class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-gray-800">Status Updated</p>
+                <p class="text-sm text-gray-600"><%= @order.updated_at.strftime('%B %d, %Y at %I:%M %p') %></p>
               </div>
             </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Information -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-user text-green-600 mr-2"></i>
+        Customer Information
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h4 class="font-medium text-gray-700 mb-2">Personal Details</h4>
+          <div class="space-y-2">
+            <p><span class="font-medium">Full Name:</span> <%= @order.full_name %></p>
+            <p><span class="font-medium">Email:</span> <a href="mailto:<%= @order.email %>" class="text-blue-600 hover:text-blue-800"><%= @order.email %></a></p>
+            <p><span class="font-medium">Phone:</span> <%= @order.phone %></p>
+            <p><span class="font-medium">Country:</span> <%= @order.country_code %></p>
           </div>
         </div>
-
-        <!-- Shipping Address Card -->
-        <div class="bg-white shadow-lg rounded-xl p-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
-            Shipping Address
-          </h3>
-          <div class="text-sm text-gray-700 space-y-1">
-            <p class="font-medium"><%= @order.full_name %></p>
-            <p><%= @order.address %></p>
-            <p><%= @order.city %>, <%= @order.state %> <%= @order.postal_code %></p>
-            <p><%= @order.country_code %></p>
-            <p class="text-gray-600 mt-2"><%= @order.phone %></p>
+        <div>
+          <h4 class="font-medium text-gray-700 mb-2">Address Details</h4>
+          <div class="space-y-2">
+            <p><span class="font-medium">City:</span> <%= @order.city %></p>
+            <p><span class="font-medium">State/Province:</span> <%= @order.state %></p>
+            <p><span class="font-medium">Postal Code:</span> <%= @order.postal_code %></p>
+            <p><span class="font-medium">Address:</span> <%= @order.address %></p>
           </div>
+        </div>
+      </div>
 
-          <!-- Map Link -->
-          <div class="mt-4">
-            <button class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-sm">
-              <i class="fas fa-map-marked-alt mr-2"></i>View on Map
-            </button>
+      <% if @order.note.present? %>
+        <div class="mt-4 pt-4 border-t">
+          <h4 class="font-medium text-gray-700 mb-2">Special Notes</h4>
+          <p class="text-gray-600 bg-gray-50 p-3 rounded-lg"><%= @order.note %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Order Items -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-book text-green-600 mr-2"></i>
+        Order Details
+      </h3>
+      <div class="bg-gray-50 rounded-lg p-4">
+        <div class="flex items-center space-x-4">
+          <%= image_tag @order.quran&.images.first, alt: @order.quran&.title, class: "w-16 h-16 object-cover rounded-lg" %>
+          <div class="flex-1">
+            <h4 class="font-semibold text-gray-800"><%= @order.quran&.title || "Unknown Quran" %></h4>
+            <p class="text-gray-600 text-sm">By <%= @order.quran&.writer || "Unknown" %></p>
+            <p class="text-gray-600 text-sm"><%= @order.quran&.pages || 0 %> pages</p>
+            <p class="text-gray-600 text-sm">Language: <%= @order.translation&.titleize || "Not specified" %></p>
+          </div>
+          <div class="text-right">
+            <p class="font-semibold text-gray-800">Quantity: <%= @order.quantity %></p>
+            <p class="text-green-600 font-medium">FREE</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="mt-6 bg-green-50 rounded-lg p-4">
+        <div class="flex justify-between items-center">
+          <span class="font-medium text-gray-700">Total Items:</span>
+          <span class="font-semibold text-gray-800"><%= @order.quantity %> copy</span>
+        </div>
+        <div class="flex justify-between items-center mt-2 pt-2 border-t border-green-200">
+          <span class="font-medium text-gray-700">Total Cost:</span>
+          <span class="text-xl font-bold text-green-600">FREE</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Quick Actions & Order Info -->
+  <div class="space-y-6">
+    <!-- Order Actions -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+      <div class="space-y-3">
+        <button onclick="updateOrderStatus(<%= @order.id %>, 'processing')" class="w-full bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition">
+          <i class="fas fa-cog mr-2"></i>Mark as Processing
+        </button>
+        <button onclick="updateOrderStatus(<%= @order.id %>, 'shipped')" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+          <i class="fas fa-truck mr-2"></i>Mark as Shipped
+        </button>
+        <button onclick="updateOrderStatus(<%= @order.id %>, 'delivered')" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+          <i class="fas fa-check-circle mr-2"></i>Mark as Delivered
+        </button>
+      </div>
+    </div>
+
+    <!-- Order Information -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Order Information</h3>
+      <div class="space-y-3">
+        <div class="flex justify-between">
+          <span class="text-gray-600">Order ID:</span>
+          <span class="font-medium">#<%= @order.id %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Order Date:</span>
+          <span class="font-medium"><%= @order.created_at.strftime('%b %d, %Y') %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Order Time:</span>
+          <span class="font-medium"><%= @order.created_at.strftime('%I:%M %p') %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">IP Address:</span>
+          <span class="font-medium"><%= 'N/A' %></span>
+        </div>
+
+        <!-- Order Labels -->
+        <div class="pt-3 border-t">
+          <div class="flex flex-wrap gap-2">
+            <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Free Shipping</span>
+            <span class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full">Donation</span>
+            <% if @order.quantity > 1 %>
+              <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Bulk Order</span>
+            <% end %>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Shipping Address Card -->
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+        Shipping Address
+      </h3>
+      <div class="text-sm text-gray-700 space-y-1">
+        <p class="font-medium"><%= @order.full_name %></p>
+        <p><%= @order.address %></p>
+        <p><%= @order.city %>, <%= @order.state %> <%= @order.postal_code %></p>
+        <p><%= @order.country_code %></p>
+        <p class="text-gray-600 mt-2"><%= @order.phone %></p>
+      </div>
+
+      <!-- Map Link -->
+      <div class="mt-4">
+        <button onclick="showOrderOnMap()" class="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm">
+          <i class="fas fa-map-marked-alt mr-2"></i>View on Map
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Map Modal -->
+<div id="mapModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl">
+      <div class="flex justify-between items-center p-6 border-b">
+        <h3 class="text-xl font-semibold text-gray-800">Order Location - #<%= @order.id %></h3>
+        <button onclick="closeMapModal()" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div id="orderMap" class="w-full h-96 rounded-lg bg-gray-200"></div>
+        <div class="mt-4 text-sm text-gray-600">
+          <p><strong>Address:</strong> <%= @order.address %>, <%= @order.city %>, <%= @order.state %> <%= @order.postal_code %>, <%= @order.country_code %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <% content_for :page_scripts do %>
+<!-- Include Leaflet CSS & JS for maps -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
-<!-- JavaScript for AJAX status updates -->
 <script>
+  let map;
+  let heatLayer;
+
   function updateOrderStatus(orderId, newStatus) {
-  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-  fetch(`/admin/orders/${orderId}/status`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'X-CSRF-Token': csrfToken
-    },
-    body: JSON.stringify({ status: newStatus })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      showFlashMessage('success', 'Order status updated successfully!');
-      setTimeout(() => location.reload(), 1500);
-    } else {
-      showFlashMessage('error', data.error || 'Failed to update status');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    showFlashMessage('error', 'Network error. Please try again.');
-  });
-}
-
+    fetch(`/admin/orders/${orderId}/update_status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
+      body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showFlashMessage('success', 'Order status updated successfully!');
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showFlashMessage('error', data.error || 'Failed to update status');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showFlashMessage('error', 'Network error. Please try again.');
+    });
+  }
 
   function showFlashMessage(type, message) {
     const existingAlert = document.querySelector('.flash-message');
@@ -290,13 +314,285 @@
 
     document.body.appendChild(alertDiv);
 
-    // Auto-remove after 3 seconds for status updates
     setTimeout(() => {
       if (alertDiv.parentNode) {
         alertDiv.remove();
       }
     }, 3000);
   }
-</script>
 
+  function showOrderOnMap() {
+    const modal = document.getElementById('mapModal');
+    modal.classList.remove('hidden');
+    
+    // Initialize map after modal is shown
+    setTimeout(() => {
+      initMap();
+    }, 100);
+  }
+
+  function closeMapModal() {
+    const modal = document.getElementById('mapModal');
+    modal.classList.add('hidden');
+    
+    if (map) {
+      map.remove();
+      map = null;
+    }
+  }
+
+  function initMap() {
+    const address = "<%= @order.address %>, <%= @order.city %>, <%= @order.state %> <%= @order.postal_code %>, <%= @order.country_code %>";
+    
+    // Initialize map
+    map = L.map('orderMap').setView([0, 0], 2);
+    
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Geocode the address
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+          
+          // Set map view to the location
+          map.setView([lat, lon], 13);
+          
+          // Add marker for the exact location
+          L.marker([lat, lon])
+            .addTo(map)
+            .bindPopup(`
+              <div class="text-sm">
+                <strong>Order #<%= @order.id %></strong><br>
+                <%= @order.full_name %><br>
+                <%= @order.address %><br>
+                <%= @order.city %>, <%= @order.state %>
+              </div>
+            `)
+            .openPopup();
+          
+          // Create heat point around the location
+          const heatPoints = [
+            [lat, lon, 1.0], // Main point
+            [lat + 0.005, lon + 0.005, 0.3], // Surrounding points for heat effect
+            [lat + 0.005, lon - 0.005, 0.3],
+            [lat - 0.005, lon + 0.005, 0.3],
+            [lat - 0.005, lon - 0.005, 0.3]
+          ];
+          
+          heatLayer = L.heatLayer(heatPoints, {
+            radius: 25,
+            blur: 15,
+            maxZoom: 17,
+            gradient: {
+              0.4: 'blue',
+              0.6: 'cyan',
+              0.7: 'lime',
+              0.8: 'yellow',
+              1.0: 'red'
+            }
+          }).addTo(map);
+          
+        } else {
+          alert('Address not found on map.');
+        }
+      })
+      .catch(error => {
+        console.error('Geocoding error:', error);
+        alert('Error loading map. Please try again.');
+      });
+  }
+
+  function printOrderReport() {
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    
+    // Get order data
+    const orderData = {
+      id: <%= @order.id %>,
+      fullName: "<%= @order.full_name %>",
+      email: "<%= @order.email %>",
+      phone: "<%= @order.phone %>",
+      address: "<%= @order.address %>",
+      city: "<%= @order.city %>",
+      state: "<%= @order.state %>",
+      postalCode: "<%= @order.postal_code %>",
+      country: "<%= @order.country_code %>",
+      status: "<%= @order.status&.titleize %>",
+      createdAt: "<%= @order.created_at.strftime('%B %d, %Y at %I:%M %p') %>",
+      quantity: <%= @order.quantity %>,
+      quranTitle: "<%= @order.quran&.title || 'Unknown Quran' %>",
+      writer: "<%= @order.quran&.writer || 'Unknown' %>",
+      pages: <%= @order.quran&.pages || 0 %>,
+      translation: "<%= @order.translation&.titleize || 'Not specified' %>",
+      note: "<%= @order.note.present? ? @order.note : 'No special notes' %>"
+    };
+
+    // Generate print content
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Order Report #${orderData.id}</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            color: #333;
+          }
+          .header { 
+            text-align: center; 
+            border-bottom: 2px solid #333; 
+            padding-bottom: 20px; 
+            margin-bottom: 30px;
+          }
+          .header h1 { 
+            color: #2d3748; 
+            margin: 0; 
+          }
+          .header .subtitle { 
+            color: #4a5568; 
+            font-size: 16px;
+          }
+          .section { 
+            margin-bottom: 25px; 
+          }
+          .section h2 { 
+            color: #2d3748; 
+            border-bottom: 1px solid #e2e8f0; 
+            padding-bottom: 8px; 
+            margin-bottom: 15px;
+          }
+          .grid-2 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+          }
+          .info-item { 
+            margin-bottom: 8px; 
+          }
+          .info-label { 
+            font-weight: bold; 
+            color: #4a5568; 
+          }
+          .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+          }
+          .status-pending { background: #fed7d7; color: #c53030; }
+          .status-processing { background: #fefcbf; color: #d69e2e; }
+          .status-shipped { background: #bee3f8; color: #2b6cb0; }
+          .status-delivered { background: #c6f6d5; color: #276749; }
+          .order-summary {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #48bb78;
+          }
+          .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+          }
+          @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Order Report #${orderData.id}</h1>
+          <div class="subtitle">Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="section">
+            <h2>Customer Information</h2>
+            <div class="info-item"><span class="info-label">Full Name:</span> ${orderData.fullName}</div>
+            <div class="info-item"><span class="info-label">Email:</span> ${orderData.email}</div>
+            <div class="info-item"><span class="info-label">Phone:</span> ${orderData.phone}</div>
+            <div class="info-item"><span class="info-label">Country:</span> ${orderData.country}</div>
+          </div>
+
+          <div class="section">
+            <h2>Shipping Address</h2>
+            <div class="info-item">${orderData.address}</div>
+            <div class="info-item">${orderData.city}, ${orderData.state} ${orderData.postalCode}</div>
+            <div class="info-item">${orderData.country}</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="section">
+            <h2>Order Information</h2>
+            <div class="info-item"><span class="info-label">Order ID:</span> #${orderData.id}</div>
+            <div class="info-item"><span class="info-label">Order Date:</span> ${orderData.createdAt}</div>
+            <div class="info-item">
+              <span class="info-label">Status:</span> 
+              <span class="status-badge status-${orderData.status.toLowerCase()}">${orderData.status}</span>
+            </div>
+            <div class="info-item"><span class="info-label">Quantity:</span> ${orderData.quantity} copy</div>
+          </div>
+
+          <div class="section">
+            <h2>Product Details</h2>
+            <div class="info-item"><span class="info-label">Quran:</span> ${orderData.quranTitle}</div>
+            <div class="info-item"><span class="info-label">Writer:</span> ${orderData.writer}</div>
+            <div class="info-item"><span class="info-label">Pages:</span> ${orderData.pages}</div>
+            <div class="info-item"><span class="info-label">Translation:</span> ${orderData.translation}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Special Notes</h2>
+          <div class="info-item">${orderData.note}</div>
+        </div>
+
+        <div class="order-summary">
+          <h2>Order Summary</h2>
+          <div class="info-item"><span class="info-label">Total Items:</span> ${orderData.quantity} copy</div>
+          <div class="info-item"><span class="info-label">Shipping Method:</span> Free Shipping</div>
+          <div class="info-item"><span class="info-label">Total Cost:</span> <strong>FREE</strong></div>
+        </div>
+
+        <div class="footer">
+          <p>This is an automated order report generated by Quran Distribution System</p>
+          <p>Report ID: ${orderData.id}-${Date.now()}</p>
+        </div>
+
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(() => {
+              window.close();
+            }, 500);
+          }
+        <\/script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('mapModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeMapModal();
+    }
+  });
+</script>
 <% end %>
