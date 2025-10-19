@@ -2,6 +2,7 @@ class Admin::QuransController < ApplicationController
   before_action :authenticate_admin!
   before_action :set_quran, only: [:edit, :update, :destroy]
 
+
   def index
     @qurans = Quran.all.order(created_at: :desc)
   end

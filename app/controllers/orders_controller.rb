@@ -8,7 +8,7 @@ class OrdersController < ApplicationController
     @quran = Quran.find_by(id: params[:quran_id])
     @order = Order.new(quran: @quran)
      # If a specific Quran is selected, use its details
-     if @quran
+    if @quran
       @order.translation = @quran.translation
     else
       # Default values if no specific Quran selected
@@ -32,76 +32,91 @@ class OrdersController < ApplicationController
 
 
   def create  
-  @order = Order.new(order_params)
-  @order.quantity ||= 1 # Default quantity
-  
-  #Debug: Log order creation attempt
-  log_debug_action('order_creation_attempt', {
-    order_params: order_params.to_h,
-    daily_orders: today_orders_count,
-    daily_limit: max_daily_orders,
-    maintenance_mode: maintenance_mode?
-  })
-
-  # Check if we've reached daily limits (redundant check for safety)
-  if daily_order_limit_reached?
-    log_debug_action('order_rejected_daily_limit', {
-      daily_orders: today_orders_count,
-      daily_limit: max_daily_orders
-    })
+    @order = Order.new(order_params)
+    @order.quantity ||= 1 # Default quantity
     
-    respond_to do |format|
-      format.html do 
-        redirect_to new_order_path, 
-        alert: "We've reached our daily order limit. Please try again tomorrow."
-      end
-      format.json do 
-        render json: { 
-          success: false, 
-          errors: ["We've reached our daily order limit. Please try again tomorrow."] 
-        }, status: :unprocessable_entity 
-      end
-    end
-    return
-  end
-
-  respond_to do |format|
-    if @order.save
-      # Debug: Log successful order creation
-      log_debug_action('order_created_successfully', {
-        order_id: @order.id,
-        order_email: @order.email,
+    # Load notification settings for debugging
+    notification_settings = load_notification_settings
+    
+    #Debug: Log order creation attempt
+    log_debug_action('order_creation_attempt', {
+      order_params: order_params.to_h,
+      daily_orders: today_orders_count,
+      daily_limit: max_daily_orders,
+      maintenance_mode: maintenance_mode?,
+      discord_enabled: notification_settings['enable_discord_notifications'],
+      discord_url_present: notification_settings['discord_webhook_url'].present?
+    })
+  
+    # Check if we've reached daily limits (redundant check for safety)
+    if daily_order_limit_reached?
+      log_debug_action('order_rejected_daily_limit', {
         daily_orders: today_orders_count,
-        remaining_orders: max_daily_orders - today_orders_count
+        daily_limit: max_daily_orders
       })
-
-     # Log the notification activity
-if email_on_new_order?
-  NotificationActivity.log_new_order(@order)
-end
-
-      # Trigger background job for admin notification
-      OrderBroadcastJob.perform_later(@order)
-
-      format.html { redirect_to order_create_success_path, notice: "Thank you for your order request! We'll send you your free Quran copy soon." }
-      format.json { render json: { success: true, message: "Order submitted successfully!" }, status: :created }
-    else
-      # Debug: Log order creation errors
-      log_debug_action('order_creation_failed', {
-        errors: @order.errors.full_messages,
-        order_params: order_params.to_h
-      })
-
-      # Re-initialize for the form in case of errors
-      @countries_data = load_countries_data
-      @phone_formats = load_phone_formats
-      @daily_order_info = get_daily_order_info
       
-      format.html { render :new, status: :unprocessable_entity }
-      format.json { render json: { success: false, errors: @order.errors.full_messages }, status: :unprocessable_entity }
+      respond_to do |format|
+        format.html do 
+          redirect_to new_order_path, 
+          alert: "We've reached our daily order limit. Please try again tomorrow."
+        end
+        format.json do 
+          render json: { 
+            success: false, 
+            errors: ["We've reached our daily order limit. Please try again tomorrow."] 
+          }, status: :unprocessable_entity 
+        end
+      end
+      return
+    end
+  
+    respond_to do |format|
+      if @order.save
+        # Debug: Log before sending webhook
+        log_debug_action('order_saved_sending_webhook', {
+          order_id: @order.id,
+          order_email: @order.email,
+          discord_enabled: notification_settings['enable_discord_notifications'],
+          discord_url_present: notification_settings['discord_webhook_url'].present?
+        })
+  
+        # Send notification to Discord
+        webhook_result = WebhookNotificationService.send_new_order_notification(@order)
+        
+        # Debug: Log webhook result
+        log_debug_action('webhook_sent_result', {
+          order_id: @order.id,
+          webhook_success: webhook_result,
+          discord_url: notification_settings['discord_webhook_url']
+        })
+  
+        # Log the notification activity
+        if email_on_new_order?
+          NotificationActivity.log_new_order(@order)
+        end
+  
+        # Trigger background job for admin notification
+        OrderBroadcastJob.perform_later(@order)
+  
+        format.html { redirect_to order_create_success_path, notice: "Thank you for your order request! We'll send you your free Quran copy soon." }
+        format.json { render json: { success: true, message: "Order submitted successfully!" }, status: :created }
+      else
+        # Debug: Log order creation errors
+        log_debug_action('order_creation_failed', {
+          errors: @order.errors.full_messages,
+          order_params: order_params.to_h
+        })
+  
+        # Re-initialize for the form in case of errors
+        @countries_data = load_countries_data
+        @phone_formats = load_phone_formats
+        @daily_order_info = get_daily_order_info
+        
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { success: false, errors: @order.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
-end
 
   def create_success
     @daily_order_info = get_daily_order_info
@@ -154,6 +169,15 @@ end
           }, status: :unprocessable_entity 
         end
       end
+    end
+  end
+
+  def load_notification_settings
+    settings_path = Rails.root.join('config', 'notification_settings.yml')
+    if File.exist?(settings_path)
+      YAML.safe_load(File.read(settings_path)) || {}
+    else
+      {}
     end
   end
 

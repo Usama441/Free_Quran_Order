@@ -16,7 +16,31 @@ class Quran < ApplicationRecord
     validate :images_type
   end
 
+  after_save :check_low_stock, if: :saved_change_to_stock?
+
+
   private
+
+  def check_low_stock
+    threshold = load_low_stock_threshold
+
+    if stock.present? && stock < threshold
+      WebhookNotificationService.send_low_stock_notification(self)
+    end 
+  end
+
+  def load_low_stock_threshold
+    settings_path = Rails.root.join('config', 'app_settings.yml')
+    if File.exist?(settings_path)
+      settings = YAML.safe_load(File.read(settings_path)) || {}
+      (settings['low_stock_threshold'] || 5).to_i
+    else
+      5
+    end
+  rescue => e
+    Rails.logger.error "Failed to read low stock threshold: #{e.message}"
+    5
+  end
 
   def images_count
     # Skip validation in test environment if ActiveStorage not available

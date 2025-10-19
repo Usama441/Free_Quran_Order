@@ -1,3 +1,6 @@
+require 'ostruct'
+
+# app/controllers/admin/settings_controller.rb
 class Admin::SettingsController < ApplicationController
   include SettingsHelper
   before_action :authenticate_admin!
@@ -18,8 +21,6 @@ class Admin::SettingsController < ApplicationController
 
   def notifications
     @notification_settings = load_notification_settings
-
-    # Load recent notification activities
     @recent_activities = NotificationActivity.recent.limit(10)
 
     if request.patch?
@@ -33,7 +34,6 @@ class Admin::SettingsController < ApplicationController
     end
   end
 
-  # Add a new action to clear notification history
   def clear_notification_history
     NotificationActivity.destroy_all
     redirect_to admin_notifications_path, notice: "Notification history cleared successfully!"
@@ -52,7 +52,6 @@ class Admin::SettingsController < ApplicationController
   def load_notification_settings
     settings_path = Rails.root.join('config', 'notification_settings.yml')
     if File.exist?(settings_path)
-      # Use safe YAML loading with permitted classes
       safe_yaml_load(settings_path)
     else
       {
@@ -62,20 +61,22 @@ class Admin::SettingsController < ApplicationController
         'sms_alerts_low_stock' => true,
         'slack_notifications' => false,
         'webhook_url' => '',
-        'notification_emails' => ''
+        'notification_emails' => '',
+        'discord_webhook_url' => '',
+        'whatsapp_webhook_url' => '',
+        'enable_discord_notifications' => false,
+        'enable_whatsapp_notifications' => false
       }
     end
   end
 
   def safe_yaml_load(file_path)
-    # Read the file content
     content = File.read(file_path)
-    
-    # Remove the problematic Ruby-specific YAML tags
     cleaned_content = content.gsub(/!ruby\/[^\s]+/, '')
-    
-    # Load the cleaned YAML
     YAML.safe_load(cleaned_content, permitted_classes: [Symbol]) || {}
+  rescue => e
+    Rails.logger.error "Failed to load notification settings: #{e.message}"
+    {}
   end
 
   def update_notification_settings(settings)
@@ -86,41 +87,57 @@ class Admin::SettingsController < ApplicationController
       else value
       end
     end
-  
-    # Convert to regular Hash to avoid ActiveSupport::HashWithIndifferentAccess
+
+    # Debug: Log the received parameters
+    Rails.logger.info "Received notification settings: #{new_settings.inspect}"
+
     settings_to_save = new_settings.stringify_keys
-  
     settings_path = Rails.root.join('config', 'notification_settings.yml')
     
-    # Write clean YAML without Ruby-specific tags
+    # Ensure all expected keys are present
+    default_settings = {
+      'email_on_new_order' => false,
+      'email_daily_summary' => false,
+      'email_weekly_report' => false,
+      'sms_alerts_low_stock' => false,
+      'slack_notifications' => false,
+      'webhook_url' => '',
+      'notification_emails' => '',
+      'discord_webhook_url' => '',
+      'whatsapp_webhook_url' => '',
+      'enable_discord_notifications' => false,
+      'enable_whatsapp_notifications' => false
+    }
+
+    # Merge with defaults to ensure all keys exist
+    final_settings = default_settings.merge(settings_to_save)
+    
     File.open(settings_path, 'w') do |f|
-      f.write(settings_to_save.to_yaml)
+      f.write(final_settings.to_yaml)
     end
-  
+
+    # Debug: Log what was saved
+    Rails.logger.info "Saved notification settings: #{final_settings.inspect}"
+
     true
   end
+
 
   def notification_params
     params.require(:notification).permit(
       :email_on_new_order, :email_daily_summary, :email_weekly_report,
       :sms_alerts_low_stock, :slack_notifications,
-      :webhook_url, :notification_emails
+      :webhook_url, :notification_emails,
+      :discord_webhook_url, :whatsapp_webhook_url,
+      :enable_discord_notifications, :enable_whatsapp_notifications
     )
   end
 
   def update_settings(settings)
-    # Convert to hash with string keys for YAML
     new_settings = settings.to_h
-    
-    # Convert form values to proper types
     new_settings = convert_form_values(new_settings)
-    
-    # Merge with existing settings to preserve any missing keys
     updated_settings = app_settings.merge(new_settings)
-    
-    # Save to YAML
     update_app_settings(updated_settings)
-    
     true
   end
 
