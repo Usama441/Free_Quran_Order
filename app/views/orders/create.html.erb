@@ -1,17 +1,5 @@
-<!-- app/views/orders/create_success.html.erb -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Thank You for Your Order - Free Quran Distribution</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    rel="stylesheet"
-    />
-</head>
-<body class="bg-gray-50 text-gray-800">
+<% content_for :title, "Thank You for Your Order - Free Quran Distribution" %>
+
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full space-y-8">
     <div class="text-center">
@@ -93,7 +81,7 @@
           Return to Home
         </a>
 
-        <a href="<%= new_order_path %>"
+        <a href="<%= new_order_path(quran_id: @quran_id) %>"
            class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
           <i class="fas fa-heart mr-2"></i>
           Share with Others
@@ -102,5 +90,3 @@
     </div>
   </div>
 </div>
-</body>
-</html>

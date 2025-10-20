@@ -1,0 +1,5 @@
+:schedule:
+  daily_summary:
+    cron: '0 9 * * *'  # 9 AM daily
+    class: DailySummaryJob
+    queue: default

@@ -1,16 +1,4 @@
-<!-- app/views/orders/new.html.erb -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order a Free Quran</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <%= csrf_meta_tags %>
-</head>
-<body class="bg-gray-50 text-gray-800">
-<!-- Navbar -->
-<%= render 'extras/header' %>
+<% content_for :title, "Order a Free Quran" %>
 
 <!-- Flash Messages Container -->
 <div id="flash-messages" class="max-w-6xl mx-auto mt-4 px-6 hidden">
@@ -25,6 +13,27 @@
 
     <form id="order-form" class="space-y-6">
       <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+      <% if @daily_order_info[:limit_reached] %>
+  <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+    <p class="font-bold">Daily Order Limit Reached</p>
+    <p>We've received <%= @daily_order_info[:today_count] %> orders today and have reached our daily limit of <%= @daily_order_info[:daily_limit] %>. Please try again tomorrow.</p>
+  </div>
+<% else %>
+<% if debug_mode? %>
+    <div class="bg-purple-100 border border-purple-400 text-purple-700 px-4 py-3 rounded mb-4">
+      <p class="font-bold">🔍 Debug Information</p>
+      <p class="text-sm">Daily Orders: <%= @daily_order_info[:today_count] %> / <%= @daily_order_info[:daily_limit] %></p>
+      <p class="text-sm">Maintenance Mode: <%= maintenance_mode? ? 'Active' : 'Inactive' %></p>
+      <p class="text-sm">Default Translation: <%= default_translation %></p>
+    </div>
+  <% end %>
+  <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-6">
+    <p class="font-bold">Order Availability</p>
+    <p>Today: <%= @daily_order_info[:today_count] %> orders received (<%= @daily_order_info[:remaining] %> remaining of <%= @daily_order_info[:daily_limit] %> daily limit)</p>
+  </div>
+<% end %>
+      <!-- 🔹 Quran ID must be inside the form -->
+      <%= hidden_field_tag 'order[quran_id]', @quran&.id %>
 
       <!-- Dynamic Error Container -->
       <div id="form-errors" class="hidden bg-red-50 border border-red-200 rounded-lg p-4">
@@ -67,12 +76,11 @@
         <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
     
-      <!-- State / Province (Country-based) -->
+      <!-- State / Province -->
       <div class="form-group">
         <label for="state" class="block font-semibold mb-2">State / Province *</label>
         <select id="state_select" name="order[state]" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required>
           <option value="">Select State/Province</option>
-          <!-- States will be populated by JavaScript based on country -->
         </select>
         <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
@@ -84,7 +92,6 @@
                class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" required>
         <div class="error-message hidden text-red-500 text-sm mt-1"></div>
       </div>
-
 
       <!-- Postal Code -->
       <div class="form-group">
@@ -104,8 +111,8 @@
 
       <!-- Hidden fields for quantity and translation -->
       <input type="hidden" id="quantity_field" name="order[quantity]" value="1">
-      <input type="hidden" id="translation_field" name="order[translation]" value="english">
-
+      <!-- Single hidden field for translation -->
+      <input type="hidden" id="translation_field" name="order[translation]" value="<%= @order.translation %>">
       <!-- Special Note -->
       <div>
         <label for="note" class="block font-semibold mb-2">Special Note (optional)</label>
@@ -127,45 +134,57 @@
 
   <!-- Right: Product Details -->
   <div class="bg-green-50 shadow-md rounded-2xl p-6 h-fit border border-green-100">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Quran_book.jpg"
-         alt="Quran English Translation" class="rounded-xl mb-4 w-full h-40 object-cover">
-
-    <h3 class="text-xl font-semibold text-green-800 mb-3">Quran with Translation</h3>
+    
+    <% if @quran && @quran.images.attached? %>
+      <%= image_tag @quran.images.first, alt: @quran.title, class: "rounded-xl mb-4 w-full h-40 object-cover" %>
+    <% else %>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Quran_book.jpg"
+           alt="<%= @order.title || 'Quran' %>" class="rounded-xl mb-4 w-full h-40 object-cover">
+    <% end %>
 
     <ul class="list-disc list-inside text-gray-700 text-sm mb-6 space-y-1" id="translation_details">
-      <li><span class="font-semibold text-gray-800">Pages:</span> 604</li>
-      <li><span class="font-semibold text-gray-800">Translator:</span> Abdullah Yusuf Ali</li>
-      <li><span class="font-semibold text-gray-800">Binding:</span> Softcover Edition</li>
-      <li><span class="font-semibold text-gray-800">Publisher:</span> Islamic Publications Lahore</li>
+      <% if @quran %>
+        <li><span class="font-semibold text-gray-800">Pages:</span> <%= @quran.pages %></li>
+        <li><span class="font-semibold text-gray-800">Translator:</span> <%= @quran.writer %></li>
+        <li><span class="font-semibold text-gray-800">Language:</span> <%= @quran.translation.capitalize %></li>
+        <li><span class="font-semibold text-gray-800">Stock:</span> <%= @quran.stock %></li>
+        <li><span class="font-semibold text-gray-800">Binding:</span> Softcover Edition</li>
+      <% else %>
+        <li><span class="font-semibold text-gray-800">Pages:</span> 604</li>
+        <li><span class="font-semibold text-gray-800">Translator:</span> Abdullah Yusuf Ali</li>
+        <li><span class="font-semibold text-gray-800">Language:</span> English</li>
+        <li><span class="font-semibold text-gray-800">Binding:</span> Softcover Edition</li>
+        <li><span class="font-semibold text-gray-800">Publisher:</span> Islamic Publications Lahore</li>
+      <% end %>
     </ul>
 
-    <!-- Quantity + Translation Side by Side -->
-    <div class="flex flex-col space-y-4">
-      <div class="flex items-center justify-between">
-        <span class="font-semibold text-gray-700">Quantity:</span>
-        <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-          <button type="button" onclick="decreaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">−</button>
-          <input id="quantity_display" type="number" value="1" min="1"
-                 class="w-14 text-center border-x border-gray-300 focus:outline-none" readonly>
-          <button type="button" onclick="increaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">+</button>
-        </div>
-      </div>
-
-      <div class="flex flex-col">
-        <label class="font-semibold text-gray-700 mb-2">Select Translation:</label>
-        <select id="translation_select" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none" onchange="updateTranslationInfo()">
-          <option value="english" selected>English</option>
-          <option value="urdu">Urdu</option>
-          <option value="french">French</option>
-          <option value="spanish">Spanish</option>
-        </select>
+    <!-- Quantity -->
+    <div class="flex items-center justify-between mb-4">
+      <span class="font-semibold text-gray-700">Quantity:</span>
+      <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+        <button type="button" onclick="decreaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">−</button>
+        <input id="quantity_display" type="number" value="1" min="1" max="<%= @quran&.stock || 10 %>"
+               class="w-14 text-center border-x border-gray-300 focus:outline-none" readonly>
+        <button type="button" onclick="increaseQty()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-lg font-bold">+</button>
       </div>
     </div>
+
+    <% if @quran %>
+      <div class="flex flex-col">
+        <label class="font-semibold text-gray-700 mb-2">Select Translation:</label>
+        <select id="translation_select" name="order[translation]" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none" onchange="updateTranslationInfo()">
+          <option value="english" <%= 'selected' if @order.translation == 'english' %>>English</option>
+          <option value="urdu" <%= 'selected' if @order.translation == 'urdu' %>>Urdu</option>
+          <option value="french" <%= 'selected' if @order.translation == 'french' %>>French</option>
+          <option value="spanish" <%= 'selected' if @order.translation == 'spanish' %>>Spanish</option>
+        </select>
+      </div>
+    <% end %>
   </div>
 </section>
 
-<!-- Footer -->
-<%= render 'extras/footer' %>
+
+<% content_for :page_scripts do %>
 
 <!-- Country and State Data from Rails -->
 <script>
@@ -276,9 +295,14 @@
     function increaseQty() {
         const qtyDisplay = document.getElementById('quantity_display');
         const qtyField = document.getElementById('quantity_field');
+
+        const maxStock = parseInt(qtyDisplay.max) || 10;
         const newValue = parseInt(qtyDisplay.value) + 1;
-        qtyDisplay.value = newValue;
-        qtyField.value = newValue;
+
+        if (newValue <= maxStock) {
+          qtyDisplay.value = newValue;
+          qtyField.value = newValue;
+        }
     }
 
     function decreaseQty() {
@@ -292,41 +316,44 @@
     }
 
     function updateTranslationInfo() {
-        const translationSelect = document.getElementById('translation_select');
-        const translationField = document.getElementById('translation_field');
-        const detailsList = document.getElementById('translation_details');
+    const translationSelect = document.getElementById('translation_select');
+    const translationField = document.getElementById('translation_field');
+    const detailsList = document.getElementById('translation_details');
 
-        const selectedTranslation = translationSelect.value;
-        translationField.value = selectedTranslation;
+    if (!translationSelect || !translationField) return;
 
-        const data = {
-            english: {
-                pages: 604,
-                translator: "Abdullah Yusuf Ali",
-                binding: "Softcover Edition",
-                publisher: "Islamic Publications Lahore",
-            },
-            urdu: {
-                pages: 620,
-                translator: "Maulana Fateh Muhammad Jalandhari",
-                binding: "Hardcover Edition",
-                publisher: "Darussalam Publishers",
-            },
-            french: {
-                pages: 590,
-                translator: "Muhammad Hamidullah",
-                binding: "Softcover Edition",
-                publisher: "Paris Islamic Center",
-            },
-            spanish: {
-                pages: 605,
-                translator: "Julio Cortés",
-                binding: "Softcover Edition",
-                publisher: "Islamic Foundation Madrid",
-            },
-        };
+    const selectedTranslation = translationSelect.value;
+    translationField.value = selectedTranslation;
 
-        const selected = data[selectedTranslation];
+    const data = {
+        english: {
+            pages: 604,
+            translator: "Abdullah Yusuf Ali",
+            binding: "Softcover Edition",
+            publisher: "Islamic Publications Lahore",
+        },
+        urdu: {
+            pages: 620,
+            translator: "Maulana Fateh Muhammad Jalandhari",
+            binding: "Hardcover Edition",
+            publisher: "Darussalam Publishers",
+        },
+        french: {
+            pages: 590,
+            translator: "Muhammad Hamidullah",
+            binding: "Softcover Edition",
+            publisher: "Paris Islamic Center",
+        },
+        spanish: {
+            pages: 605,
+            translator: "Julio Cortés",
+            binding: "Softcover Edition",
+            publisher: "Islamic Foundation Madrid",
+        },
+    };
+
+    const selected = data[selectedTranslation];
+    if (selected && detailsList) {
         detailsList.innerHTML = `
             <li><span class="font-semibold">Pages:</span> ${selected.pages}</li>
             <li><span class="font-semibold">Translator:</span> ${selected.translator}</li>
@@ -334,6 +361,7 @@
             <li><span class="font-semibold">Publisher:</span> ${selected.publisher}</li>
         `;
     }
+}
 
     // Show flash message dynamically
     function showFlashMessage(type, message) {
@@ -426,7 +454,7 @@
 
         // Collect form data
         const formData = new FormData(this);
-
+        
         // Send AJAX request
         fetch('/orders.json', {
             method: 'POST',
@@ -462,10 +490,9 @@
     // Initialize everything when page loads
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('quantity_field').value = 1;
-        document.getElementById('translation_field').value = 'english';
         populateCountries(); // Populate countries dropdown
         updatePhoneFormat(); // Set initial phone format
     });
 </script>
-</body>
-</html>
+
+<%end%>

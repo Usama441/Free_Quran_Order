@@ -1,17 +1,5 @@
-<!-- app/views/orders/create_success.html.erb -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Thank You for Your Order - Free Quran Distribution</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    rel="stylesheet"
-    />
-</head>
-<body class="bg-gray-50 text-gray-800">
+<% content_for :title, "Thank You for Your Order - " + site_name %>
+
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full space-y-8">
     <div class="text-center">
@@ -86,19 +74,89 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="space-y-4">
-        <a href="<%= root_path %>"
-           class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
-          <i class="fas fa-home mr-2"></i>
-          Return to Home
+<div class="space-y-4">
+  <a href="<%= root_path %>"
+     class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
+    <i class="fas fa-home mr-2"></i>
+    Return to Home
+  </a>
+
+  <!-- Share with Others Button -->
+  <button onclick="openShareModal()"
+     class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
+    <i class="fas fa-share-alt mr-2"></i>
+    Share with Others
+  </button>
+</div>
+
+<!-- Share Modal -->
+<div id="shareModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3 text-center">
+      <h3 class="text-lg font-medium text-gray-900">Share Free Quran</h3>
+      
+      <div class="mt-4 space-y-3">
+        <!-- Direct Order Link -->
+        <a href="<%= new_order_path(quran_id: @quran_id) %>"
+           class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+          <i class="fas fa-copy mr-2"></i>
+          Order Another Quran
         </a>
 
-        <a href="<%= new_order_path %>"
-           class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
-          <i class="fas fa-heart mr-2"></i>
-          Share with Others
-        </a>
+        <!-- Social Sharing -->
+        <div class="flex justify-center space-x-2 py-2">
+          <!-- WhatsApp -->
+          <a href="https://wa.me/?text=<%= u("Get your free Quran from #{site_name}! #{root_url}orders/new#{@quran_id ? "?quran_id=#{@quran_id}" : ''}") %>"
+             target="_blank"
+             class="bg-green-500 text-white p-3 flex items-center justify-center rounded-full hover:bg-green-600">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+          
+          <!-- Facebook -->
+          <a href="https://www.facebook.com/sharer/sharer.php?u=<%= u("#{root_url}orders/new#{@quran_id ? "?quran_id=#{@quran_id}" : ''}") %>"
+             target="_blank"
+             class="bg-blue-600 text-white p-3 flex items-center justify-center rounded-full hover:bg-blue-700">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          
+          <!-- Twitter -->
+          <a href="https://twitter.com/intent/tweet?text=<%= u("Get your free Quran! #{root_url}orders/new#{@quran_id ? "?quran_id=#{@quran_id}" : ''}") %>"
+             target="_blank"
+             class="bg-blue-400 text-white p-3 flex items-center justify-center rounded-full hover:bg-blue-500">
+            <i class="fab fa-twitter"></i>
+          </a>
+          
+          <!-- Email -->
+          <a href="mailto:?subject=<%= site_name %>&body=Get your free Quran copy: <%= u("#{root_url}orders/new#{@quran_id ? "?quran_id=#{@quran_id}" : ''}") %>"
+             class="bg-gray-600 text-white p-3 flex items-center justify-center rounded-full hover:bg-gray-700">
+            <i class="fas fa-envelope"></i>
+          </a>
+        </div>
+
+        <!-- Copy Link -->
+        <button onclick="copyShareLink(this)"
+           class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+          <i class="fas fa-link mr-2"></i>
+          Copy Share Link
+        </button>
       </div>
+      
+      <div class="mt-4">
+        <button onclick="closeShareModal()"
+           class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <% if @daily_order_info %>
+    <p class="mt-2 text-sm">
+      Daily orders: <%= @daily_order_info[:today_count] %> of <%= @daily_order_info[:daily_limit] %>
+      (<%= @daily_order_info[:remaining] %> remaining today)
+    </p>
+  <% end %>
 
       <!-- Contact Info -->
       <div class="mt-8 text-sm text-gray-500">
@@ -115,12 +173,86 @@
   </div>
 </div>
 
-<!-- Auto-redirect -->
+<% content_for :page_scripts do %>
 <script>
-  // Optional: Auto-redirect after 10 seconds
-  setTimeout(function() {
-    window.location.href = '<%= root_path %>';
-  }, 10000); // 10 seconds
+// For Option 3 - Modal
+function openShareModal() {
+  document.getElementById('shareModal').classList.remove('hidden');
+}
+
+function closeShareModal() {
+  document.getElementById('shareModal').classList.add('hidden');
+}
+
+function copyShareLink(button) {
+  const shareUrl = '<%= @quran_id.present? ? "#{root_url}orders/new?quran_id=#{@quran_id}" : "#{root_url}orders/new" %>';
+  
+  // Store original button content
+  const originalContent = button.innerHTML;
+  
+  navigator.clipboard.writeText(shareUrl).then(function() {
+    // Success feedback
+    button.innerHTML = '<i class="fas fa-check mr-2"></i>Share Link Copied!';
+    button.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-50');
+    button.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
+    
+    // Revert after 2 seconds
+    setTimeout(() => {
+      button.innerHTML = originalContent;
+      button.classList.remove('bg-green-100', 'text-green-700', 'border-green-300');
+      button.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-50');
+    }, 2000);
+    
+  }).catch(function(err) {
+    console.error('Could not copy text: ', err);
+    
+    // Fallback for older browsers
+    const tempInput = document.createElement('input');
+    tempInput.value = shareUrl;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999); // For mobile devices
+    
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        // Success feedback for fallback
+        button.innerHTML = '<i class="fas fa-check mr-2"></i>Share Link Copied!';
+        button.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-50');
+        button.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
+        
+        setTimeout(() => {
+          button.innerHTML = originalContent;
+          button.classList.remove('bg-green-100', 'text-green-700', 'border-green-300');
+          button.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-50');
+        }, 2000);
+      } else {
+        throw new Error('Fallback copy failed');
+      }
+    } catch (fallbackErr) {
+      console.error('Fallback copy failed: ', fallbackErr);
+      // Error feedback
+      button.innerHTML = '<i class="fas fa-times mr-2"></i>Failed to copy';
+      button.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-50');
+      button.classList.add('bg-red-100', 'text-red-700', 'border-red-300');
+      
+      setTimeout(() => {
+        button.innerHTML = originalContent;
+        button.classList.remove('bg-red-100', 'text-red-700', 'border-red-300');
+        button.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-50');
+      }, 2000);
+    } finally {
+      document.body.removeChild(tempInput);
+    }
+  });
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const modal = document.getElementById('shareModal');
+  if (event.target == modal) {
+    closeShareModal();
+  }
+}
 </script>
-</body>
-</html>
+<% end %>

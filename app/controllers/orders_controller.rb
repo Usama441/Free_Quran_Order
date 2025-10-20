@@ -1,27 +1,122 @@
 class OrdersController < ApplicationController
-  def new
-    @order = Order.new
-    @quran = Quran.find_by(id: params[:quran_id])
+  include SettingsHelper
+  before_action :check_maintenance_mode, except: [:create_success]
+  before_action :check_order_limits, only: [:create]
+  before_action :log_debug_info, if: :debug_mode?
 
+  def new
+    @quran = Quran.find_by(id: params[:quran_id])
+    @order = Order.new(quran: @quran)
+    
+     # If a specific Quran is selected, use its details
+    if @quran
+      @order.translation = @quran.translation
+    else
+      # Default values if no specific Quran selected
+      @order.translation = default_translation
+    end
     # Initialize countries data
     @countries_data = load_countries_data
     @phone_formats = load_phone_formats
+
+    @daily_order_info = get_daily_order_info
+
+    log_debug_action('new_order_page_loaded', {
+    quran_id: params[:quran_id],
+    quran_translation: @quran&.translation,
+    order_translation: @order.translation,
+    default_translation: default_translation,
+    maintenance_mode: maintenance_mode?,
+    debug_mode: debug_mode?,
+    daily_orders: @daily_order_info[:today_count],
+    daily_limit: @daily_order_info[:daily_limit]
+  })
   end
 
 
-  def create
+  def create  
     @order = Order.new(order_params)
-    @order.translation ||= 'english' # Default translation
     @order.quantity ||= 1 # Default quantity
+    @order.status = Order.statuses['pending']
 
+    # Store quran_id in session for success page
+    if order_params[:quran_id].present?
+      session[:last_ordered_quran_id] = order_params[:quran_id]
+    end
+    
+    # Load notification settings for debugging
+    notification_settings = load_notification_settings
+    
+    #Debug: Log order creation attempt
+    log_debug_action('order_creation_attempt', {
+      order_params: order_params.to_h,
+      daily_orders: today_orders_count,
+      daily_limit: max_daily_orders,
+      maintenance_mode: maintenance_mode?,
+      discord_enabled: notification_settings['enable_discord_notifications'],
+      discord_url_present: notification_settings['discord_webhook_url'].present?
+    })
+  
+    # Check if we've reached daily limits (redundant check for safety)
+    if daily_order_limit_reached?
+      log_debug_action('order_rejected_daily_limit', {
+        daily_orders: today_orders_count,
+        daily_limit: max_daily_orders
+      })
+      
+      respond_to do |format|
+        format.html do 
+          redirect_to new_order_path, 
+          alert: "We've reached our daily order limit. Please try again tomorrow."
+        end
+        format.json do 
+          render json: { 
+            success: false, 
+            errors: ["We've reached our daily order limit. Please try again tomorrow."] 
+          }, status: :unprocessable_entity 
+        end
+      end
+      return
+    end
+  
     respond_to do |format|
       if @order.save
+        # Debug: Log before sending webhook
+        log_debug_action('order_saved_sending_webhook', {
+          order_id: @order.id,
+          order_email: @order.email,
+          discord_enabled: notification_settings['enable_discord_notifications'],
+          discord_url_present: notification_settings['discord_webhook_url'].present?
+        })
+        if notification_settings['email_on_new_order']
+        # Send notification to Discord
+        webhook_result = WebhookNotificationService.send_new_order_notification(@order)
+        end
+
+        # Debug: Log webhook result
+        log_debug_action('webhook_sent_result', {
+          order_id: @order.id,
+          webhook_success: webhook_result,
+          discord_url: notification_settings['discord_webhook_url']
+        })
+  
         # Trigger background job for admin notification
         OrderBroadcastJob.perform_later(@order)
-
+  
         format.html { redirect_to order_create_success_path, notice: "Thank you for your order request! We'll send you your free Quran copy soon." }
         format.json { render json: { success: true, message: "Order submitted successfully!" }, status: :created }
       else
+        # Debug: Log order creation errors
+        log_debug_action('order_creation_failed', {
+          errors: @order.errors.full_messages,
+          order_params: order_params.to_h
+        })
+  
+        # Re-initialize for the form in case of errors
+        @countries_data = load_countries_data
+        @phone_formats = load_phone_formats
+        @daily_order_info = get_daily_order_info
+        
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: { success: false, errors: @order.errors.full_messages }, status: :unprocessable_entity }
       end
@@ -29,13 +124,159 @@ class OrdersController < ApplicationController
   end
 
   def create_success
+    @daily_order_info = get_daily_order_info
+
+    # Debug information
+    log_debug_action('order_success_page_loaded', {
+      daily_orders: @daily_order_info[:today_count],
+      daily_limit: @daily_order_info[:daily_limit]
+    })
+
+    @quran_id = session[:last_ordered_quran_id] || params[:quran_id]
+    @quran = Quran.find_by(id: @quran_id)
+    @order = Order.new(quran: @quran)
   end
 
   private
+  def check_maintenance_mode
+    if maintenance_mode?
+      log_debug_action('maintenance_mode_redirect', {
+        action: action_name,
+        controller: controller_name
+      })
+      
+      respond_to do |format|
+        format.html do
+          render 'maintenance', status: :service_unavailable, layout: 'application'
+        end
+        format.json do
+          render json: { 
+            success: false, 
+            error: "System is under maintenance. Please try again later." 
+          }, status: :service_unavailable
+        end
+      end
+    end
+  end
+
+  def check_order_limits
+    if daily_order_limit_reached?
+      log_debug_action('order_limit_check_failed', {
+        daily_orders: today_orders_count,
+        daily_limit: max_daily_orders
+      })
+      
+      respond_to do |format|
+        format.html do 
+          redirect_to new_order_path, 
+          alert: "We've reached our daily order limit. Please try again tomorrow."
+        end
+        format.json do 
+          render json: { 
+            success: false, 
+            errors: ["We've reached our daily order limit. Please try again tomorrow."] 
+          }, status: :unprocessable_entity 
+        end
+      end
+    end
+  end
+
+  def load_notification_settings
+    settings_path = Rails.root.join('config', 'notification_settings.yml')
+    if File.exist?(settings_path)
+      YAML.safe_load(File.read(settings_path)) || {}
+    else
+      {}
+    end
+  end
+
+  def daily_order_limit_reached?
+    today_orders_count >= max_daily_orders
+  end
+
+  def today_orders_count
+    Order.where(created_at: Time.current.beginning_of_day..Time.current.end_of_day).count
+  end
+
+  def get_daily_order_info
+    today_count = today_orders_count
+    limit = max_daily_orders
+    remaining = [limit - today_count, 0].max
+    
+    {
+      today_count: today_count,
+      daily_limit: limit,
+      remaining: remaining,
+      limit_reached: today_count >= limit
+    }
+  end
+
+  def log_debug_info
+    return unless debug_mode?
+    
+    safe_params = safe_params_to_hash
+    logger.info "DEBUG MODE: OrdersController##{action_name} - Params: #{safe_params}"
+  end
+
+  def log_debug_action(action, data = {})
+    return unless debug_mode?
+    
+    debug_info = {
+      timestamp: Time.current.iso8601,
+      controller: 'OrdersController',
+      action: action,
+      ip: request.remote_ip,
+      user_agent: request.user_agent
+    }.merge(data)
+    
+    # Convert any complex objects to strings to avoid serialization issues
+    sanitized_debug_info = debug_info.transform_values do |value|
+      if value.respond_to?(:to_hash)
+        safe_params_to_hash(value)
+      else
+        value
+      end
+    end
+    
+    logger.info "DEBUG: #{sanitized_debug_info.to_json}"
+    
+    # Also output to console in development
+    puts "🔍 DEBUG: #{sanitized_debug_info.to_json}" if Rails.env.development?
+  end
+
+  # Safe method to convert parameters to hash
+  def safe_params_to_hash(params_obj = nil)
+    params_to_convert = params_obj || params
+    
+    if params_to_convert.respond_to?(:to_unsafe_h)
+      # For ActionController::Parameters, use to_unsafe_h with permit!
+      params_to_convert.to_unsafe_h.to_h
+    elsif params_to_convert.respond_to?(:to_h)
+      # For other hash-like objects
+      params_to_convert.to_h
+    else
+      # Fallback to string representation
+      params_to_convert.inspect
+    end
+  rescue => e
+    # If anything fails, return a safe representation
+    { error: "Could not convert params: #{e.message}" }
+  end
+
+  # Alternative simpler method for basic parameter logging
+  def safe_params_log
+    {
+      controller: params[:controller],
+      action: params[:action],
+      id: params[:id],
+      quran_id: params[:quran_id]
+    }.compact
+  end
 
   def order_params
-    params.require(:order).permit(:full_name, :email, :phone, :country_code, :city, :state, :postal_code, :address, :quantity, :note)
+    params.require(:order).permit(:full_name, :email, :phone, :country_code, :city, :state, :postal_code, :address, :quantity, :note, :quran_id, :translation)
   end
+
 
   def load_countries_data
     # Use a simple static list to avoid API issues - includes major Islamic and global countries

@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  event_type: MyString
+  title: MyString
+  message: MyString
+  metadata: 
+  sent_to: MyString
+  status: MyString
+
+two:
+  event_type: MyString
+  title: MyString
+  message: MyString
+  metadata: 
+  sent_to: MyString
+  status: MyString

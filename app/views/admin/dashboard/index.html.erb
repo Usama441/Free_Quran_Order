@@ -1,75 +1,5 @@
-<!-- app/views/admin/dashboard/index.html.erb -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quran Orders Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-    />
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    rel="stylesheet"
-    />
-</head>
-<body class="bg-gray-50 text-gray-800">
-<div class="flex h-screen">
-  <!-- Sidebar -->
-  <aside class="w-64 bg-green-700 text-white flex flex-col">
-    <div class="p-6 text-center border-b border-green-600">
-      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-    </div>
-    <nav class="flex-1 p-4 space-y-3">
-      <%= link_to admin_dashboard_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
-        <i class="fas fa-chart-line"></i><span>Dashboard</span>
-      <% end %>
-      <%= link_to admin_qurans_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
-        <i class="fas fa-book-quran"></i><span>Quran Management</span>
-      <% end %>
-      <%= link_to admin_orders_path, class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
-        <i class="fas fa-shopping-cart"></i><span>Order Management</span>
-      <% end %>
-      <div class="pt-4">
-        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Analytics</p>
-        <%= link_to admin_dashboard_path(anchor: 'orders'), class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
-          <i class="fas fa-shopping-cart"></i><span>Order Analytics</span>
-        <% end %>
-        <%= link_to admin_dashboard_path(anchor: 'customers'), class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
-          <i class="fas fa-users"></i><span>Customer Insights</span>
-        <% end %>
-        <%= link_to admin_dashboard_path(anchor: 'geography'), class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
-          <i class="fas fa-globe"></i><span>Geographic Data</span>
-        <% end %>
-        <%= link_to admin_dashboard_path(anchor: 'reports'), class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
-          <i class="fas fa-chart-bar"></i><span>Reports</span>
-        <% end %>
-      </div>
-      <div class="pt-4">
-        <p class="text-xs text-green-300 uppercase font-semibold mb-2">Settings</p>
-        <%= link_to "#", class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
-          <i class="fas fa-cog"></i><span>Configuration</span>
-        <% end %>
-        <%= link_to "#", class: "flex items-center space-x-2 p-3 rounded-lg hover:bg-green-600 transition" do %>
-          <i class="fas fa-envelope"></i><span>Notifications</span>
-        <% end %>
-      </div>
-      <!-- Back to Site -->
-      <%= link_to root_path, class: "flex items-center space-x-2 p-3 rounded-lg bg-green-600 hover:bg-green-500 transition mt-8" do %>
-        <i class="fas fa-home"></i><span>Back to Site</span>
-      <% end %>
-    </nav>
-    <footer class="p-4 text-center border-t border-green-600">
-      <p class="text-sm">&copy; 2025 Free Quran Project</p>
-    </footer>
-  </aside>
+<% content_for :title, "Quran Orders Dashboard" %>
 
-  <!-- Main Content -->
-  <main class="flex-1 p-8 overflow-y-auto">
     <%= turbo_stream_from "dashboard_stats" %>
 
   <h2 class="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-2">
@@ -275,8 +205,8 @@
         </div>
       </div>
     <% end %>
-  </main>
-</div>
+
+<% content_for :page_scripts do %>
 
 <script>
     // Function to update chart dynamically
@@ -397,7 +327,7 @@
     // Auto-refresh every 30 seconds
     setInterval(function() {
         location.reload();
-    }, 30000);
+    }, <%= auto_refresh_interval * 1000%>);
 </script>
-</body>
-</html>
+
+<% end %>
