@@ -24,7 +24,7 @@ class Admin::OrdersController < ApplicationController
 
     respond_to do |format|
       format.html # For full page loads
-      format.js { render json: { html: render_to_string(partial: 'orders_table', formats: [:html]), pending_count: @pending_count, processing_count: @processing_count, shipped_count: @shipped_count, delivered_count: @delivered_count } }
+      format.json { render json: { html: render_to_string(partial: 'orders_table', formats: [:html]), pending_count: @pending_count, processing_count: @processing_count, shipped_count: @shipped_count, delivered_count: @delivered_count } }
     end
   end
 

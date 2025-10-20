@@ -17,6 +17,7 @@ get "orders/create", to: "orders#create_success", as: :create_success
     patch "orders/:id/status", to: "orders#update_status", as: :update_order_status
 
     # Admin dashboard and analytics
+    root to: "dashboard#index", as: :root
     get "dashboard", to: "dashboard#index", as: :dashboard
     get "analytics/orders", to: "analytics#orders", as: :order_analytics
     get "analytics/customers", to: "analytics#customers", as: :customer_analytics
@@ -29,4 +30,7 @@ get "orders/create", to: "orders#create_success", as: :create_success
 
   # Devise routes for Admin (authentication) with custom sessions controller
   devise_for :admins, path: 'admin', controllers: { sessions: 'admin/sessions' }
+
+  # PWA routes
+  get '/service-worker.js' => 'pwa#service_worker'
 end

@@ -12,6 +12,9 @@
     />
 </head>
 <body class="bg-gray-50 text-gray-800">
+<!-- Rails CSRF token for AJAX requests -->
+<%= csrf_meta_tags %>
+<meta name="csrf-token" content="<%= form_authenticity_token %>" />
 <div class="flex h-screen">
   <!-- Sidebar -->
   <aside class="w-64 bg-green-700 text-white flex flex-col">
@@ -75,6 +78,7 @@
     </div>
 
     <!-- Status Counts -->
+    
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-red-500">
         <div class="flex justify-between items-center">
@@ -164,13 +168,21 @@
 
     <!-- Orders Table Container -->
     <div id="orders-table-container">
-      <%= render 'orders_table' %>
+      <%= render 'admin/orders/orders_table' %>
     </div>
   </main>
 </div>
 
 <!-- JavaScript for AJAX status updates -->
 <script>
+  // Helper function to get CSRF token
+  function getCsrfToken() {
+    const tokenElement = document.querySelector('[name="authenticity_token"]');
+    if (tokenElement) {
+      return tokenElement.value;
+    }
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+  }
   function filterOrders() {
     const status = document.getElementById('status-filter').value;
     const startDate = document.getElementById('start-date-filter').value;
@@ -185,7 +197,7 @@
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'X-CSRF-Token': document.querySelector('[name="authenticity_token"]').value
+        'X-CSRF-Token': getCsrfToken()
       }
     })
     .then(response => response.json())
@@ -219,7 +231,12 @@
   function updateOrderStatus(orderId, newStatus) {
     // Before sending, replace the dropdown with loading text
     const dropdown = event.target;
-    const originalText = dropdown.options[dropdown.selectedIndex].text;
+    const originalOptions = Array.from(dropdown.children).map(option => ({
+      value: option.value,
+      text: option.text,
+      selected: option.selected
+    }));
+
     dropdown.disabled = true;
     dropdown.innerHTML = '<option>Updating...</option>';
 
@@ -227,30 +244,107 @@
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('[name="authenticity_token"]').value
+        'X-CSRF-Token': getCsrfToken()
       },
       body: JSON.stringify({ status: newStatus })
     })
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        // Show success message and update the UI
-        showFlashMessage('success', `${originalText} successfully!`);
+        // Update the badge color immediately
+        const row = dropdown.closest('tr');
+        // Find the status cell (4th td in row) and then find the span inside it
+        const statusCell = row.cells[3]; // 4th column (0-indexed: 0=id, 1=customer, 2=book, 3=status, 4=date, 5=actions)
+        const statusSpan = statusCell.querySelector('.px-2.inline-flex.text-xs.leading-5.font-semibold.rounded-full');
 
-        // Reload the entire page to update all counts and table
-        setTimeout(() => window.location.reload(), 1000);
+        if (statusSpan) {
+          // Remove all color classes
+          statusSpan.classList.remove('bg-red-100', 'text-red-800',
+                                     'bg-yellow-100', 'text-yellow-800',
+                                     'bg-blue-100', 'text-blue-800',
+                                     'bg-green-100', 'text-green-800');
+
+          // Add appropriate color and update text
+          switch(newStatus) {
+            case 'pending':
+              statusSpan.classList.add('bg-red-100', 'text-red-800');
+              statusSpan.textContent = 'Pending';
+              break;
+            case 'processing':
+              statusSpan.classList.add('bg-yellow-100', 'text-yellow-800');
+              statusSpan.textContent = 'Processing';
+              break;
+            case 'shipped':
+              statusSpan.classList.add('bg-blue-100', 'text-blue-800');
+              statusSpan.textContent = 'Shipped';
+              break;
+            case 'delivered':
+              statusSpan.classList.add('bg-green-100', 'text-green-800');
+              statusSpan.textContent = 'Delivered';
+              break;
+          }
+        }
+
+        // Restore dropdown with correctly selected option
+        let html = '';
+        originalOptions.forEach(option => {
+          const isSelected = option.value === newStatus;
+          html += `<option value="${option.value}" ${isSelected ? 'selected' : ''}>${option.text}</option>`;
+        });
+        dropdown.innerHTML = html;
+        dropdown.disabled = false;
+
+        // Update counts by fetching current data
+        updateCounts();
+
+        // Show success message
+        showFlashMessage('success', `Status updated to ${newStatus.titleize()} successfully!`);
+
       } else {
         // Restore dropdown and show error
+        let html = '';
+        originalOptions.forEach(option => {
+          const isSelected = option.selected;
+          html += `<option value="${option.value}" ${isSelected ? 'selected' : ''}>${option.text}</option>`;
+        });
+        dropdown.innerHTML = html;
         dropdown.disabled = false;
+
         showFlashMessage('error', data.error || 'Failed to update status');
       }
     })
     .catch(error => {
       // Restore dropdown and show error
+      let html = '';
+      originalOptions.forEach(option => {
+        const isSelected = option.selected;
+        html += `<option value="${option.value}" ${isSelected ? 'selected' : ''}>${option.text}</option>`;
+      });
+      dropdown.innerHTML = html;
       dropdown.disabled = false;
+
       console.error('Error:', error);
       showFlashMessage('error', 'Network error. Please try again.');
     });
+  }
+
+  function updateCounts() {
+    // Simple way: fetch current counts and update UI
+    fetch('/admin/orders', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRF-Token': getCsrfToken()
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('pending-count').textContent = data.pending_count;
+      document.getElementById('processing-count').textContent = data.processing_count;
+      document.getElementById('shipped-count').textContent = data.shipped_count;
+      document.getElementById('delivered-count').textContent = data.delivered_count;
+    })
+    .catch(error => console.error('Error updating counts:', error));
   }
 
   function showFlashMessage(type, message) {

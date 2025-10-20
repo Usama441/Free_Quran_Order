@@ -2,7 +2,7 @@ class Order < ApplicationRecord
   enum status: { pending: 0, processing: 1, shipped: 2, delivered: 3, cancelled: 4 }
 
   # Association with Quran (orders belong to qurans)
-  belongs_to :quran, optional: true
+  belongs_to :quran, polymorphic: true, optional: true
 
   validates :full_name, presence: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
