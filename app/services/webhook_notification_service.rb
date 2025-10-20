@@ -64,19 +64,92 @@ class WebhookNotificationService
           )
         end
     end
-  
-    def self.send_whatsapp_notification(message, webhook_url, phone_numbers = [])
-      return unless webhook_url.present?
-  
-      # For WhatsApp Business API or third-party services
+
+
+  def self.send_daily_summary_notification(orders)
+    settings = load_notification_settings
+    return unless settings['email_daily_summary'] && settings['discord_webhook_url'].present?
+
+    require 'net/http'
+    require 'uri'
+    
+    begin
+      uri = URI.parse(settings['discord_webhook_url'])
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      
+      # Calculate order status counts
+      pending_count = orders.where(status: 'pending').count
+      processing_count = orders.where(status: 'processing').count
+      delivered_count = orders.where(status: 'delivered').count
+      
       payload = {
-        message: message,
-        to: phone_numbers, # Array of phone numbers
-        platform: 'whatsapp'
+        content: "📊 **DAILY ORDER SUMMARY**",
+        username: 'Quran Distribution Bot',
+        avatar_url: 'https://cdn-icons-png.flaticon.com/512/210/210626.png',
+        embeds: [
+          {
+            title: "Daily Order Report - #{Date.yesterday.strftime('%Y-%m-%d')}",
+            color: 3447003, # Blue color for daily summary
+            fields: [
+              {
+                name: "📦 Total Orders",
+                value: orders.length.to_s,
+                inline: true
+              },
+              {
+                name: "🕒 Pending",
+                value: pending_count.to_s,
+                inline: true
+              },
+              {
+                name: "⏳ In Progress",
+                value: processing_count.to_s,
+                inline: true
+              },
+              {
+                name: "✅ Delivered",
+                value: delivered_count.to_s,
+                inline: true
+              },
+              {
+                name: "📊 Success Rate",
+                value: "#{(delivered_count.to_f / orders.length * 100).round(1)}%",
+                inline: true
+              }
+            ],
+            footer: {
+              text: "Quran Distribution System • #{Time.current.year}"
+            },
+            timestamp: Time.current.iso8601
+          }
+        ]
       }
-  
-      send_webhook(webhook_url, payload)
+      
+      request = Net::HTTP::Post.new(uri.request_uri, {
+        'Content-Type' => 'application/json'
+      })
+      request.body = payload.to_json
+      
+      response = http.request(request)
+      
+      # FIX: Pass the orders count, not undefined variable
+      NotificationService.send_daily_summary(orders.length)
+      
+      Rails.logger.info "📊 Daily summary Discord notification sent. Response: #{response.code}"
+      response.code.to_i == 204
+      
+    rescue => e
+      NotificationActivity.create(
+        title: "Daily Summary Notification Failed",
+        message: "Error: #{e.message}",
+        sent_to: settings['discord_webhook_url'],
+        status: 'failed'
+      )
+      false
     end
+  end
+
   
     def self.send_new_order_notification(order)
         settings = load_notification_settings

@@ -1,6 +1,6 @@
 ---
 email_on_new_order: true
-email_daily_summary: false
+email_daily_summary: true
 email_weekly_report: false
 sms_alerts_low_stock: true
 slack_notifications: false
