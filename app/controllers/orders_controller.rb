@@ -7,6 +7,7 @@ class OrdersController < ApplicationController
   def new
     @quran = Quran.find_by(id: params[:quran_id])
     @order = Order.new(quran: @quran)
+    
      # If a specific Quran is selected, use its details
     if @quran
       @order.translation = @quran.translation
@@ -21,19 +22,27 @@ class OrdersController < ApplicationController
     @daily_order_info = get_daily_order_info
 
     log_debug_action('new_order_page_loaded', {
-      quran_id: params[:quran_id],
-      default_translation: default_translation,
-      maintenance_mode: maintenance_mode?,
-      debug_mode: debug_mode?,
-      daily_orders: @daily_order_info[:today_count],
-      daily_limit: @daily_order_info[:daily_limit]
-    })
+    quran_id: params[:quran_id],
+    quran_translation: @quran&.translation,
+    order_translation: @order.translation,
+    default_translation: default_translation,
+    maintenance_mode: maintenance_mode?,
+    debug_mode: debug_mode?,
+    daily_orders: @daily_order_info[:today_count],
+    daily_limit: @daily_order_info[:daily_limit]
+  })
   end
 
 
   def create  
     @order = Order.new(order_params)
     @order.quantity ||= 1 # Default quantity
+    @order.status = Order.statuses['pending']
+
+    # Store quran_id in session for success page
+    if order_params[:quran_id].present?
+      session[:last_ordered_quran_id] = order_params[:quran_id]
+    end
     
     # Load notification settings for debugging
     notification_settings = load_notification_settings
@@ -117,11 +126,15 @@ class OrdersController < ApplicationController
   def create_success
     @daily_order_info = get_daily_order_info
 
-      # Debug information
-      log_debug_action('order_success_page_loaded', {
-        daily_orders: @daily_order_info[:today_count],
-        daily_limit: @daily_order_info[:daily_limit]
-      })
+    # Debug information
+    log_debug_action('order_success_page_loaded', {
+      daily_orders: @daily_order_info[:today_count],
+      daily_limit: @daily_order_info[:daily_limit]
+    })
+
+    @quran_id = session[:last_ordered_quran_id] || params[:quran_id]
+    @quran = Quran.find_by(id: @quran_id)
+    @order = Order.new(quran: @quran)
   end
 
   private

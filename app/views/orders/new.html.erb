@@ -111,8 +111,8 @@
 
       <!-- Hidden fields for quantity and translation -->
       <input type="hidden" id="quantity_field" name="order[quantity]" value="1">
-      <input type="hidden" id="translation_field" name="order[translation]" value="english">
-
+      <!-- Single hidden field for translation -->
+      <input type="hidden" id="translation_field" name="order[translation]" value="<%= @order.translation %>">
       <!-- Special Note -->
       <div>
         <label for="note" class="block font-semibold mb-2">Special Note (optional)</label>
@@ -316,44 +316,44 @@
     }
 
     function updateTranslationInfo() {
-        const translationSelect = document.getElementById('translation_select');
-        const translationField = document.querySelector('input[name="order[translation]"]');
-        const detailsList = document.getElementById('translation_details');
+    const translationSelect = document.getElementById('translation_select');
+    const translationField = document.getElementById('translation_field');
+    const detailsList = document.getElementById('translation_details');
 
-        // const selectedTranslation = translationSelect.value;
-        // translationField.value = selectedTranslation;
-        if (translationSelect && translationField) {
-    translationField.value = translationSelect.value;
-  }
+    if (!translationSelect || !translationField) return;
 
-        const data = {
-            english: {
-                pages: 604,
-                translator: "Abdullah Yusuf Ali",
-                binding: "Softcover Edition",
-                publisher: "Islamic Publications Lahore",
-            },
-            urdu: {
-                pages: 620,
-                translator: "Maulana Fateh Muhammad Jalandhari",
-                binding: "Hardcover Edition",
-                publisher: "Darussalam Publishers",
-            },
-            french: {
-                pages: 590,
-                translator: "Muhammad Hamidullah",
-                binding: "Softcover Edition",
-                publisher: "Paris Islamic Center",
-            },
-            spanish: {
-                pages: 605,
-                translator: "Julio Cortés",
-                binding: "Softcover Edition",
-                publisher: "Islamic Foundation Madrid",
-            },
-        };
+    const selectedTranslation = translationSelect.value;
+    translationField.value = selectedTranslation;
 
-        const selected = data[selectedTranslation];
+    const data = {
+        english: {
+            pages: 604,
+            translator: "Abdullah Yusuf Ali",
+            binding: "Softcover Edition",
+            publisher: "Islamic Publications Lahore",
+        },
+        urdu: {
+            pages: 620,
+            translator: "Maulana Fateh Muhammad Jalandhari",
+            binding: "Hardcover Edition",
+            publisher: "Darussalam Publishers",
+        },
+        french: {
+            pages: 590,
+            translator: "Muhammad Hamidullah",
+            binding: "Softcover Edition",
+            publisher: "Paris Islamic Center",
+        },
+        spanish: {
+            pages: 605,
+            translator: "Julio Cortés",
+            binding: "Softcover Edition",
+            publisher: "Islamic Foundation Madrid",
+        },
+    };
+
+    const selected = data[selectedTranslation];
+    if (selected && detailsList) {
         detailsList.innerHTML = `
             <li><span class="font-semibold">Pages:</span> ${selected.pages}</li>
             <li><span class="font-semibold">Translator:</span> ${selected.translator}</li>
@@ -361,6 +361,7 @@
             <li><span class="font-semibold">Publisher:</span> ${selected.publisher}</li>
         `;
     }
+}
 
     // Show flash message dynamically
     function showFlashMessage(type, message) {
@@ -489,7 +490,6 @@
     // Initialize everything when page loads
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('quantity_field').value = 1;
-        document.getElementById('translation_field').value = 'english';
         populateCountries(); // Populate countries dropdown
         updatePhoneFormat(); // Set initial phone format
     });
