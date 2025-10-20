@@ -1,9 +1,15 @@
 class Admin::OrdersController < ApplicationController
+  layout 'admin'
   before_action :authenticate_admin!
   before_action :set_order, only: [:show, :update_status]
 
   def index
     @orders = Order.includes(:quran).order(created_at: :desc)
+
+    # Search by order ID if provided
+    if params[:search].present?
+      @orders = @orders.where('orders.id = ?', params[:search])
+    end
 
     # Filter by status if provided using numeric values for enum - for AJAX calls
     if params[:status].present?

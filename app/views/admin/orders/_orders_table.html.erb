@@ -18,7 +18,7 @@
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
         <% @orders.each do |order| %>
-          <tr class="hover:bg-gray-50">
+          <tr class="hover:bg-gray-50" id="order-row-<%= order.id %>">
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="text-sm font-medium text-gray-900">#<%= order.id %></div>
               <div class="text-sm text-gray-500"><%= order.quantity %> copy</div>

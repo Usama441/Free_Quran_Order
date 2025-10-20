@@ -1,5 +1,6 @@
 <% content_for :title, "Order ##{@order.id} - Admin" %>
 
+<%= turbo_stream_from "admin_orders_live" %>
 <div class="flex justify-between items-center mb-6">
   <h2 class="text-3xl font-bold text-green-700 flex items-center space-x-2">
     <i class="fas fa-eye"></i><span>Order #<%= @order.id %> Details</span>
@@ -52,7 +53,7 @@
             when 'cancelled' then 'bg-red-100 text-red-800'
             else 'bg-gray-100 text-gray-800'
             end
-          %>">
+          %>" id="order-<%= @order.id %>-status-badge">
             <%= @order.status&.titleize || "Unknown" %>
           </span>
           <div class="mt-2">
@@ -136,7 +137,9 @@
       </h3>
       <div class="bg-gray-50 rounded-lg p-4">
         <div class="flex items-center space-x-4">
-          <%= image_tag @order.quran&.images.first, alt: @order.quran&.title, class: "w-16 h-16 object-cover rounded-lg" %>
+          <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center">
+            <i class="fas fa-book text-green-600 text-2xl"></i>
+          </div>
           <div class="flex-1">
             <h4 class="font-semibold text-gray-800"><%= @order.quran&.title || "Unknown Quran" %></h4>
             <p class="text-gray-600 text-sm">By <%= @order.quran&.writer || "Unknown" %></p>
@@ -273,7 +276,7 @@
   function updateOrderStatus(orderId, newStatus) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-    fetch(`/admin/orders/${orderId}/update_status`, {
+    fetch(`/admin/orders/${orderId}/status`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

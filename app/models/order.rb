@@ -4,6 +4,16 @@ class Order < ApplicationRecord
   # Association with Quran (orders belong to qurans)
   belongs_to :quran, polymorphic: true, optional: true
 
+  # Real-time broadcasting for live updates
+  after_update :broadcast_order_update, if: :saved_change_to_status?
+
+  private
+
+  def broadcast_order_update
+    # Broadcast to all connected admin clients
+    OrderBroadcastJob.perform_later(id)
+  end
+
   validates :full_name, presence: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :phone, presence: true
