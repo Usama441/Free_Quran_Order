@@ -8,6 +8,9 @@ get "orders/create", to: "orders#create_success", as: :create_success
 
   # Admin namespace for custom controllers (e.g., Qurans management)
   namespace :admin do
+    # Admin user management (super admin only)
+    resources :admins
+
     # Use proper RESTful routes for Qurans
     resources :qurans, except: [:show]
 
@@ -26,6 +29,7 @@ get "orders/create", to: "orders#create_success", as: :create_success
     post "analytics/reports/download_csv", to: "analytics#download_csv", as: :download_csv_reports
     get "settings/configuration", to: "settings#configuration", as: :configuration
     get "settings/notifications", to: "settings#notifications", as: :notifications
+    delete "settings/clear_notification_history", to: "settings#clear_notification_history", as: :clear_notification_history
   end
 
   # Devise routes for Admin (authentication) with custom sessions controller

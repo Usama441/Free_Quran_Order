@@ -1,6 +1,11 @@
 <!-- Orders Table Container -->
 <%= turbo_stream_from "admin_orders_live" %>
-<div class="flex justify-between items-center mb-6">
+<div class="container mx-auto px-4 py-8" data-controller="orders-management"
+     data-orders-management-pending-count-target="pendingCount"
+     data-orders-management-processing-count-target="processingCount"
+     data-orders-management-shipped-count-target="shippedCount"
+     data-orders-management-delivered-count-target="deliveredCount">
+  <div class="flex justify-between items-center mb-6">
   <h2 class="text-3xl font-bold text-green-700 flex items-center space-x-2">
     <i class="fas fa-shopping-cart"></i><span>Order Management</span>
   </h2>
@@ -53,17 +58,17 @@
     <!-- Search -->
     <div class="bg-white shadow-md rounded-xl p-6 mb-6">
       <div class="flex flex-wrap gap-4 mb-6">
-        <div class="flex-1 min-w-0">
-          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search by Order ID</label>
-          <input type="text" id="search-input" onkeyup="filterOrders()" value="<%= params[:search] %>" placeholder="Enter order ID..." class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none">
+        <div class="flex-1 min-w-0" data-orders-management-target="search">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Search by Order ID</label>
+          <input type="text" data-orders-management-target="searchInput" value="<%= params[:search] %>" placeholder="Enter order ID..." class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none">
         </div>
       </div>
 
       <!-- Filters -->
       <div class="flex flex-wrap gap-4">
-        <div class="flex-1 min-w-0">
-          <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status Filter</label>
-          <select id="status-filter" onchange="filterOrders()" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none">
+        <div class="flex-1 min-w-0" data-orders-management-target="status">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Status Filter</label>
+          <select data-action="orders-management#filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none">
             <option value="">All Orders</option>
             <option value="pending" <%= 'selected' if params[:status] == 'pending' %>>Pending</option>
             <option value="processing" <%= 'selected' if params[:status] == 'processing' %>>Processing</option>
@@ -72,21 +77,21 @@
             <option value="cancelled" <%= 'selected' if params[:status] == 'cancelled' %>>Cancelled</option>
           </select>
         </div>
-    <div>
-      <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
-      <input type="date" id="start-date-filter" onchange="filterOrders()" value="<%= params[:start_date] %>"
+    <div data-orders-management-target="startDate">
+      <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+      <input type="date" data-action="orders-management#filter" value="<%= params[:start_date] %>"
              class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none">
     </div>
-    <div>
-      <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
-      <input type="date" id="end-date-filter" onchange="filterOrders()" value="<%= params[:end_date] %>"
+    <div data-orders-management-target="endDate">
+      <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+      <input type="date" data-action="orders-management#filter" value="<%= params[:end_date] %>"
              class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none">
     </div>
     <div class="flex items-end gap-2">
-      <button onclick="filterOrders()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center space-x-2">
+      <button data-action="orders-management#clearFilters" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center space-x-2">
         <i class="fas fa-search"></i><span>Filter</span>
       </button>
-      <button onclick="clearFilters()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition flex items-center space-x-2">
+      <button data-action="orders-management#clearFilters" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition flex items-center space-x-2">
         <i class="fas fa-times"></i><span>Clear</span>
       </button>
     </div>
@@ -97,206 +102,3 @@
 <div id="orders-table-container">
   <%= render 'admin/orders/orders_table' %>
 </div>
-
-<!-- JavaScript for AJAX status updates -->
-<script>
-  // Helper function to get CSRF token
-  function getCsrfToken() {
-    const tokenElement = document.querySelector('[name="authenticity_token"]');
-    if (tokenElement) {
-      return tokenElement.value;
-    }
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-  }
-  function filterOrders() {
-    const search = document.getElementById('search-input').value;
-    const status = document.getElementById('status-filter').value;
-    const startDate = document.getElementById('start-date-filter').value;
-    const endDate = document.getElementById('end-date-filter').value;
-
-    const params = new URLSearchParams();
-    if (search) params.append('search', search);
-    if (status) params.append('status', status);
-    if (startDate) params.append('start_date', startDate);
-    if (endDate) params.append('end_date', endDate);
-
-    fetch(`/admin/orders?${params}&format=json`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'X-CSRF-Token': getCsrfToken()
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      // Update orders table
-      document.getElementById('orders-table-container').innerHTML = data.html;
-
-      // Update counts
-      document.getElementById('pending-count').textContent = data.pending_count;
-      document.getElementById('processing-count').textContent = data.processing_count;
-      document.getElementById('shipped-count').textContent = data.shipped_count;
-      document.getElementById('delivered-count').textContent = data.delivered_count;
-
-      showFlashMessage('success', 'Orders filtered successfully!');
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      showFlashMessage('error', 'Failed to filter orders. Please try again.');
-    });
-  }
-
-  function clearFilters() {
-    document.getElementById('search-input').value = '';
-    document.getElementById('status-filter').value = '';
-    document.getElementById('start-date-filter').value = '';
-    document.getElementById('end-date-filter').value = '';
-
-    // Reload the page to clear all filters
-    window.location.href = '/admin/orders';
-  }
-
-  function updateOrderStatus(orderId, newStatus) {
-    // Before sending, replace the dropdown with loading text
-    const dropdown = event.target;
-    const originalOptions = Array.from(dropdown.children).map(option => ({
-      value: option.value,
-      text: option.text,
-      selected: option.selected
-    }));
-
-    dropdown.disabled = true;
-    dropdown.innerHTML = '<option>Updating...</option>';
-
-    fetch(`/admin/orders/${orderId}/status`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': getCsrfToken()
-      },
-      body: JSON.stringify({ status: newStatus })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Update the badge color immediately
-        const row = dropdown.closest('tr');
-        // Find the status cell (4th td in row) and then find the span inside it
-        const statusCell = row.cells[3]; // 4th column (0-indexed: 0=id, 1=customer, 2=book, 3=status, 4=date, 5=actions)
-        const statusSpan = statusCell.querySelector('.px-2.inline-flex.text-xs.leading-5.font-semibold.rounded-full');
-
-        if (statusSpan) {
-          // Remove all color classes
-          statusSpan.classList.remove('bg-red-100', 'text-red-800',
-                                     'bg-yellow-100', 'text-yellow-800',
-                                     'bg-blue-100', 'text-blue-800',
-                                     'bg-green-100', 'text-green-800');
-
-          // Add appropriate color and update text
-          switch(newStatus) {
-            case 'pending':
-              statusSpan.classList.add('bg-red-100', 'text-red-800');
-              statusSpan.textContent = 'Pending';
-              break;
-            case 'processing':
-              statusSpan.classList.add('bg-yellow-100', 'text-yellow-800');
-              statusSpan.textContent = 'Processing';
-              break;
-            case 'shipped':
-              statusSpan.classList.add('bg-blue-100', 'text-blue-800');
-              statusSpan.textContent = 'Shipped';
-              break;
-            case 'delivered':
-              statusSpan.classList.add('bg-green-100', 'text-green-800');
-              statusSpan.textContent = 'Delivered';
-              break;
-          }
-        }
-
-        // Restore dropdown with correctly selected option
-        let html = '';
-        originalOptions.forEach(option => {
-          const isSelected = option.value === newStatus;
-          html += `<option value="${option.value}" ${isSelected ? 'selected' : ''}>${option.text}</option>`;
-        });
-        dropdown.innerHTML = html;
-        dropdown.disabled = false;
-
-        // Update counts by fetching current data
-        updateCounts();
-
-        // Show success message
-        showFlashMessage('success', `Status updated to ${newStatus.titleize()} successfully!`);
-
-      } else {
-        // Restore dropdown and show error
-        let html = '';
-        originalOptions.forEach(option => {
-          const isSelected = option.selected;
-          html += `<option value="${option.value}" ${isSelected ? 'selected' : ''}>${option.text}</option>`;
-        });
-        dropdown.innerHTML = html;
-        dropdown.disabled = false;
-
-        showFlashMessage('error', data.error || 'Failed to update status');
-      }
-    })
-    .catch(error => {
-      // Restore dropdown and show error
-      let html = '';
-      originalOptions.forEach(option => {
-        const isSelected = option.selected;
-        html += `<option value="${option.value}" ${isSelected ? 'selected' : ''}>${option.text}</option>`;
-      });
-      dropdown.innerHTML = html;
-      dropdown.disabled = false;
-
-      console.error('Error:', error);
-      showFlashMessage('error', 'Network error. Please try again.');
-    });
-  }
-
-  function updateCounts() {
-    // Simple way: fetch current counts and update UI
-    fetch('/admin/orders', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'X-CSRF-Token': getCsrfToken()
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('pending-count').textContent = data.pending_count;
-      document.getElementById('processing-count').textContent = data.processing_count;
-      document.getElementById('shipped-count').textContent = data.shipped_count;
-      document.getElementById('delivered-count').textContent = data.delivered_count;
-    })
-    .catch(error => console.error('Error updating counts:', error));
-  }
-
-  function showFlashMessage(type, message) {
-    const existingAlert = document.querySelector('.flash-message');
-    if (existingAlert) {
-      existingAlert.remove();
-    }
-
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `flash-message fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white max-w-sm`;
-    alertDiv.innerHTML = `
-      <div class="flex items-center">
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
-        <span>${message}</span>
-      </div>
-    `;
-
-    document.body.appendChild(alertDiv);
-
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      if (alertDiv.parentNode) {
-        alertDiv.remove();
-      }
-    }, 5000);
-  }
-</script>

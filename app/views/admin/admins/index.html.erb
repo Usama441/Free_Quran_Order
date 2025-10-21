@@ -1,0 +1,112 @@
+<% content_for :title, "Admin Users - Quran Admin" %>
+
+<div class="space-y-8">
+  <div class="flex justify-between items-center">
+    <h2 class="text-3xl font-bold text-green-700 flex items-center space-x-2">
+      <i class="fas fa-users-cog"></i><span>Admin User Management</span>
+    </h2>
+    <%= link_to new_admin_admin_path, class: "bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center space-x-2" do %>
+      <i class="fas fa-plus"></i><span>Add New Admin</span>
+    <% end %>
+  </div>
+
+  <!-- Admin Users Table -->
+  <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-auto">
+        <thead class="bg-green-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Email</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Role</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Created</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @admins.each do |admin| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center">
+                      <i class="fas fa-user text-white"></i>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900"><%= admin.full_name %></div>
+                    <% if admin == current_admin %>
+                      <div class="text-xs text-green-600 font-medium">(You)</div>
+                    <% end %>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= admin.email %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if admin.super_admin? %>
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                    <i class="fas fa-crown mr-1"></i>Super Admin
+                  </span>
+                <% else %>
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    <i class="fas fa-user-tie mr-1"></i>Manager
+                  </span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= admin.created_at.strftime("%B %d, %Y") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-2">
+                  <%= link_to edit_admin_admin_path(admin), class: "text-indigo-600 hover:text-indigo-900" do %>
+                    <i class="fas fa-edit"></i> Edit
+                  <% end %>
+                  <% unless admin == current_admin %>
+                    <%= button_to admin_admin_path(admin), method: :delete,
+                        data: { confirm: "Are you sure you want to delete #{admin.email}? This action cannot be undone." },
+                        class: "text-red-600 hover:text-red-900 ml-4" do %>
+                      <i class="fas fa-trash"></i> Delete
+                    <% end %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Role Information -->
+  <div class="bg-white shadow-lg rounded-xl p-6">
+    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center space-x-2">
+      <i class="fas fa-info-circle"></i><span>Role Permissions</span>
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="border border-red-200 rounded-lg p-4 bg-red-50">
+        <h4 class="font-semibold text-red-800 mb-2 flex items-center">
+          <i class="fas fa-crown text-red-600 mr-2"></i>Super Admin
+        </h4>
+        <ul class="text-sm text-red-700 space-y-1">
+          <li>• Create and manage admin users</li>
+          <li>• Access to all settings and configuration</li>
+          <li>• Full system access (orders, Qurans, analytics)</li>
+          <li>• Delete other admin accounts</li>
+        </ul>
+      </div>
+      <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
+        <h4 class="font-semibold text-blue-800 mb-2 flex items-center">
+          <i class="fas fa-user-tie text-blue-600 mr-2"></i>Manager
+        </h4>
+        <ul class="text-sm text-blue-700 space-y-1">
+          <li>• Manage orders and Quran inventory</li>
+          <li>• View analytics and reports</li>
+          <li>• Limited access to system settings</li>
+          <li>• No admin user management</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

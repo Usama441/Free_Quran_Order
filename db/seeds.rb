@@ -57,11 +57,14 @@ puts "Created #{created_qurans.size} Qurans"
 puts "Creating admin user..."
 
 Admin.find_or_create_by(email: "admin@example.com") do |admin|
+  admin.first_name = "Super"
+  admin.last_name = "Admin"
   admin.password = "password123"
   admin.password_confirmation = "password123"
+  admin.role = :super_admin  # Make the default admin a super admin
 end
 
-puts "Admin user created with email: admin@example.com, password: password123"
+puts "Admin user created with email: admin@example.com, password: password123 (Super Admin)"
 
 # Create sample orders to demonstrate dashboard functionality
 puts "Creating sample orders..."
