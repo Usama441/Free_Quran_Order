@@ -2,9 +2,12 @@ Rails.application.routes.draw do
   # Main site homepage
   root "home#index"
 
-# Public order routes
-resources :orders, only: [:new, :create]
-get "orders/create", to: "orders#create_success", as: :create_success
+  # Public order routes
+  resources :orders, only: [:new, :create]
+  get "orders/create", to: "orders#create_success", as: :create_success
+
+  # About page
+  get "about", to: "home#about"
 
   # Admin namespace for custom controllers (e.g., Qurans management)
   namespace :admin do

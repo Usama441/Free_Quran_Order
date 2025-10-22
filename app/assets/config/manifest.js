@@ -1,5 +1,10 @@
 //= link_tree ../images
 //= link_directory ../stylesheets .css
+//= link themes/theme_green.css
+//= link themes/theme_sky.css
+//= link themes/theme_black.css
+//= link themes/theme_purple.css
+//= link admin_layout.css
 //= link_tree ../../javascript .js
 //= link_tree ../../../vendor/javascript .js
 //= link_tree ../builds

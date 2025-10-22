@@ -1,0 +1,320 @@
+/* FAB Animations */
+.rotate-45 {
+  transform: rotate(45deg);
+}
+
+/* Fixed sidebar toggle button when sidebar is hidden */
+.sidebar-hidden .sidebar-reveal-btn {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.sidebar-reveal-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  width: 36px;
+  height: 36px;
+  background: #059669;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 40;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sidebar-reveal-btn:hover {
+  background: #047857;
+  transform: scale(1.1);
+}
+
+/* Sidebar toggle styles */
+.sidebar-hidden aside {
+  transform: translateX(-100%);
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Hide the sidebar option button when sidebar is collapsed */
+.sidebar-hidden aside .sidebar-toggle-btn {
+  display: none !important;
+}
+
+/* Ensure no overflow issues */
+.sidebar-hidden aside {
+  overflow: hidden !important;
+}
+
+/* Header now inside main content - reset positioning */
+header {
+  margin-left: 0 !important;
+  position: static !important;
+}
+
+.sidebar-hidden main {
+  margin-left: 0 !important;
+  width: 100% !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+/* Ensure main content takes full width in flex container */
+.sidebar-hidden.flex > aside {
+  flex-shrink: 0;
+}
+
+.sidebar-hidden.flex > main {
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+aside {
+  transition: transform 0.3s ease-in-out;
+}
+
+main {
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Sidebar lock/scroll styles */
+.sidebar-locked {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  z-index: 20 !important;
+}
+
+.sidebar-scrolled aside {
+  position: relative;
+  transform: translateY(var(--scroll-y, 0));
+}
+
+/* Sidebar options dropdown (now used in header) */
+.sidebar-options {
+  position: absolute;
+  top: 100%;
+  margin-top: 4px;
+  left: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  min-width: 160px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease-out;
+  z-index: 50;
+}
+
+.dark .sidebar-options {
+  background: #374151;
+  border-color: #6b7280;
+}
+
+.sidebar-options.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.sidebar-option-btn {
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-option-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.sidebar-option-btn:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.sidebar-option-btn:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.sidebar-option-divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 4px 0;
+}
+
+/* Dark mode styles */
+.dark {
+  --bg-primary: #1f2937;
+  --bg-secondary: #374151;
+  --bg-tertiary: #4b5563;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --border-color: #6b7280;
+  --green-primary: #10b981;
+  --green-secondary: #059669;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.dark body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.dark aside {
+  background-color: var(--bg-secondary);
+  border-color: var(--green-primary);
+}
+
+.dark aside header {
+  border-color: var(--green-primary);
+}
+
+.dark main {
+  background-color: var(--bg-primary);
+}
+
+.dark .bg-white {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark .text-gray-800 {
+  color: var(--text-primary) !important;
+}
+
+.dark .text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+.dark .border-gray-200 {
+  border-color: var(--border-color) !important;
+}
+
+.dark input, .dark select, .dark textarea {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark input:focus, .dark select:focus, .dark textarea:focus {
+  border-color: var(--green-primary) !important;
+}
+
+/* Custom scrollbar styling - Theme-aware */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Default track (Green theme) */
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+/* Default handle (Green theme) */
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+  border: 1px solid var(--primary-dark);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* Corner */
+::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
+
+/* Dark mode override */
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+  border-color: #9ca3af;
+}
+
+.dark ::-webkit-scrollbar-corner {
+  background: #374151;
+}
+
+/* Theme-specific scrollbar overrides */
+.theme-green ::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-color: var(--primary-dark);
+}
+
+.theme-sky ::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-color: #0284c7;
+}
+
+.theme-black ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #d97706;
+}
+
+.theme-purple ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  border-color: #7c3aed;
+}
+
+/* Theme color variables for dynamic theming - Multi-Color Approach */
+:root {
+  --primary-color: #10b981;
+  --primary-dark: #059669;
+  --primary-light: #34d399;
+  --sidebar-bg: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --sidebar-hover: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --accent-color: #10b981;
+  --bg-primary: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  --bg-secondary: linear-gradient(135deg, #f9fafb 0%, #f1f5f9 100%);
+  --border-gradient: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  --scrollbar-thumb: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --scrollbar-track: linear-gradient(135deg, #f1f5f9 0%, #e5e7eb 100%);
+}
+
+/* THEMES HAVE BEEN MOVED TO SEPARATE STYLE FILES IN themes/ DIRECTORY */
+
+/* Print styles */
+@media print {
+  #fab-container,
+  aside,
+  .hidden-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+}

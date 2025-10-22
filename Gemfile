@@ -43,7 +43,7 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 
 group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
+  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debuggem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
@@ -51,6 +51,21 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # RSpec for comprehensive testing
+  gem "rspec-rails", "~> 6.0"
+  gem "factory_bot_rails"
+  gem "faker"
+  gem "database_cleaner-active_record"
+
+  # Security testing gems
+  gem "rubocop", require: false
+  gem "rubocop-rails", require: false
+  gem "rubocop-rspec", require: false
+  gem "bundler-audit", require: false
+
+  # Test coverage
+  gem "simplecov", require: false
 end
 
 group :development do
@@ -65,6 +80,10 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+
+  # Additional RSpec testing gems for test group
+  gem "rspec-collection_matchers"
+  gem "shoulda-matchers"
 end
 
 gem "devise", "~> 4.9"

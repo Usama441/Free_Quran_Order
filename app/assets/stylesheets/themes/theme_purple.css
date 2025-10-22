@@ -1,0 +1,270 @@
+/* Purple Theme - Complete Content Theming */
+.theme-purple {
+  --primary-color: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  --primary-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #5b21b6 100%);
+  --secondary-gradient: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%);
+  --sidebar-bg: linear-gradient(180deg, #1a103d 0%, #2d1b69 30%, #5b21b6 60%, #7c3aed 80%, #9c4ae3 90%, #ba68e6 100%);
+  --sidebar-hover: linear-gradient(135deg, #1a103d 0%, #5b21b6 50%, #9c4ae3 100%);
+  --accent-color: #8b5cf6;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #7c3aed;
+  --bg-primary: linear-gradient(45deg, #ffffff 0%, #faf5ff 25%, #f3e8ff 50%, #e9d5ff 75%, #d8b4fe 100%);
+  --bg-secondary: linear-gradient(45deg, #faf5ff 0%, #f3e8ff 25%, #e9d5ff 50%, #d8b4fe 75%, #c084fc 100%);
+  --bg-tertiary: linear-gradient(45deg, #f3e8ff 0%, #e9d5ff 50%, #d8b4fe 100%);
+  --border-color: #e9d5ff;
+  --border-gradient: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 50%, #c084fc 100%);
+  --shadow-primary: rgba(139, 92, 246, 0.1);
+  --shadow-secondary: rgba(124, 58, 237, 0.15);
+  --scrollbar-thumb: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #5b21b6 100%);
+  --scrollbar-track: linear-gradient(45deg, #faf5ff 0%, #f3e8ff 50%, #e9d5ff 100%);
+  --chart-color-1: #8b5cf6;
+  --chart-color-2: #7c3aed;
+  --chart-color-3: #a78bfa;
+  --chart-color-4: #5b21b6;
+  --chart-grid-color: #e9d5ff;
+}
+
+/* ===== CONTENT TEXT COLORS ===== */
+.theme-purple h1, .theme-purple h2, .theme-purple h3, .theme-purple h4, .theme-purple h5, .theme-purple h6 {
+  color: var(--text-primary) !important;
+}
+
+.theme-purple p, .theme-purple span, .theme-purple div, .theme-purple label {
+  color: var(--text-secondary) !important;
+}
+
+.theme-purple .text-gray-800, .theme-purple .text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+.theme-purple .text-gray-600, .theme-purple .text-gray-700, .theme-purple .text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== CARD AND COMPONENT BACKGROUNDS ===== */
+.theme-purple .bg-white {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-purple .bg-gray-50 {
+  background: var(--bg-secondary) !important;
+}
+
+/* ===== STATS CARDS STYLING ===== */
+.theme-purple .stat-card {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-purple .stat-card h3 {
+  color: var(--accent-color) !important;
+}
+
+.theme-purple .stat-card p {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== TABLE STYLING ===== */
+.theme-purple table thead th,
+.theme-purple table tbody td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-purple table tbody tr:hover {
+  background: var(--bg-secondary) !important;
+}
+
+/* ===== BUTTON COLORS ===== */
+.theme-purple .admin-btn-primary {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+}
+
+.theme-purple .admin-btn-secondary {
+  background: var(--secondary-gradient) !important;
+  color: white !important;
+}
+
+/* ===== CHART COLORS AND LEGENDS ===== */
+.theme-purple .chart-legend {
+  color: var(--text-primary) !important;
+}
+
+/* ===== SIDEBAR AND NAVIGATION ===== */
+.theme-purple aside {
+  background: var(--sidebar-bg) !important;
+  border-right: 2px solid var(--border-color);
+}
+
+.theme-purple nav a:hover {
+  background: var(--sidebar-hover);
+}
+
+/* ===== SIDEBAR USER INFO STYLING ===== */
+.theme-purple aside > div:nth-of-type(2) {
+  background: var(--sidebar-hover) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-purple aside > div:nth-of-type(2) .bg-green-600 {
+  background-color: #ba68e6 !important; /* Purple accent */
+}
+
+.theme-purple aside > div:nth-of-type(2) .text-green-300 {
+  color: var(--text-primary) !important;
+}
+
+.theme-purple aside > div:nth-of-type(2) .text-green-300:hover {
+  color: #ffffff !important;
+}
+
+/* ===== SIDEBAR NAVIGATION COLORS ===== */
+.theme-purple aside h1,
+.theme-purple aside h1 * {
+  color: #ffffff !important; /* White for dark sidebar */
+}
+
+.theme-purple nav a,
+.theme-purple nav a i,
+.theme-purple nav a span {
+  color: #ffffff !important; /* White for dark sidebar */
+}
+
+/* Sidebar section headers */
+.theme-purple .text-green-300 {
+  color: #e9d5ff !important; /* Light purple for section headers */
+}
+
+.theme-purple nav a:hover {
+  background: var(--sidebar-hover) !important;
+}
+
+/* ===== HEADER THEME APPLICATION ===== */
+.theme-purple header {
+  background: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.theme-purple .bg-green-600 {
+  background-color: var(--primary-color) !important;
+}
+
+.theme-purple .bg-green-500 {
+  background-color: var(--primary-light) !important;
+}
+
+.theme-purple .text-green-600,
+.theme-purple .text-green-500 {
+  color: var(--accent-color) !important;
+}
+
+/* ===== HEADER ICONS ===== */
+.theme-purple #sidebar-toggle-icon,
+.theme-purple #notification-btn i,
+.theme-purple #settings-btn i {
+  color: #fbbf24 !important;
+}
+
+.theme-purple #user-menu-btn i {
+  color: #e5e7eb !important;
+}
+
+/* ===== ICON COLORS ===== */
+.theme-purple i, .theme-purple .fas, .theme-purple .far, .theme-purple .fab {
+  color: #111827 !important; /* Dark icons for light purple theme */
+}
+
+/* Override specific icons that should be theme-colored */
+.theme-purple .text-green-600,
+.theme-purple .text-blue-600,
+.theme-purple .text-red-600,
+.theme-purple .text-yellow-500 {
+  color: var(--accent-color) !important;
+}
+
+.theme-purple #sidebar-toggle-icon {
+  color: var(--accent-color) !important;
+}
+
+.theme-purple #notification-btn i,
+.theme-purple #settings-btn i {
+  color: var(--text-secondary) !important;
+}
+
+.theme-purple #user-menu-btn i,
+.theme-purple #dark-mode-icon {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== FAB THEMING ===== */
+.theme-purple #fab-main-btn {
+  background: var(--primary-gradient) !important;
+}
+
+.theme-purple #fab-container .bg-blue-600 {
+  background: var(--accent-color) !important;
+}
+
+.theme-purple #fab-container .bg-purple-600 {
+  background: #7c3aed !important; /* Deeper purple */
+}
+
+.theme-purple #fab-container .bg-red-600 {
+  background: #ef4444 !important;
+}
+
+.theme-purple #fab-container .bg-indigo-600 {
+  background: var(--accent-color) !important;
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+.theme-purple ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  border-color: #7c3aed;
+}
+
+/* ===== DROP DOWN MENUS ===== */
+.theme-purple #settings-menu,
+.theme-purple #notification-menu,
+.theme-purple #user-menu,
+.theme-purple #sidebar-options {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-purple #settings-menu .text-gray-700,
+.theme-purple #notification-menu .text-gray-700,
+.theme-purple #user-menu .text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+.theme-purple #settings-menu .text-gray-600,
+.theme-purple #notification-menu .text-gray-600,
+.theme-purple #user-menu .text-gray-600,
+.theme-purple #sidebar-options .text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+.theme-purple .sidebar-option-btn:hover {
+  background: var(--bg-primary) !important;
+}
+
+.theme-purple .border-gray-200 {
+  border-color: var(--border-color) !important;
+}
+
+/* ===== FOOTER ===== */
+.theme-purple footer {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-purple footer .text-gray-600 {
+  color: var(--text-primary) !important;
+}

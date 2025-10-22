@@ -1,0 +1,621 @@
+<!-- Admin Header -->
+<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+  <div class="flex items-center justify-between px-6 py-3">
+
+    <!-- Left Section - Sidebar Toggle & Title -->
+    <div class="flex items-center space-x-4">
+      <!-- Sidebar Toggle Button -->
+      <button onclick="headerToggleSidebar(event)"
+              class="w-8 h-8 flex items-center justify-center transition-all duration-300 group relative overflow-visible"
+              aria-label="Sidebar Options">
+        <i id="sidebar-toggle-icon" class="fas fa-bars text-lg text-gray-600 dark:text-gray-300 group-hover:text-green-500"></i>
+      </button>
+
+      <!-- Admin Panel Title -->
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 ml-4">Quran Admin Panel</h2>
+
+      <!-- Sidebar Options Dropdown -->
+      <div class="sidebar-options" id="sidebar-options">
+        <button onclick="toggleSidebarLock()" class="sidebar-option-btn">
+          <i class="fas fa-lock text-gray-600"></i>
+          <span class="text-sm text-gray-700">Lock Sidebar</span>
+        </button>
+        <div class="sidebar-option-divider"></div>
+        <button onclick="unlockSidebar()" class="sidebar-option-btn">
+          <i class="fas fa-unlock text-blue-600"></i>
+          <span class="text-sm text-gray-700">Auto Scroll</span>
+        </button>
+        <div class="sidebar-option-divider"></div>
+        <button onclick="hideSidebar()" class="sidebar-option-btn">
+          <i class="fas fa-times text-red-600"></i>
+          <span class="text-sm text-gray-700">Hide Sidebar</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Right Section - Notifications, Settings -->
+    <div class="flex items-center space-x-4">
+
+      <!-- Divider -->
+      <div class="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
+
+      <!-- Notifications -->
+      <div class="relative">
+        <button id="notification-btn" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-all duration-200 relative">
+          <i class="fas fa-bell text-gray-600 dark:text-gray-400 text-lg transition-colors duration-200"></i>
+          <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">
+            0
+          </span>
+        </button>
+
+        <div id="notification-menu" class="absolute right-0 top-full mt-1 w-80 bg-white dark:bg-gray-800 rounded-md shadow-lg py-2 z-50 opacity-0 invisible transform scale-95 transition-all duration-200 max-h-96 overflow-y-auto">
+          <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+            <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100">Notifications</h3>
+          </div>
+
+          <div id="notification-list" class="py-2">
+            <div class="px-4 py-3 text-gray-600 dark:text-gray-400">
+              <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+              <span class="text-sm">Welcome to the Admin Panel!</span>
+              <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">Just now</p>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 dark:border-gray-600 p-3">
+            <%= link_to admin_notifications_path, class: "text-sm text-green-600 hover:text-green-500" do %>
+              View all notifications →
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="relative">
+        <button id="settings-btn" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-all duration-200">
+          <i class="fas fa-cog text-gray-600 dark:text-gray-400 text-lg transition-colors duration-200"></i>
+        </button>
+
+        <div id="settings-menu" class="absolute right-0 top-full mt-1 w-80 bg-white dark:bg-gray-800 rounded-md shadow-lg py-2 z-50 opacity-0 invisible transform scale-95 transition-all duration-200 max-h-96 overflow-y-auto">
+          <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Settings</p>
+          </div>
+
+          <!-- App Layout Section -->
+          <div class="px-2 py-1">
+            <p class="px-2 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">App Layout</p>
+            <div class="space-y-1">
+              <div onclick="toggleFixedHeader()" class="flex items-center justify-between w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer transition-colors">
+                <div class="flex items-center">
+                  <i class="fas fa-thumbtack mr-2 text-xs"></i>
+                  <span>Fixed Header</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" id="fixed-header-toggle" onchange="toggleFixedHeader()">
+                  <div class="w-9 h-5 bg-red-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
+              </div>
+
+              <div onclick="toggleFixedNavigation()" class="flex items-center justify-between w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer transition-colors">
+                <div class="flex items-center">
+                  <i class="fas fa-columns mr-2 text-xs"></i>
+                  <span>Fixed Navigation</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" id="fixed-navigation-toggle" checked onchange="toggleFixedNavigation()">
+                  <div class="w-9 h-5 bg-red-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
+              </div>
+
+              <div onclick="toggleBoxedLayout()" class="flex items-center justify-between w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer transition-colors">
+                <div class="flex items-center">
+                  <i class="fas fa-square mr-2 text-xs"></i>
+                  <span>Boxed Layout</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" id="boxed-layout-toggle" onchange="toggleBoxedLayout()">
+                  <div class="w-9 h-5 bg-red-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-b border-gray-200 dark:border-gray-600 my-2"></div>
+
+          <!-- Accessibility Section -->
+          <div class="px-2 py-1">
+            <p class="px-2 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Accessibility</p>
+            <div class="space-y-1">
+              <div class="px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
+                <div class="flex items-center mb-2">
+                  <i class="fas fa-font mr-2 text-xs"></i>
+                  <span>Content Font Size</span>
+                </div>
+                <div class="grid grid-cols-4 gap-1">
+                  <button onclick="setContentFontSize('SM')" class="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded hover:bg-green-500 hover:text-white transition-colors" id="content-font-sm">SM</button>
+                  <button onclick="setContentFontSize('MD')" class="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded hover:bg-green-500 hover:text-white transition-colors active" id="content-font-md">MD</button>
+                  <button onclick="setContentFontSize('LG')" class="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded hover:bg-green-500 hover:text-white transition-colors" id="content-font-lg">LG</button>
+                  <button onclick="setContentFontSize('XL')" class="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded hover:bg-green-500 hover:text-white transition-colors" id="content-font-xl">XL</button>
+                </div>
+              </div>
+
+              <div onclick="toggleHighContrastText()" class="flex items-center justify-between w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer transition-colors">
+                <div class="flex items-center">
+                  <i class="fas fa-adjust mr-2 text-xs"></i>
+                  <span>High Contrast Text</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" id="high-contrast-toggle" onchange="toggleHighContrastText()">
+                  <div class="w-9 h-5 bg-red-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
+              </div>
+
+              <div onclick="togglePreloaderInside()" class="flex items-center justify-between w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer transition-colors">
+                <div class="flex items-center">
+                  <i class="fas fa-spinner mr-2 text-xs"></i>
+                  <span>Preloader Inside</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" id="preloader-toggle" onchange="togglePreloaderInside()">
+                  <div class="w-9 h-5 bg-red-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-b border-gray-200 dark:border-gray-600 my-2"></div>
+
+          <!-- Themes Section - Color Swatches -->
+          <div class="px-2 py-1">
+            <p class="px-2 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Choose Theme</p>
+            <div class="px-3 py-2">
+              <div class="grid grid-cols-4 gap-3">
+                <!-- Green Theme (Default) -->
+                <button onclick="setTheme('green')" class="relative group w-12 h-12 rounded-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300" id="theme-green" title="Green Theme">
+                  <div class="absolute inset-0 rounded-full bg-gradient-to-br from-green-300 via-green-500 to-green-700 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                  <div class="relative flex items-center justify-center w-full h-full">
+                    <i class="fas fa-leaf text-white text-sm opacity-90"></i>
+                  </div>
+                  <div class="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-pulse shadow-lg border-2 border-white" id="green-indicator"></div>
+                </button>
+
+                <!-- Sky Blue Theme -->
+                <button onclick="setTheme('sky')" class="relative group w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 via-sky-500 to-cyan-600 shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300" id="theme-sky" title="Sky Blue Theme">
+                  <div class="absolute inset-0 rounded-full bg-gradient-to-br from-sky-300 via-sky-500 to-cyan-700 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                  <div class="relative flex items-center justify-center w-full h-full">
+                    <i class="fas fa-water text-white text-sm opacity-90"></i>
+                  </div>
+                  <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse shadow-lg border-2 border-white hidden" id="sky-indicator"></div>
+                </button>
+
+                <!-- Black Theme -->
+                <button onclick="setTheme('black')" class="relative group w-12 h-12 rounded-full bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300" id="theme-black" title="Black Theme">
+                  <div class="absolute inset-0 rounded-full bg-gradient-to-br from-gray-600 via-gray-800 to-black opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                  <div class="relative flex items-center justify-center w-full h-full">
+                    <i class="fas fa-moon text-yellow-300 text-sm opacity-90"></i>
+                  </div>
+                  <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse shadow-lg border-2 border-white hidden" id="black-indicator"></div>
+                </button>
+
+                <!-- Purple Theme -->
+                <button onclick="setTheme('purple')" class="relative group w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300" id="theme-purple" title="Purple Theme">
+                  <div class="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400 via-purple-600 to-purple-800 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                  <div class="relative flex items-center justify-center w-full h-full">
+                    <i class="fas fa-star text-white text-sm opacity-90"></i>
+                  </div>
+                  <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse shadow-lg border-2 border-white hidden" id="purple-indicator"></div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-b border-gray-200 dark:border-gray-600 my-2"></div>
+
+          <!-- Reset to Defaults Button -->
+          <div class="px-2 py-3">
+            <button onclick="resetAllSettingsToDefaults()" class="flex items-center justify-center w-full px-4 py-3 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md">
+              <i class="fas fa-undo mr-2"></i>
+              <span>Reset All to Defaults</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<script>
+// Header-specific functions
+function headerToggleSidebar(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  const optionsMenu = document.getElementById('sidebar-options');
+  optionsMenu.classList.toggle('show');
+}
+
+// Header Interactions
+document.addEventListener('DOMContentLoaded', function() {
+  // User Menu Toggle
+  const userMenuBtn = document.getElementById('user-menu-btn');
+  const userMenu = document.getElementById('user-menu');
+
+  userMenuBtn?.addEventListener('click', function(e) {
+    e.stopPropagation();
+    userMenu?.classList.toggle('opacity-0');
+    userMenu?.classList.toggle('invisible');
+    userMenu?.classList.toggle('scale-95');
+  });
+
+  // Notifications Toggle
+  const notificationBtn = document.getElementById('notification-btn');
+  const notificationMenu = document.getElementById('notification-menu');
+
+  notificationBtn?.addEventListener('click', function(e) {
+    e.stopPropagation();
+    notificationMenu?.classList.toggle('opacity-0');
+    notificationMenu?.classList.toggle('invisible');
+    notificationMenu?.classList.toggle('scale-95');
+  });
+
+  // Settings Toggle
+  const settingsBtn = document.getElementById('settings-btn');
+  const settingsMenu = document.getElementById('settings-menu');
+
+  settingsBtn?.addEventListener('click', function(e) {
+    e.stopPropagation();
+    settingsMenu?.classList.toggle('opacity-0');
+    settingsMenu?.classList.toggle('invisible');
+    settingsMenu?.classList.toggle('scale-95');
+  });
+
+  // Close menus when clicking outside
+  document.addEventListener('click', function(e) {
+    // Close user menu
+    if (!userMenuBtn?.contains(e.target) && !userMenu?.contains(e.target)) {
+      userMenu?.classList.add('opacity-0');
+      userMenu?.classList.add('invisible');
+      userMenu?.classList.add('scale-95');
+    }
+
+    // Close notifications
+    if (!notificationBtn?.contains(e.target) && !notificationMenu?.contains(e.target)) {
+      notificationMenu?.classList.add('opacity-0');
+      notificationMenu?.classList.add('invisible');
+      notificationMenu?.classList.add('scale-95');
+    }
+
+    // Close settings
+    if (!settingsBtn?.contains(e.target) && !settingsMenu?.contains(e.target)) {
+      settingsMenu?.classList.add('opacity-0');
+      settingsMenu?.classList.add('invisible');
+      settingsMenu?.classList.add('scale-95');
+    }
+  });
+
+  // Simulate notifications
+  function updateNotificationBadge() {
+    const count = Math.floor(Math.random() * 3);
+    const badge = document.getElementById('notification-badge');
+
+    if (count > 0) {
+      badge.textContent = count;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
+
+  updateNotificationBadge();
+  setInterval(updateNotificationBadge, 30000);
+});
+
+// Settings Functions
+function toggleFixedHeader() {
+  const header = document.querySelector('header');
+  const isFixed = header.style.position === 'fixed';
+
+  if (isFixed) {
+    header.style.position = 'static';
+    showFabFeedback('Header is now unfixed', 'light');
+  } else {
+    header.style.position = 'fixed';
+    header.style.top = '0';
+    header.style.width = '100%';
+    header.style.zIndex = '50';
+    showFabFeedback('Header is now fixed at the top', 'success');
+  }
+}
+
+function toggleFixedNavigation() {
+  const sidebar = document.querySelector('aside');
+  const isFixed = sidebar.style.position === 'fixed';
+
+  if (isFixed) {
+    sidebar.style.position = 'relative';
+    showFabFeedback('Navigation is now unfixed', 'light');
+  } else {
+    sidebar.style.position = 'fixed';
+    sidebar.style.left = '0';
+    sidebar.style.top = '0';
+    sidebar.style.height = '100vh';
+    sidebar.style.zIndex = '40';
+    showFabFeedback('Navigation is now fixed', 'success');
+  }
+}
+
+function toggleBoxedLayout() {
+  const body = document.body;
+  const isBoxed = body.classList.contains('boxed-layout');
+
+  if (isBoxed) {
+    body.classList.remove('boxed-layout');
+    showFabFeedback('Switched to full-width layout', 'light');
+  } else {
+    body.classList.add('boxed-layout');
+    showFabFeedback('Switched to boxed layout', 'success');
+  }
+}
+
+function setContentFontSize(size) {
+  const fontSizeMap = {
+    'SM': '0.875rem',    // 14px
+    'MD': '1rem',        // 16px
+    'LG': '1.125rem',    // 18px
+    'XL': '1.25rem'      // 20px
+  };
+
+  const content = document.querySelectorAll('main p, main span, main div, main h1, main h2, main h3, main h4, main h5, main h6');
+  const newFontSize = fontSizeMap[size];
+
+  // Reset all buttons to inactive state
+  const buttons = document.querySelectorAll('[id^="content-font-"]');
+  buttons.forEach(btn => {
+    btn.classList.remove('bg-green-500', 'text-white');
+    btn.classList.add('bg-gray-100', 'dark:bg-gray-700');
+  });
+
+  // Set active state for selected button
+  const activeButton = document.getElementById(`content-font-${size.toLowerCase()}`);
+  if (activeButton) {
+    activeButton.classList.remove('bg-gray-100', 'dark:bg-gray-700');
+    activeButton.classList.add('bg-green-500', 'text-white');
+  }
+
+  // Apply font size to content
+  content.forEach(el => {
+    el.style.fontSize = newFontSize;
+  });
+
+  // Save preference
+  localStorage.setItem('contentFontSize', size);
+
+  showFabFeedback(`Content font size set to ${size}`, 'success');
+}
+
+function toggleHighContrastText() {
+  const content = document.querySelectorAll('main p, main span, main h1, main h2, main h3, main h4, main h5, main h6');
+  const isHighContrast = document.body.classList.contains('high-contrast-text');
+
+  if (isHighContrast) {
+    document.body.classList.remove('high-contrast-text');
+    content.forEach(el => {
+      el.style.fontWeight = '';
+      el.style.textShadow = '';
+    });
+    showFabFeedback('Text contrast reset', 'light');
+  } else {
+    document.body.classList.add('high-contrast-text');
+    content.forEach(el => {
+      el.style.fontWeight = '600';
+      el.style.textShadow = '1px 1px 1px rgba(0,0,0,0.1)';
+    });
+    showFabFeedback('High contrast text enabled', 'success');
+  }
+}
+
+function togglePreloaderInside() {
+  const main = document.querySelector('main');
+  const preloader = document.getElementById('content-preloader');
+
+  if (preloader) {
+    preloader.remove();
+    showFabFeedback('Preloader removed', 'light');
+  } else {
+    const loader = document.createElement('div');
+    loader.id = 'content-preloader';
+    loader.className = 'flex justify-center items-center';
+    loader.innerHTML = '<div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-green-500 border-current border-t-transparent"></div>';
+    main.insertBefore(loader, main.firstChild);
+    showFabFeedback('Preloader added inside content', 'success');
+  }
+}
+
+function changeGlobalFontSize() {
+  const currentFontSize = document.documentElement.style.fontSize || '16px';
+  const fontSizes = ['14px', '16px', '18px', '20px', '22px'];
+  const fontLabels = ['SM', 'MD', 'LG', 'XL', '2XL'];
+
+  const currentIndex = fontSizes.indexOf(currentFontSize);
+  const nextIndex = (currentIndex + 1) % fontSizes.length;
+  const newFontSize = fontSizes[nextIndex];
+  const newFontLabel = fontLabels[nextIndex];
+
+  document.documentElement.style.fontSize = newFontSize;
+  localStorage.setItem('globalFontSize', newFontSize);
+
+  // Update the display label
+  const labelElement = document.getElementById('current-font-size');
+  if (labelElement) {
+    labelElement.textContent = newFontLabel;
+  }
+
+  showFabFeedback(`Global font size set to ${newFontLabel}`, 'success');
+}
+
+function openThemeColorsModal() {
+  // Create and show theme colors modal
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+  modal.innerHTML = `
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+      <h3 class="text-lg font-bold mb-4">Theme Colors</h3>
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <button onclick="changeThemeColor('blue')" class="w-8 h-8 rounded-full bg-blue-500"></button>
+        <button onclick="changeThemeColor('green')" class="w-8 h-8 rounded-full bg-green-500"></button>
+        <button onclick="changeThemeColor('red')" class="w-8 h-8 rounded-full bg-red-500"></button>
+        <button onclick="changeThemeColor('yellow')" class="w-8 h-8 rounded-full bg-yellow-500"></button>
+        <button onclick="changeThemeColor('purple')" class="w-8 h-8 rounded-full bg-purple-500"></button>
+        <button onclick="changeThemeColor('pink')" class="w-8 h-8 rounded-full bg-pink-500"></button>
+      </div>
+      <button onclick="this.closest('div.fixed').remove()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+        Close
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function changeThemeColor(color) {
+  const primaryButtons = document.querySelectorAll('.bg-green-600, .bg-green-500, .text-green-500, .border-green-500, .text-green-600');
+  const secondaryElements = document.querySelectorAll('.text-green-400, .hover\\:text-green-500, .text-green-300');
+
+  const colorMap = {
+    blue: { primary: 'bg-blue-600', secondary: 'text-blue-500' },
+    green: { primary: 'bg-green-600', secondary: 'text-green-500' },
+    red: { primary: 'bg-red-600', secondary: 'text-red-500' },
+    yellow: { primary: 'bg-yellow-600', secondary: 'text-yellow-500' },
+    purple: { primary: 'bg-purple-600', secondary: 'text-purple-500' },
+    pink: { primary: 'bg-pink-600', secondary: 'text-pink-500' }
+  };
+
+  primaryButtons.forEach(el => {
+    el.className = el.className.replace(/bg-\w+-600|text-\w+-500/g, `bg-${color}-600`);
+  });
+
+  secondaryElements.forEach(el => {
+    el.className = el.className.replace(/text-\w+-400|text-\w+-300/g, `text-${color}-400`);
+  });
+
+  localStorage.setItem('themeColor', color);
+  showFabFeedback(`Theme changed to ${color}`, 'success');
+}
+
+function setTheme(theme) {
+  // Remove all existing theme classes
+  document.body.classList.remove('theme-green', 'theme-sky', 'theme-black', 'theme-purple');
+
+  // Apply the selected theme
+  if (theme !== 'green') {
+    document.body.classList.add(`theme-${theme}`);
+  } // Green is default, no need for class
+
+  // Update all theme button indicators
+  const indicators = ['green-indicator', 'sky-indicator', 'black-indicator', 'purple-indicator'];
+  indicators.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.classList.add('hidden');
+    }
+  });
+
+  // Show selected theme indicator
+  const selectedIndicator = document.getElementById(`${theme}-indicator`);
+  if (selectedIndicator) {
+    selectedIndicator.classList.remove('hidden');
+  }
+
+  // Update theme button visual states (ring highlights)
+  const themeButtons = document.querySelectorAll('[id^="theme-"]');
+  themeButtons.forEach(btn => {
+    btn.classList.remove('ring-2', 'ring-white', 'ring-gray-800', 'ring-yellow-400');
+    btn.classList.add('hover:opacity-80');
+  });
+
+  // Add special ring for active indicator themes
+  if (theme === 'green') {
+    const greenBtn = document.getElementById('theme-green');
+    if (greenBtn) {
+      greenBtn.classList.add('ring-2', 'ring-yellow-400');
+      greenBtn.classList.remove('hover:opacity-80');
+    }
+  }
+
+  // Save theme preference
+  localStorage.setItem('adminTheme', theme);
+
+  showFabFeedback(`Theme switched to ${theme}!`, 'success');
+}
+
+function resetAllSettingsToDefaults() {
+  // Confirm action
+  if (!confirm('Are you sure you want to reset all settings to their default values? This action cannot be undone.')) {
+    return;
+  }
+
+  try {
+    // Reset App Layout Settings
+    const header = document.querySelector('header');
+    const sidebar = document.querySelector('aside');
+    const body = document.body;
+
+    // Reset header to unfixed
+    header.style.position = 'static';
+
+    // Reset sidebar to relative positioning
+    sidebar.style.position = 'relative';
+
+    // Remove boxed layout
+    body.classList.remove('boxed-layout');
+
+    // Reset Content Font Size to MD
+    setContentFontSize('MD');
+
+    // Reset High Contrast Text
+    document.body.classList.remove('high-contrast-text');
+    document.querySelectorAll('main p, main span, main h1, main h2, main h3, main h4, main h5, main h6')
+      .forEach(el => {
+        el.style.fontWeight = '';
+        el.style.textShadow = '';
+      });
+
+    // Remove preloader
+    const preloader = document.getElementById('content-preloader');
+    if (preloader) {
+      preloader.remove();
+    }
+
+    // Reset Global Font Size
+    document.documentElement.style.fontSize = '16px';
+
+    // Reset to green theme
+    setTheme('green');
+
+    // Clear all localStorage preferences
+    localStorage.removeItem('contentFontSize');
+    localStorage.removeItem('globalFontSize');
+    localStorage.removeItem('adminTheme');
+
+    // Reset all toggle visual states (unchecked except fixed navigation)
+    const toggles = document.querySelectorAll('input[type="checkbox"]');
+    toggles.forEach(toggle => {
+      if (toggle.id !== 'fixed-navigation-toggle') {
+        toggle.checked = false;
+      }
+    });
+
+    // Show success message
+    showFabFeedback('All settings have been reset to defaults!', 'success');
+
+  } catch (error) {
+    console.error('Error resetting settings:', error);
+    showFabFeedback('Error occurred while resetting settings.', 'light');
+  }
+}
+
+// Initialize theme on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const savedTheme = localStorage.getItem('adminTheme') || 'green';
+  setTheme(savedTheme);
+});
+</script>

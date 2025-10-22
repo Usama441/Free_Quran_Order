@@ -1,0 +1,226 @@
+/* Green Theme - Complete Content Theming */
+.theme-green {
+  --primary-color: #10b981;
+  --primary-dark: #059669;
+  --primary-light: #34d399;
+  --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  --secondary-gradient: linear-gradient(135deg, #34d399 0%, #10b981 50%, #065f46 100%);
+  --sidebar-bg: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  --sidebar-hover: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+  --accent-color: #10b981;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --bg-primary: linear-gradient(45deg, #ffffff 0%, #f8fafc 25%, #f1f5f9 50%, #e5e7eb 75%, #d1d5db 100%);
+  --bg-secondary: linear-gradient(45deg, #f9fafb 0%, #f3f4f6 25%, #e5e7eb 50%, #d1d5db 75%, #9ca3af 100%);
+  --bg-tertiary: linear-gradient(45deg, #f3f4f6 0%, #e5e7eb 50%, #d1d5db 100%);
+  --border-color: #e5e7eb;
+  --border-gradient: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 50%, #9ca3af 100%);
+  --shadow-primary: rgba(16, 185, 129, 0.1);
+  --shadow-secondary: rgba(5, 150, 105, 0.15);
+  --scrollbar-thumb: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  --scrollbar-track: linear-gradient(45deg, #f1f5f9 0%, #e5e7eb 50%, #d1d5db 100%);
+  --chart-color-1: #10b981;
+  --chart-color-2: #059669;
+  --chart-color-3: #34d399;
+  --chart-color-4: #065f46;
+  --chart-grid-color: #e5e7eb;
+}
+
+/* ===== CONTENT TEXT COLORS ===== */
+.theme-green h1, .theme-green h2, .theme-green h3, .theme-green h4, .theme-green h5, .theme-green h6 {
+  color: var(--text-primary) !important;
+}
+
+.theme-green p, .theme-green span, .theme-green div, .theme-green label {
+  color: var(--text-secondary) !important;
+}
+
+.theme-green .text-gray-800, .theme-green .text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+.theme-green .text-gray-600, .theme-green .text-gray-700, .theme-green .text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== CARD AND COMPONENT BACKGROUNDS ===== */
+.theme-green .bg-white {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-green .bg-gray-50 {
+  background: var(--bg-secondary) !important;
+}
+
+/* ===== STATS CARDS STYLING ===== */
+.theme-green .stat-card {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-green .stat-card h3 {
+  color: var(--accent-color) !important;
+}
+
+.theme-green .stat-card p {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== TABLE STYLING ===== */
+.theme-green table thead th,
+.theme-green table tbody td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-green table tbody tr:hover {
+  background: var(--bg-secondary) !important;
+}
+
+/* ===== BUTTON COLORS ===== */
+.theme-green .admin-btn-primary {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+}
+
+.theme-green .admin-btn-secondary {
+  background: var(--secondary-gradient) !important;
+  color: white !important;
+}
+
+/* ===== CHART COLORS AND LEGENDS ===== */
+.theme-green .chart-legend {
+  color: var(--text-primary) !important;
+}
+
+/* ===== SIDEBAR AND NAVIGATION ===== */
+.theme-green aside {
+  background: var(--sidebar-bg) !important;
+  border-right: 2px solid var(--border-color);
+}
+
+.theme-green nav a:hover {
+  background: var(--sidebar-hover);
+}
+
+.theme-green aside h1,
+.theme-green nav a {
+  color: var(--text-primary) !important;
+}
+
+/* ===== HEADER THEME APPLICATION ===== */
+.theme-green header {
+  background: var(--bg-primary) !important;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* ===== HEADER ICONS ===== */
+.theme-green #sidebar-toggle-icon,
+.theme-green #notification-btn i,
+.theme-green #settings-btn i {
+  color: #10b981 !important;
+}
+
+.theme-green #user-menu-btn i {
+  color: #6b7280 !important;
+}
+
+/* ===== ICON COLORS ===== */
+.theme-green i, .theme-green .fas, .theme-green .far, .theme-green .fab {
+  color: #111827 !important; /* Dark icons for light theme */
+}
+
+/* Override specific icons that should be theme-colored */
+.theme-green .text-green-600,
+.theme-green .text-blue-600,
+.theme-green .text-red-600,
+.theme-green .text-yellow-500 {
+  color: var(--accent-color) !important;
+}
+
+.theme-green #sidebar-toggle-icon {
+  color: var(--accent-color) !important;
+}
+
+.theme-green #notification-btn i,
+.theme-green #settings-btn i {
+  color: var(--text-secondary) !important;
+}
+
+.theme-green #user-menu-btn i,
+.theme-green #dark-mode-icon {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+.theme-green ::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-color: var(--primary-dark);
+}
+
+/* ===== DROP DOWN MENUS ===== */
+.theme-green #settings-menu,
+.theme-green #notification-menu,
+.theme-green #user-menu,
+.theme-green #sidebar-options {
+  background: white !important;
+  border-color: #e5e7eb !important;
+}
+
+.theme-green #settings-menu .text-gray-700,
+.theme-green #notification-menu .text-gray-700,
+.theme-green #user-menu .text-gray-700 {
+  color: #374151 !important;
+}
+
+.theme-green #settings-menu .text-gray-600,
+.theme-green #notification-menu .text-gray-600,
+.theme-green #user-menu .text-gray-600,
+.theme-green #sidebar-options .text-gray-700 {
+  color: #6b7280 !important;
+}
+
+.theme-green .sidebar-option-btn:hover {
+  background: #f9fafb !important;
+}
+
+/* ===== FOOTER ===== */
+.theme-green footer {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-green footer .text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== SIDEBAR USER INFO STYLING ===== */
+.theme-green aside > div:nth-of-type(2) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  border-color: #047857 !important;
+}
+
+/* ===== FAB THEMING ===== */
+.theme-green #fab-main-btn {
+  background: var(--primary-gradient) !important;
+}
+
+.theme-green #fab-container .bg-blue-600 {
+  background: var(--primary-color) !important;
+}
+
+.theme-green #fab-container .bg-purple-600 {
+  background: #6366f1 !important; /* Purple-blue for green theme */
+}
+
+.theme-green #fab-container .bg-red-600 {
+  background: #ef4444 !important;
+}
+
+.theme-green #fab-container .bg-indigo-600 {
+  background: #6366f1 !important;
+}

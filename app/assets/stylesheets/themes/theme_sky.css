@@ -1,0 +1,246 @@
+/* Sky Blue Theme - Complete Content Theming */
+.theme-sky {
+  --primary-color: #0ea5e9;
+  --primary-dark: #0284c7;
+  --primary-light: #38bdf8;
+  --primary-gradient: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
+  --secondary-gradient: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%);
+  --sidebar-bg: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+  --sidebar-hover: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+  --accent-color: #0ea5e9;
+  --text-primary: #0c4a6e;
+  --text-secondary: #0369a1;
+  --text-muted: #075985;
+  --bg-primary: linear-gradient(45deg, #f0f9ff 0%, #e0f2fe 25%, #bae6fd 50%, #7dd3fc 75%, #38bdf8 100%);
+  --bg-secondary: linear-gradient(45deg, #e0f2fe 0%, #bae6fd 25%, #7dd3fc 50%, #38bdf8 75%, #0ea5e9 100%);
+  --bg-tertiary: linear-gradient(45deg, #bae6fd 0%, #7dd3fc 50%, #38bdf8 100%);
+  --border-color: #bae6fd;
+  --border-gradient: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 50%, #38bdf8 100%);
+  --shadow-primary: rgba(14, 165, 233, 0.1);
+  --shadow-secondary: rgba(2, 132, 199, 0.15);
+  --scrollbar-thumb: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
+  --scrollbar-track: linear-gradient(45deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+  --chart-color-1: #0ea5e9;
+  --chart-color-2: #0284c7;
+  --chart-color-3: #38bdf8;
+  --chart-color-4: #0369a1;
+  --chart-grid-color: #bae6fd;
+}
+
+/* ===== CONTENT TEXT COLORS ===== */
+.theme-sky h1, .theme-sky h2, .theme-sky h3, .theme-sky h4, .theme-sky h5, .theme-sky h6 {
+  color: var(--text-primary) !important;
+}
+
+.theme-sky p, .theme-sky span, .theme-sky div, .theme-sky label {
+  color: var(--text-secondary) !important;
+}
+
+.theme-sky .text-gray-800, .theme-sky .text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+.theme-sky .text-gray-600, .theme-sky .text-gray-700, .theme-sky .text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== CARD AND COMPONENT BACKGROUNDS ===== */
+.theme-sky .bg-white {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-sky .bg-gray-50 {
+  background: var(--bg-secondary) !important;
+}
+
+/* ===== STATS CARDS STYLING ===== */
+.theme-sky .stat-card {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-sky .stat-card h3 {
+  color: var(--accent-color) !important;
+}
+
+.theme-sky .stat-card p {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== TABLE STYLING ===== */
+.theme-sky table thead th,
+.theme-sky table tbody td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-sky table tbody tr:hover {
+  background: var(--bg-secondary) !important;
+}
+
+/* ===== BUTTON COLORS ===== */
+.theme-sky .admin-btn-primary {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+}
+
+.theme-sky .admin-btn-secondary {
+  background: var(--secondary-gradient) !important;
+  color: white !important;
+}
+
+/* ===== CHART COLORS AND LEGENDS ===== */
+.theme-sky .chart-legend {
+  color: var(--text-primary) !important;
+}
+
+/* ===== SIDEBAR AND NAVIGATION ===== */
+.theme-sky aside {
+  background: var(--sidebar-bg) !important;
+  border-right: 2px solid var(--border-color);
+}
+
+.theme-sky nav a:hover {
+  background: var(--sidebar-hover);
+}
+
+.theme-sky aside h1,
+.theme-sky nav a {
+  color: var(--text-primary) !important;
+}
+
+/* ===== HEADER THEME APPLICATION ===== */
+.theme-sky header {
+  background: var(--bg-primary) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.theme-sky header h2,
+.theme-sky header .text-gray-700,
+.theme-sky header .text-gray-800,
+.theme-sky header .text-gray-600 {
+  color: var(--text-primary) !important;
+}
+
+.theme-sky .text-gray-800 {
+  color: var(--text-primary) !important;
+}
+
+/* ===== HEADER ICONS ===== */
+.theme-sky #sidebar-toggle-icon,
+.theme-sky #notification-btn i,
+.theme-sky #settings-btn i {
+  color: #0284c7 !important;
+}
+
+.theme-sky #user-menu-btn i {
+  color: #0369a1 !important;
+}
+
+/* ===== DROP DOWN MENUS ===== */
+.theme-sky #settings-menu,
+.theme-sky #notification-menu,
+.theme-sky #user-menu {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-sky #settings-menu .text-gray-700,
+.theme-sky #notification-menu .text-gray-700,
+.theme-sky #user-menu .text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+.theme-sky #settings-menu .text-gray-600,
+.theme-sky #notification-menu .text-gray-600,
+.theme-sky #user-menu .text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+.theme-sky .border-gray-200 {
+  border-color: var(--border-color) !important;
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+.theme-sky ::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-color: #0284c7;
+}
+
+/* ===== FOOTER ===== */
+.theme-sky footer {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-sky footer .text-gray-600 {
+  color: var(--text-primary) !important;
+}
+
+/* ===== SIDEBAR USER INFO STYLING ===== */
+.theme-sky aside > div:nth-of-type(2) {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  border-color: #0369a1 !important;
+}
+
+.theme-sky aside > div:nth-of-type(2) .bg-green-600 {
+  background-color: #0ea5e9 !important; /* Sky blue accent */
+}
+
+.theme-sky aside > div:nth-of-type(2) .text-green-300 {
+  color: #7dd3fc !important;
+}
+
+.theme-sky aside > div:nth-of-type(2) .text-green-300:hover {
+  color: var(--text-primary) !important;
+}
+
+/* ===== ICON COLORS ===== */
+.theme-sky i, .theme-sky .fas, .theme-sky .far, .theme-sky .fab {
+  color: #111827 !important; /* Dark icons for light sky theme */
+}
+
+/* Override specific icons that should be theme-colored */
+.theme-sky .text-green-600,
+.theme-sky .text-blue-600,
+.theme-sky .text-red-600,
+.theme-sky .text-yellow-500 {
+  color: var(--accent-color) !important;
+}
+
+.theme-sky #sidebar-toggle-icon {
+  color: var(--accent-color) !important;
+}
+
+.theme-sky #notification-btn i,
+.theme-sky #settings-btn i {
+  color: var(--text-secondary) !important;
+}
+
+.theme-sky #user-menu-btn i,
+.theme-sky #dark-mode-icon {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== FAB THEMING ===== */
+.theme-sky #fab-main-btn {
+  background: var(--primary-gradient) !important;
+}
+
+.theme-sky #fab-container .bg-blue-600 {
+  background: var(--accent-color) !important;
+}
+
+.theme-sky #fab-container .bg-purple-600 {
+  background: #6366f1 !important; /* Blue-purple for sky theme */
+}
+
+.theme-sky #fab-container .bg-red-600 {
+  background: #ef4444 !important;
+}
+
+.theme-sky #fab-container .bg-indigo-600 {
+  background: var(--accent-color) !important;
+}

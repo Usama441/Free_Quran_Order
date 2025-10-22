@@ -1,0 +1,282 @@
+/* Black Theme - Complete Content Theming */
+.theme-black {
+  --primary-color: #f59e0b;
+  --primary-dark: #d97706;
+  --primary-light: #fbbf24;
+  --primary-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+  --secondary-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  --sidebar-bg: linear-gradient(135deg, #000000 0%, #1f2937 50%, #374151 100%);
+  --sidebar-hover: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+  --accent-color: #f59e0b;
+  --text-primary: #ffffff;
+  --text-secondary: #e5e7eb;
+  --text-muted: #d1d5db;
+  --bg-primary: linear-gradient(45deg, #000000 0%, #1f2937 25%, #374151 50%, #4b5563 75%, #6b7280 100%);
+  --bg-secondary: linear-gradient(45deg, #1f2937 0%, #374151 25%, #4b5563 50%, #6b7280 75%, #9ca3af 100%);
+  --bg-tertiary: linear-gradient(45deg, #374151 0%, #4b5563 50%, #6b7280 100%);
+  --border-color: #4b5563;
+  --border-gradient: linear-gradient(135deg, #4b5563 0%, #6b7280 50%, #9ca3af 100%);
+  --shadow-primary: rgba(245, 158, 11, 0.2);
+  --shadow-secondary: rgba(217, 119, 6, 0.25);
+  --scrollbar-thumb: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+  --scrollbar-track: linear-gradient(45deg, #111827 0%, #1f2937 50%, #374151 100%);
+  --chart-color-1: #f59e0b;
+  --chart-color-2: #d97706;
+  --chart-color-3: #fbbf24;
+  --chart-color-4: #b45309;
+  --chart-grid-color: #4b5563;
+}
+
+/* ===== CONTENT TEXT COLORS ===== */
+.theme-black h1, .theme-black h2, .theme-black h3, .theme-black h4, .theme-black h5, .theme-black h6 {
+  color: var(--text-primary) !important;
+}
+
+.theme-black p, .theme-black span, .theme-black div, .theme-black label {
+  color: var(--text-secondary) !important;
+}
+
+.theme-black .text-gray-800, .theme-black .text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+.theme-black .text-gray-600, .theme-black .text-gray-700, .theme-black .text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== CARD AND COMPONENT BACKGROUNDS ===== */
+.theme-black .bg-white {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-black .bg-gray-50 {
+  background: var(--bg-secondary) !important;
+}
+
+/* ===== STATS CARDS STYLING ===== */
+.theme-black .stat-card {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-black .stat-card h3 {
+  color: var(--accent-color) !important;
+}
+
+.theme-black .stat-card p {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== TABLE STYLING ===== */
+.theme-black table thead th,
+.theme-black table tbody td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-black table tbody tr:hover {
+  background: var(--bg-secondary) !important;
+}
+
+/* ===== BUTTON COLORS ===== */
+.theme-black .admin-btn-primary {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+}
+
+.theme-black .admin-btn-secondary {
+  background: var(--secondary-gradient) !important;
+  color: white !important;
+}
+
+/* ===== CHART COLORS AND LEGENDS ===== */
+.theme-black .chart-legend {
+  color: var(--text-primary) !important;
+}
+
+/* ===== SIDEBAR AND NAVIGATION ===== */
+.theme-black aside {
+  background: var(--sidebar-bg) !important;
+  border-right: 2px solid var(--border-color);
+}
+
+.theme-black nav a:hover {
+  background: var(--sidebar-hover);
+}
+
+.theme-black aside h1,
+.theme-black nav a {
+  color: var(--text-primary) !important;
+}
+
+/* ===== HEADER THEME APPLICATION ===== */
+.theme-black header {
+  background: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ===== HEADER ICONS ===== */
+.theme-black #sidebar-toggle-icon,
+.theme-black #notification-btn i,
+.theme-black #settings-btn i {
+  color: #fbbf24 !important;
+}
+
+.theme-black #user-menu-btn i {
+  color: #e5e7eb !important;
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+.theme-black ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #d97706;
+}
+
+/* ===== DROP DOWN MENUS ===== */
+.theme-black #settings-menu,
+.theme-black #notification-menu,
+.theme-black #user-menu,
+.theme-black #sidebar-options {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-black #settings-menu .text-gray-700,
+.theme-black #notification-menu .text-gray-700,
+.theme-black #user-menu .text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+.theme-black #settings-menu .text-gray-600,
+.theme-black #notification-menu .text-gray-600,
+.theme-black #user-menu .text-gray-600,
+.theme-black #sidebar-options .text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+.theme-black .sidebar-option-btn:hover {
+  background: var(--bg-primary) !important;
+}
+
+.theme-black .border-gray-200 {
+  border-color: var(--border-color) !important;
+}
+
+.theme-black .bg-gray-50 {
+  background: var(--bg-primary) !important;
+}
+
+.theme-black .bg-white {
+  background: var(--bg-secondary) !important;
+}
+
+/* ===== FOOTER ===== */
+.theme-black footer {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-black footer .text-gray-600 {
+  color: var(--text-primary) !important;
+}
+
+/* ===== SIDEBAR USER INFO STYLING ===== */
+.theme-black aside > div:nth-of-type(2) {
+  background: linear-gradient(135deg, #000000 0%, #1f2937 100%) !important;
+  border-color: #1f2937 !important;
+}
+
+.theme-black aside > div:nth-of-type(2) .bg-green-600 {
+  background-color: #f59e0b !important; /* Yellow for dark theme */
+}
+
+.theme-black aside > div:nth-of-type(2) .text-green-300 {
+  color: var(--accent-color) !important;
+}
+
+.theme-black aside > div:nth-of-type(2) .text-green-300:hover {
+  color: var(--text-secondary) !important;
+}
+
+.theme-black aside > div:nth-of-type(2) .text-white {
+  color: var(--text-primary) !important;
+}
+
+/* ===== ICON COLORS FOR DARK THEME ===== */
+.theme-black i, .theme-black .fas, .theme-black .far, .theme-black .fab {
+  color: var(--text-secondary) !important; /* Light gray */
+}
+
+.theme-black .text-green-600,
+.theme-black .text-blue-600,
+.theme-black .text-red-600,
+.theme-black .text-yellow-500 {
+  color: #fbbf24 !important; /* Golden yellow for contrast */
+}
+
+.theme-black #sidebar-toggle-icon {
+  color: var(--accent-color) !important; /* Yellow/golden */
+}
+
+.theme-black #notification-btn i,
+.theme-black #settings-btn i,
+.theme-black #user-menu-btn i {
+  color: var(--text-secondary) !important;
+}
+
+.theme-black #dark-mode-icon {
+  color: #fbbf24 !important;
+}
+
+/* ===== ADDITIONAL CONTRAST FIXES ===== */
+.theme-black .bg-white,
+.theme-black .bg-gray-100 {
+  background: #000000 !important;
+  border-color: #1f2937 !important;
+}
+
+.theme-black {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.theme-black body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.theme-black header,
+.theme-black footer,
+.theme-black main {
+  background: transparent !important;
+}
+
+/* Ensure all content has proper contrast */
+.theme-black .admin-main {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ===== FAB THEMING ===== */
+.theme-black #fab-main-btn {
+  background: var(--primary-gradient) !important;
+}
+
+.theme-black #fab-container .bg-blue-600 {
+  background: var(--accent-color) !important;
+}
+
+.theme-black #fab-container .bg-purple-600 {
+  background: #6366f1 !important;
+}
+
+.theme-black #fab-container .bg-red-600 {
+  background: #ef4444 !important;
+}
+
+.theme-black #fab-container .bg-indigo-600,
+.theme-black #fab-container .bg-gray-600 {
+  background: var(--accent-color) !important;
+}

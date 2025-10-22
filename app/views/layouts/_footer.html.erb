@@ -1,0 +1,19 @@
+<!-- Admin Footer -->
+<footer class="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-auto">
+  <div class="container mx-auto px-6 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Copyright -->
+      <div class="text-sm text-gray-600 dark:text-gray-400">
+        © <%= Time.current.year %> Quran Distribution System. All rights reserved.
+      </div>
+
+      <!-- About Link -->
+      <div class="flex items-center space-x-6">
+        <%= link_to about_path, class: "text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center space-x-1" do %>
+          <%= content_tag :i, "", class: "fas fa-info-circle" %>
+          <%= content_tag :span, "About" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</footer>

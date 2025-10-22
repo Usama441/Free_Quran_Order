@@ -62,6 +62,7 @@ Admin.find_or_create_by(email: "admin@example.com") do |admin|
   admin.password = "password123"
   admin.password_confirmation = "password123"
   admin.role = :super_admin  # Make the default admin a super admin
+  admin.skip_confirmation! if admin.respond_to?(:skip_confirmation!)
 end
 
 puts "Admin user created with email: admin@example.com, password: password123 (Super Admin)"

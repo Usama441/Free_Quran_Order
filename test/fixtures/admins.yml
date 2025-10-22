@@ -1,0 +1,17 @@
+one:
+  email: admin@example.com
+  first_name: Test
+  last_name: Admin
+  role: super_admin
+  encrypted_password: $2a$12$dummyhashedpasswordbutvalidlength12345678901234567890
+  created_at: 2025-01-01 00:00:00
+  updated_at: 2025-01-01 00:00:00
+
+two:
+  email: manager@example.com
+  first_name: Test
+  last_name: Manager
+  role: manager
+  encrypted_password: $2a$12$dummyhashedpasswordbutvalidlength12345678901234567890
+  created_at: 2025-01-01 00:00:00
+  updated_at: 2025-01-01 00:00:00

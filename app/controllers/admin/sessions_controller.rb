@@ -23,9 +23,8 @@
       admin_dashboard_path # <- make sure this route exists
     end
 
-    # Redirect after logout
+    # Redirect after logout - Admin should go to admin sign-in page, not main site
     def after_sign_out_path_for(resource_or_scope)
-      root_path
+      new_admin_session_path
     end
   end
-
