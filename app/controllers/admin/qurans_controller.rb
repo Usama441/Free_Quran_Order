@@ -1,10 +1,16 @@
 class Admin::QuransController < ApplicationController
   before_action :authenticate_admin!
-  before_action :set_quran, only: [:edit, :update, :destroy]
+  before_action :set_quran, only: [:show, :edit, :update, :destroy]
 
 
   def index
     @qurans = Quran.all.order(created_at: :desc)
+
+    # Pagination setup
+    @per_page_options = [10, 20, 50, 100]
+    @per_page = (params[:per_page] || 20).to_i
+
+    @qurans = @qurans.page(params[:page]).per(@per_page)
   end
 
   def new
@@ -19,6 +25,8 @@ class Admin::QuransController < ApplicationController
       render :new, status: :unprocessable_entity
     end
   end
+
+  def show; end
 
   def edit; end
 
@@ -44,8 +52,11 @@ class Admin::QuransController < ApplicationController
   end
 
   def destroy
-    @quran.destroy
-    redirect_to admin_qurans_path, notice: "Quran deleted successfully."
+    if @quran.destroy
+      redirect_to admin_qurans_path, notice: "Quran deleted successfully."
+    else
+      redirect_to admin_qurans_path, alert: "Failed to delete Quran. It may be referenced by existing orders."
+    end
   end
 
   private

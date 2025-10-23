@@ -15,7 +15,7 @@ Rails.application.routes.draw do
     resources :admins
 
     # Use proper RESTful routes for Qurans
-    resources :qurans, except: [:show]
+    resources :qurans
 
     # Order management
     get "orders", to: "orders#index", as: :orders

@@ -1,8 +1,19 @@
 <!-- app/views/admin/orders/_orders_table.html.erb -->
 <div class="bg-white shadow-lg rounded-xl overflow-hidden" data-controller="orders-table">
-  <div class="px-6 py-4 bg-gray-50 border-b">
+  <div class="px-6 py-4 bg-gray-50 border-b flex flex-row items-center justify-between">
     <h3 class="text-lg font-semibold text-gray-800">All Orders</h3>
     <p class="text-sm text-gray-600 mt-1"><%= @orders.count %> total orders</p>
+    <!-- items per page--> 
+    <div class="flex items-center space-x-2 mr-4">
+        <label class="text-sm font-medium text-gray-700">Show:</label>
+        <select id="per_page_select" data-orders-management-target="perPageSelect" data-action="change->orders-management#updatePerPage" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none">
+          <% @per_page_options.each do |option| %>
+            <option value="<%= option %>" <%= 'selected' if @per_page == option %>><%= option %></option>
+          <% end %>
+        </select>
+        <label class="text-sm text-gray-600">per page</label>
+      </div>
+  
   </div>
   <div class="overflow-x-auto">
     <table class="min-w-full">
@@ -70,6 +81,18 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Pagination -->
+  <% if @orders.total_pages > 1 %>
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+      <div class="text-sm text-gray-700">
+        Showing <%= (@orders.current_page - 1) * @orders.limit_value + 1 %> to <%= @orders.current_page * @orders.limit_value > @orders.total_count ? @orders.total_count : @orders.current_page * @orders.limit_value %> of <%= @orders.total_count %> entries
+      </div>
+      <div class="flex items-center space-x-2">
+        <%= paginate @orders, param_name: :page, remote: true, params: { per_page: @per_page, search: params[:search], status: params[:status], start_date: params[:start_date], end_date: params[:end_date] } %>
+      </div>
+    </div>
+  <% end %>
 
   <!-- Empty State -->
   <% if @orders.empty? %>

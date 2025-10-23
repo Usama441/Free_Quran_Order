@@ -16,18 +16,68 @@ class Quran < ApplicationRecord
     validate :images_type
   end
 
-  after_save :check_low_stock, if: :saved_change_to_stock?
+  after_save :check_stock_alerts, if: :saved_change_to_stock?
 
+  # Instance methods
+  def stock_status
+    return :out_of_stock if stock <= 0
+    return :critical if stock < 5
+    return :low if stock < load_low_stock_threshold
+    return :warning if stock < 25
+    :normal
+  end
+
+  def stock_status_color
+    case stock_status
+    when :out_of_stock then 'red'
+    when :critical then 'red'
+    when :low then 'orange'
+    when :warning then 'yellow'
+    else 'green'
+    end
+  end
+
+  def stock_alert_message
+    case stock_status
+    when :out_of_stock then "🚨 OUT OF STOCK - Immediate restocking required!"
+    when :critical then "🚨 CRITICAL: Only #{stock} copies remaining!"
+    when :low then "⚠️ Low stock: #{stock} copies (below threshold of #{load_low_stock_threshold})"
+    when :warning then "ℹ️ Stock warning: #{stock} copies remaining"
+    else nil
+    end
+  end
 
   private
 
-  def check_low_stock
-    notification_settings = load_notification_settings
-    threshold = load_low_stock_threshold
+  def check_stock_alerts
+    case stock_status
+    when :out_of_stock, :critical
+      send_immediate_stock_alert
+    when :low
+      send_low_stock_alert
+    when :warning
+      log_stock_warning
+    end
+  end
 
-    if stock.present? && stock < threshold && notification_settings['sms_alerts_low_stock']
+  def send_immediate_stock_alert
+    notification_settings = load_notification_settings
+    if notification_settings['enable_discord_notifications'] && notification_settings['discord_webhook_url'].present?
+      WebhookNotificationService.send_immediate_stock_alert(self)
+    end
+    Rails.logger.warn "IMMEDIATE STOCK ALERT: #{title} has #{stock} copies remaining"
+  end
+
+  def send_low_stock_alert
+    notification_settings = load_notification_settings
+    if notification_settings['sms_alerts_low_stock'] || notification_settings['enable_discord_notifications']
       WebhookNotificationService.send_low_stock_notification(self)
-    end 
+    end
+    Rails.logger.info "LOW STOCK ALERT: #{title} has #{stock} copies remaining (below threshold)"
+  end
+
+  def log_stock_warning
+    Rails.logger.info "STOCK WARNING: #{title} has #{stock} copies remaining"
   end
 
   def load_low_stock_threshold

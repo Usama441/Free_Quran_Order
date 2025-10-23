@@ -1,69 +1,144 @@
 # app/services/webhook_notification_service.rb
 class WebhookNotificationService
 
-    def self.send_low_stock_notification(quran)
-        settings = load_notification_settings
-        
-        return unless settings['enable_discord_notifications'] && settings['discord_webhook_url'].present?
-      
-        require 'net/http'
-        require 'uri'
-        
-        begin
-          uri = URI.parse(settings['discord_webhook_url'])
-          http = Net::HTTP.new(uri.host, uri.port)
-          http.use_ssl = true
-          
-          payload = {
-            content: "⚠️ **LOW STOCK ALERT!**",
-            username: 'Quran Distribution Bot',
-            avatar_url: 'https://cdn-icons-png.flaticon.com/512/210/210626.png',
-            embeds: [
+  def self.send_low_stock_notification(quran)
+    settings = load_notification_settings
+
+    return unless settings['enable_discord_notifications'] && settings['discord_webhook_url'].present?
+
+    require 'net/http'
+    require 'uri'
+
+    begin
+      uri = URI.parse(settings['discord_webhook_url'])
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+
+      payload = {
+        content: "⚠️ **LOW STOCK ALERT!**",
+        username: 'Quran Distribution Bot',
+        avatar_url: 'https://cdn-icons-png.flaticon.com/512/210/210626.png',
+        embeds: [
+          {
+            title: "Stock Alert",
+            color: 15105570, # Orange color
+            fields: [
               {
-                title: "Stock Alert",
-                color: 15105570, # Orange color
-                fields: [
-                  {
-                    name: "📖 Quran",
-                    value: quran.title,
-                    inline: true
-                  },
-                  {
-                    name: "📊 Current Stock",
-                    value: quran.stock,
-                    inline: true
-                  },
-                  {
-                    name: "🚨 Status",
-                    value: "Low Stock - Please restock soon!",
-                    inline: true
-                  }
-                ],
-                footer: {
-                  text: "Quran Distribution System • #{Time.current.year}"
-                },
-                timestamp: Time.current.iso8601
+                name: "📖 Quran",
+                value: quran.title,
+                inline: true
+              },
+              {
+                name: "📊 Current Stock",
+                value: quran.stock,
+                inline: true
+              },
+              {
+                name: "🚨 Status",
+                value: "Low Stock - Please restock soon!",
+                inline: true
               }
-            ]
+            ],
+            footer: {
+              text: "Quran Distribution System • #{Time.current.year}"
+            },
+            timestamp: Time.current.iso8601
           }
-          
-          request = Net::HTTP::Post.new(uri.request_uri, {
-            'Content-Type' => 'application/json'
-          })
-          request.body = payload.to_json
-          
-          response = http.request(request)
-          
-          NotificationService.send_low_stock_alert(quran.translation, quran.stock, settings['low_stock_threshold'])
-        rescue => e
-          NotificationActivity.create(
-            title: "Low Stock Notification Failed",
-            message: "Error: #{e.message}",
-            sent_to: settings['discord_webhook_url'],
-            status: 'failed'
-          )
-        end
+        ]
+      }
+
+      request = Net::HTTP::Post.new(uri.request_uri, {
+        'Content-Type' => 'application/json'
+      })
+      request.body = payload.to_json
+
+      response = http.request(request)
+
+      NotificationService.send_low_stock_alert(quran.translation, quran.stock, settings['low_stock_threshold'])
+    rescue => e
+      NotificationActivity.create(
+        title: "Low Stock Notification Failed",
+        message: "Error: #{e.message}",
+        sent_to: settings['discord_webhook_url'],
+        status: 'failed'
+      )
     end
+  end
+
+  def self.send_immediate_stock_alert(quran)
+    settings = load_notification_settings
+
+    return unless settings['enable_discord_notifications'] && settings['discord_webhook_url'].present?
+
+    require 'net/http'
+    require 'uri'
+
+    begin
+      uri = URI.parse(settings['discord_webhook_url'])
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+
+      critical_message = if quran.stock <= 0
+                           "🚨 OUT OF STOCK - Immediate restocking required!"
+                         else
+                           "🚨 CRITICAL: Only #{quran.stock} copies remaining!"
+                         end
+
+      payload = {
+        content: "🚨 **CRITICAL STOCK ALERT!**",
+        username: 'Quran Distribution Bot',
+        avatar_url: 'https://cdn-icons-png.flaticon.com/512/210/210626.png',
+        embeds: [
+          {
+            title: "Emergency Stock Alert",
+            color: 16711680, # Red color for critical alerts
+            description: "**#{quran.title}** #{critical_message}",
+            fields: [
+              {
+                name: "📖 Quran",
+                value: quran.title,
+                inline: true
+              },
+              {
+                name: "📊 Current Stock",
+                value: quran.stock <= 0 ? "OUT OF STOCK" : "#{quran.stock} copies",
+                inline: true
+              },
+              {
+                name: "🚨 Alert Level",
+                value: if quran.stock <= 0
+                         "OUT OF STOCK - STOP TAKING ORDERS"
+                       else
+                         "CRITICAL - Restock immediately"
+                       end,
+                inline: true
+              }
+            ],
+            footer: {
+              text: "URGENT ACTION REQUIRED - Quran Management System"
+            },
+            timestamp: Time.current.iso8601
+          }
+        ]
+      }
+
+      request = Net::HTTP::Post.new(uri.request_uri, {
+        'Content-Type' => 'application/json'
+      })
+      request.body = payload.to_json
+
+      response = http.request(request)
+
+      NotificationService.send_immediate_stock_alert(quran) if defined?(NotificationService)
+    rescue => e
+      NotificationActivity.create(
+        title: "Critical Stock Alert Failed",
+        message: "Error: #{e.message}",
+        sent_to: settings['discord_webhook_url'],
+        status: 'failed'
+      )
+    end
+  end
 
 
   def self.send_daily_summary_notification(orders)

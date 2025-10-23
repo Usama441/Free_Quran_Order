@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="orders-management"
 export default class extends Controller {
-  static targets = ["searchInput", "startDate", "endDate", "status", "pendingCount", "processingCount", "shippedCount", "deliveredCount"]
+  static targets = ["searchInput", "startDate", "endDate", "status", "pendingCount", "processingCount", "shippedCount", "deliveredCount", "perPageSelect"]
 
   connect() {
     console.log("Orders management controller connected")
@@ -67,6 +67,15 @@ export default class extends Controller {
     this.searchTarget.value = ''
     this.statusTarget.value = ''
     window.location.href = '/admin/orders'
+  }
+
+  // Handle per-page change
+  updatePerPage(event) {
+    const perPage = event.target.value;
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', perPage);
+    url.searchParams.set('page', '1'); // Reset to first page when changing per_page
+    window.location.href = url.toString();
   }
 
   // Order status update

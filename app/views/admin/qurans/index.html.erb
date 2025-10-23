@@ -1,125 +1,193 @@
 <% content_for :title, "Quran Management - Admin" %>
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold text-green-700 flex items-center space-x-2">
+      <i class="fas fa-book-quran"></i><span>Quran Management</span>
+    </h2>
 
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-3xl font-bold text-green-700 flex items-center space-x-2">
-        <i class="fas fa-book-quran"></i><span>Quran Management</span>
-      </h2>
+    <div class="flex items-center space-x-4">
+      
+
       <%= link_to new_admin_quran_path, class: "bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center space-x-2" do %>
         <i class="fas fa-plus"></i><span>Add New Quran</span>
       <% end %>
     </div>
+  </div>
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="text-gray-500 text-sm">Total Qurans</p>
-            <h3 class="text-2xl font-bold"><%= @qurans.count %></h3>
-          </div>
-          <i class="fas fa-book text-green-600 text-3xl"></i>
+  <script>
+    document.getElementById('per_page_select_quran').addEventListener('change', function(e) {
+      const perPage = e.target.value;
+      const url = new URL(window.location);
+      url.searchParams.set('per_page', perPage);
+      url.searchParams.set('page', '1'); // Reset to first page when changing per_page
+      window.location.href = url.toString();
+    });
+  </script>
+
+  <!-- Statistics Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-green-600">
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-gray-500 text-sm">Total Qurans</p>
+          <h3 class="text-2xl font-bold"><%= @qurans.count %></h3>
         </div>
-      </div>
-      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-blue-600">
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="text-gray-500 text-sm">Total Stock</p>
-            <h3 class="text-2xl font-bold"><%= Quran.sum(:stock) %></h3>
-          </div>
-          <i class="fas fa-warehouse text-blue-600 text-3xl"></i>
-        </div>
-      </div>
-      <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-red-600">
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="text-gray-500 text-sm">Low Stock Items</p>
-            <h3 class="text-2xl font-bold"><%= Quran.where('stock < ?', 100).count %></h3>
-          </div>
-          <i class="fas fa-exclamation-triangle text-red-600 text-3xl"></i>
-        </div>
+        <i class="fas fa-book text-green-600 text-3xl"></i>
       </div>
     </div>
-
-    <!-- Qurans Table -->
-    <div class="bg-white shadow-lg rounded-xl overflow-hidden">
-      <div class="px-6 py-4 bg-gray-50 border-b">
-        <h3 class="text-lg font-semibold text-gray-800">Qurans Inventory</h3>
+    <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-blue-600">
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-gray-500 text-sm">Total Stock</p>
+          <h3 class="text-2xl font-bold"><%= Quran.sum(:stock) %></h3>
+        </div>
+        <i class="fas fa-warehouse text-blue-600 text-3xl"></i>
       </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Writer</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Translation</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pages</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% @qurans.each do |quran| %>
-              <tr class="<%= quran.stock < 50 ? 'bg-red-50' : quran.stock < 100 ? 'bg-yellow-50' : '' %>">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <% if quran.images.attached? && quran.images.length > 0 %>
-                      <img src="<%= rails_blob_path(quran.images.first) %>" alt="<%= quran.title %>" class="w-12 h-12 rounded object-cover mr-3">
-                    <% else %>
-                      <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center mr-3">
-                        <i class="fas fa-image text-gray-400"></i>
-                      </div>
-                    <% end %>
-                    <div>
-                      <div class="text-sm font-medium text-gray-900"><%= quran.title %></div>
-                      <% if quran.stock < 100 %>
-                        <div class="text-xs text-red-600">Low Stock!</div>
-                      <% end %>
-                      <% if quran.images.attached? %>
-                        <div class="text-xs text-blue-600"><%= quran.images.length %> image<%= 's' if quran.images.length > 1 %></div>
-                      <% else %>
-                        <div class="text-xs text-gray-500">No images</div>
-                      <% end %>
+    </div>
+    <div class="bg-white shadow-md rounded-xl p-6 border-l-4 border-red-600">
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-gray-500 text-sm">Low Stock Items</p>
+          <h3 class="text-2xl font-bold"><%= Quran.where('stock < ?', 100).count %></h3>
+        </div>
+        <i class="fas fa-exclamation-triangle text-red-600 text-3xl"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Qurans Table -->
+  <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+    <div class="px-6 py-4 bg-gray-50 border-b flex flex-row items-center justify-between">
+      <h3 class="text-lg font-semibold text-gray-800">Qurans Inventory</h3>
+      
+      <!-- Records per page selector -->
+      <div class="flex items-center space-x-2">
+        <label for="per_page_select_quran" class="text-sm font-medium text-gray-700">Show:</label>
+        <select id="per_page_select_quran" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none">
+          <% @per_page_options.each do |option| %>
+            <option value="<%= option %>" <%= 'selected' if @per_page == option %>><%= option %></option>
+          <% end %>
+        </select>
+        <label class="text-sm text-gray-600">per page</label>
+      </div>
+
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Writer</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Translation</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pages</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @qurans.each do |quran| %>
+            <tr class="<%= quran.stock < 50 ? 'bg-red-50' : quran.stock < 100 ? 'bg-yellow-50' : '' %>">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <% if quran.images.attached? && quran.images.length > 0 %>
+                    <img src="<%= rails_blob_path(quran.images.first) %>" alt="<%= quran.title %>" class="w-12 h-12 rounded object-cover mr-3">
+                  <% else %>
+                    <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center mr-3">
+                      <i class="fas fa-image text-gray-400"></i>
                     </div>
+                  <% end %>
+                  <div>
+                    <div class="text-sm font-medium text-gray-900"><%= quran.title %></div>
+                    <% if quran.stock < 100 %>
+                      <div class="text-xs text-red-600">Low Stock!</div>
+                    <% end %>
+                    <% if quran.images.attached? %>
+                      <div class="text-xs text-blue-600"><%= quran.images.length %> image<%= 's' if quran.images.length > 1 %></div>
+                    <% else %>
+                      <div class="text-xs text-gray-500">No images</div>
+                    <% end %>
                   </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-500"><%= quran.writer %></div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 capitalize">
-                    <%= quran.translation %>
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <%= quran.pages %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= quran.stock < 50 ? 'bg-red-100 text-red-800' : quran.stock < 100 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500"><%= quran.writer %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 capitalize">
+                  <%= quran.translation %>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= quran.pages %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center space-x-2">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%=
+                    case quran.stock_status
+                    when :out_of_stock then 'bg-red-100 text-red-800'
+                    when :critical then 'bg-red-100 text-red-800 animate-pulse'
+                    when :low then 'bg-orange-100 text-orange-800'
+                    when :warning then 'bg-yellow-100 text-yellow-800'
+                    else 'bg-green-100 text-green-800'
+                    end
+                  %>">
                     <%= quran.stock %>
                   </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <%= link_to edit_admin_quran_path(quran), class: "text-blue-600 hover:text-blue-900 mr-4" do %>
-                    <i class="fas fa-edit"></i> Edit
+                  <% if quran.stock_alert_message && quran.stock < 25 %>
+                    <div class="relative group">
+                      <span class="text-red-500 cursor-help">
+                        <i class="fas fa-exclamation-triangle"></i>
+                      </span>
+                      <div class="absolute z-10 p-2 bg-black text-white text-xs rounded-md mt-1 w-48 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                        <%= quran.stock_alert_message %>
+                      </div>
+                    </div>
                   <% end %>
-                  <%= link_to admin_quran_path(quran), method: :delete, data: { confirm: 'Are you sure you want to delete this Quran?' }, class: "text-red-600 hover:text-red-900" do %>
-                    <i class="fas fa-trash"></i> Delete
-                  <% end %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-      <!-- Empty State -->
-      <% if @qurans.empty? %>
-        <div class="text-center py-12">
-          <i class="fas fa-book text-gray-400 text-4xl mb-4"></i>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">No Qurans Found</h3>
-          <p class="text-gray-500 mb-4">Get started by adding your first Quran to the inventory.</p>
-          <%= link_to new_admin_quran_path, class: "bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition inline-flex items-center space-x-2" do %>
-            <i class="fas fa-plus"></i><span>Add Quran</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <%= link_to edit_admin_quran_path(quran), class: "text-blue-600 hover:text-blue-900 mr-4" do %>
+                  <i class="fas fa-edit"></i> Edit
+                <% end %>
+                <%= link_to admin_quran_path(quran), method: :delete,
+                    data: {
+                      turbo_confirm: 'Are you sure you want to delete this Quran?',
+                      turbo_method: :delete,
+                      turbo_frame: "_top"
+                    },
+                    class: "text-red-600 hover:text-red-900 inline-flex items-center space-x-1 px-2 py-1 rounded hover:bg-red-50 transition-colors" do %>
+                  <i class="fas fa-trash text-sm"></i>
+                  <span>Delete</span>
+                <% end %>
+              </td>
+            </tr>
           <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <% if @qurans.total_pages > 1 %>
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Showing <%= (@qurans.current_page - 1) * @qurans.limit_value + 1 %> to <%= @qurans.current_page * @qurans.limit_value > @qurans.total_count ? @qurans.total_count : @qurans.current_page * @qurans.limit_value %> of <%= @qurans.total_count %> entries
         </div>
-      <% end %>
-    </div
+        <div class="flex items-center space-x-2">
+          <%= paginate @qurans, param_name: :page, params: { per_page: @per_page } %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Empty State -->
+    <% if @qurans.empty? %>
+      <div class="text-center py-12">
+        <i class="fas fa-book text-gray-400 text-4xl mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No Qurans Found</h3>
+        <p class="text-gray-500 mb-4">Get started by adding your first Quran to the inventory.</p>
+        <%= link_to new_admin_quran_path, class: "bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition inline-flex items-center space-x-2" do %>
+          <i class="fas fa-plus"></i><span>Add Quran</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

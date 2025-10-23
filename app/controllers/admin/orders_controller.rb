@@ -22,6 +22,12 @@ class Admin::OrdersController < ApplicationController
       @orders = @orders.where(created_at: params[:start_date]..params[:end_date])
     end
 
+    # Pagination setup
+    @per_page_options = [10, 20, 50, 100]
+    @per_page = (params[:per_page] || 20).to_i
+
+    @orders = @orders.page(params[:page]).per(@per_page)
+
     # Use database integer values for enum counts
     @pending_count = Order.where(status: Order.statuses['pending']).count
     @processing_count = Order.where(status: Order.statuses['processing']).count
