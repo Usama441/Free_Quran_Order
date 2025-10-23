@@ -5,7 +5,6 @@ class Admin::OrdersController < ApplicationController
 
   def index
     @orders = Order.includes(:quran).order(created_at: :desc)
-
     # Search by order ID if provided
     if params[:search].present?
       @orders = @orders.where('orders.id = ?', params[:search])

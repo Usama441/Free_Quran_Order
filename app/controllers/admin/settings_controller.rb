@@ -44,8 +44,8 @@ class Admin::SettingsController < ApplicationController
 
   def settings_params
     params.require(:app).permit(
-      :site_name, :default_translation, :order_limit_per_day, 
-      :email_notifications, :auto_refresh_interval, :max_daily_orders,
+      :site_name, :default_translation, :order_limit_per_day,
+      :email_notifications, :auto_refresh_interval, :dashboard_refresh_interval, :max_daily_orders,
       :debug_mode, :maintenance_mode, :low_stock_threshold, :auto_reorder_point
     )
   end

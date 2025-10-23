@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center">
       <div>
         <p class="text-gray-500 text-sm">Total Orders</p>
-        <h3 class="text-2xl font-bold"><%= stats[:total_orders] %></h3>
+        <h3 id="stats_total_orders" class="text-2xl font-bold"><%= stats[:total_orders] %></h3>
       </div>
       <i class="fas fa-receipt text-green-600 text-3xl"></i>
     </div>
@@ -12,7 +12,7 @@
     <div class="flex justify-between items-center">
       <div>
         <p class="text-gray-500 text-sm">Countries Served</p>
-        <h3 class="text-2xl font-bold"><%= stats[:countries_served] %></h3>
+        <h3 id="stats_countries_served" class="text-2xl font-bold"><%= stats[:countries_served] %></h3>
       </div>
       <i class="fas fa-globe-asia text-green-600 text-3xl"></i>
     </div>
@@ -21,7 +21,7 @@
     <div class="flex justify-between items-center">
       <div>
         <p class="text-gray-500 text-sm">Qurans Distributed</p>
-        <h3 class="text-2xl font-bold"><%= stats[:qurans_distributed] %></h3>
+        <h3 id="stats_qurans_distributed" class="text-2xl font-bold"><%= stats[:qurans_distributed] %></h3>
       </div>
       <i class="fas fa-book-quran text-green-600 text-3xl"></i>
     </div>
@@ -30,7 +30,7 @@
     <div class="flex justify-between items-center">
       <div>
         <p class="text-gray-500 text-sm">Stock Remaining</p>
-        <h3 class="text-2xl font-bold"><%= stats[:stock_remaining] %></h3>
+        <h3 id="stats_stock_remaining" class="text-2xl font-bold"><%= stats[:stock_remaining] %></h3>
       </div>
       <i class="fas fa-warehouse text-green-600 text-3xl"></i>
     </div>

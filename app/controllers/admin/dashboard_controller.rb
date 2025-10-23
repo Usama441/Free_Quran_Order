@@ -1,6 +1,7 @@
-# app/controllers/admin/dashboard_controller.rb
 class Admin::DashboardController < ApplicationController
   before_action :authenticate_admin!
+  skip_before_action :authenticate_admin!, only: [:live_stats]
+  skip_before_action :verify_authenticity_token, only: [:live_stats]
 
   def index
     @total_orders       = Order.count
@@ -49,6 +50,92 @@ class Admin::DashboardController < ApplicationController
     @form_views = @total_orders * 3 # Mock data - would come from analytics
   end
 
+  # API endpoint for live dashboard updates
+  def live_stats
+    respond_to do |format|
+      format.json do
+        begin
+          # Get current period from params or session
+          time_period = params[:period] || session[:dashboard_period] || 'month'
+
+          case time_period
+          when 'day'
+            orders_data = Order.where('created_at >= ?', 30.days.ago).group_by_day(:created_at, format: "%m/%d").count
+            labels = orders_data.keys
+          when 'week'
+            orders_data = Order.where('created_at >= ?', 6.months.ago).group_by_week(:created_at, format: "Week %W").count
+            labels = orders_data.keys
+          when 'month'
+            orders_data = Order.where('created_at >= ?', 12.months.ago).group_by_month(:created_at, format: "%b %Y").count
+            labels = orders_data.keys
+          when 'year'
+            orders_data = Order.where('created_at >= ?', 10.years.ago).group_by_year(:created_at, format: "%Y").count
+            labels = orders_data.keys
+          end
+
+          # Heatmap data
+          orders_heatmap = Order.group(:country_code).count.map do |country_code, count|
+            lat_lng = country_coordinates(country_code)
+            {
+              country: country_code,
+              lat: lat_lng[:lat],
+              lng: lat_lng[:lng],
+              count: count
+            }
+          end.select { |h| h[:lat] && h[:lng] }
+
+          # Top countries
+          top_countries = Order.group(:country_code).count.sort_by { |k, v| -v }.first(5)
+
+          # Stock data
+          stock_by_translation = Quran.group(:translation).sum(:stock)
+
+          # Recent orders
+          recent_orders = Order.order(created_at: :desc).limit(10)
+
+          # Low stock items
+          low_stock_items = Quran.where('stock < ?', 100)
+
+          render json: {
+            stats: {
+              total_orders: Order.count,
+              countries_served: Order.distinct.pluck(:country_code).count,
+              qurans_distributed: Order.where(status: 'delivered').sum(:quantity),
+              stock_remaining: Quran.sum(:stock)
+            },
+            charts: {
+              labels: labels || [],
+              data: orders_data ? orders_data.values : []
+            },
+            heatmap: orders_heatmap,
+            stock_data: stock_by_translation,
+            top_countries: top_countries,
+            recent_orders: recent_orders.map do |order|
+              {
+                id: order.id,
+                full_name: order.full_name,
+                quantity: order.quantity,
+                status: order.status,
+                created_at: order.created_at
+              }
+            end,
+            low_stock_items: low_stock_items.map do |item|
+              {
+                title: item.title,
+                stock: item.stock
+              }
+            end
+          }
+        rescue StandardError => e
+          # Handle any database or other errors gracefully
+          Rails.logger.error("Dashboard live_stats error: #{e.message}")
+          render json: { error: 'Internal server error', message: 'Failed to load dashboard data' },
+                 status: :internal_server_error
+        end
+      end
+    end
+  end
+
   private
 
   def country_coordinates(country_code)
@@ -66,6 +153,7 @@ class Admin::DashboardController < ApplicationController
       'IN' => { lat: 20.5937, lng: 78.9629 },  # India
       'AF' => { lat: 33.9391, lng: 67.7100 },  # Afghanistan
       'IR' => { lat: 32.4279, lng: 53.6880 },  # Iran
+      'JO' => { lat: 31.9631, lng: 35.9304 },  # Jordan
       'CA' => { lat: 56.1304, lng: -106.3468 }, # Canada
       'AU' => { lat: -25.2744, lng: 133.7751 }, # Australia
       'DE' => { lat: 51.1657, lng: 10.4515 },  # Germany

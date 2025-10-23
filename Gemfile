@@ -84,6 +84,7 @@ group :test do
   # Additional RSpec testing gems for test group
   gem "rspec-collection_matchers"
   gem "shoulda-matchers"
+  gem "rails-controller-testing"
 end
 
 gem "devise", "~> 4.9"

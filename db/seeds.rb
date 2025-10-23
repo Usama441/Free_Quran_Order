@@ -66,19 +66,6 @@
 #
 # puts "Created Quran: #{quran.title} with #{quran.stock} copies in stock"
 
-# Create a sample Quran with 100 stock
-puts "Creating sample Quran with 100 stock..."
-
-quran = Quran.find_or_create_by(title: "The Holy Quran - English Translation") do |q|
-  q.writer = "Dr. Muhammad Muhsin Khan"
-  q.translation = "english"
-  q.pages = 604
-  q.stock = 400  # Starting with plenty of stock for orders
-  q.description = "Complete English translation of the Holy Quran with clear and easy to read text."
-end
-
-puts "Created Quran: #{quran.title} with #{quran.stock} copies in stock"
-
 # Create sample admin user
 puts "Creating admin user..."
 
@@ -93,86 +80,53 @@ end
 
 puts "Admin user created with email: admin@example.com, password: password123 (Super Admin)"
 
-# Create specific orders as requested
-puts "Creating specific orders..."
+# Check if there are any existing Qurans to use
+existing_quran = Quran.first
 
-# 30 orders from Pakistan (30 total)
-puts "Creating 30 orders from Pakistan..."
-30.times do |i|
-  Order.find_or_create_by(
-    full_name: "Pakistani Customer #{i+1}",
-    email: "pakistan#{i+1}@example.com",
-    created_at: (rand(30).days).ago
-  ) do |order|
-    order.country_code = 'PK'
-    order.city = ["Lahore", "Karachi", "Islamabad", "Faisalabad", "Rawalpindi"].sample
-    order.state = "Punjab"
-    order.phone = "+92 #{rand(300..399)} #{rand(1000000..9999999)}"
-    order.quantity = rand(1..3)
-    order.address = "House #{rand(1000)}, Street #{rand(50)}, Area"
-    order.postal_code = rand(40000..59999).to_s
-    order.quran = quran
-  end
+if existing_quran.nil?
+  puts "No existing Qurans found. Creating a basic sample Quran..."
+  existing_quran = Quran.create!(
+    title: "The Holy Quran - English Translation",
+    writer: "Dr. Muhammad Muhsin Khan",
+    translation: "english",
+    pages: 604,
+    stock: 50,
+    description: "Complete English translation of the Holy Quran."
+  )
 end
 
-# 10 orders from Germany (10 total)
-puts "Creating 10 orders from Germany..."
-10.times do |i|
+puts "Using Quran: #{existing_quran.title} with #{existing_quran.stock} remaining stock"
+
+# Create a few additional orders to test AJAX functionality
+puts "Creating test orders using existing Qurans..."
+
+# Create 5 fresh orders today with different timestamps for real-time testing
+5.times do |i|
+  timestamp = Time.now - rand(1..24).hours
   Order.find_or_create_by(
-    full_name: "German Customer #{i+1}",
-    email: "germany#{i+1}@example.com",
-    created_at: (rand(20).days).ago
+    full_name: "AJAX Test Customer #{i+1}",
+    email: "ajaxtest#{i+1}@example.com",
+    created_at: timestamp
   ) do |order|
-    order.country_code = 'DE'
-    order.city = ["Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne"].sample
-    order.state = "Germany"
-    order.phone = "+49 #{rand(100..999)} #{rand(1000000..9999999)}"
+    order.country_code = ['PK', 'US', 'DE', 'IR', 'CA'].sample
+    order.city = ["Lahore", "New York", "Berlin", "Tehran", "Toronto"].sample
+    order.state = case order.country_code
+                  when 'PK' then 'Punjab'
+                  when 'US' then ['NY', 'CA'].sample
+                  when 'DE' then 'Germany'
+                  when 'IR' then 'Iran'
+                  else 'Ontario'
+                  end
+    order.phone = "+#{rand(1..99)} #{rand(1000..9999)}"
     order.quantity = rand(1..2)
-    order.address = "#{rand(100)} Hauptstrasse"
+    order.address = "#{rand(100)}-#{rand(999)} Test Street"
     order.postal_code = rand(10000..99999).to_s
-    order.quran = quran
+    order.quran = existing_quran
   end
+  puts "Created AJAX test order #{i+1}"
 end
 
-# 20 orders from Iran (20 total)
-puts "Creating 20 orders from Iran..."
-20.times do |i|
-  Order.find_or_create_by(
-    full_name: "Iranian Customer #{i+1}",
-    email: "iran#{i+1}@example.com",
-    created_at: (rand(25).days).ago
-  ) do |order|
-    order.country_code = 'IR'
-    order.city = ["Tehran", "Mashhad", "Isfahan", "Karaj", "Shiraz"].sample
-    order.state = "Iran"
-    order.phone = "+98 #{rand(910..919)} #{rand(1000000..9999999)}"
-    order.quantity = rand(1..2)
-    order.address = "#{rand(100)} Main Street"
-    order.postal_code = rand(10000..99999).to_s
-    order.quran = quran
-  end
-end
-
-# 20 orders from America (20 total)
-puts "Creating 20 orders from America..."
-20.times do |i|
-  Order.find_or_create_by(
-    full_name: "American Customer #{i+1}",
-    email: "america#{i+1}@example.com",
-    created_at: (rand(15).days).ago
-  ) do |order|
-    order.country_code = 'US'
-    order.city = ["New York", "Los Angeles", "Chicago", "Houston", "Miami"].sample
-    order.state = ["NY", "CA", "IL", "TX", "FL"].sample
-    order.phone = "+1 #{rand(201..999)} #{rand(1000..9999)}"
-    order.quantity = rand(1..2)
-    order.address = "#{rand(1000)} Main St"
-    order.postal_code = rand(10000..99999).to_s
-    order.quran = quran
-  end
-end
-
-puts "Created 80 specific orders across 4 countries!"
+puts "Created 5 additional test orders for AJAX testing"
 
 # Sample orders creation - COMMENTED OUT to remove all hardcoded data except admin
 # puts "Creating sample orders..."

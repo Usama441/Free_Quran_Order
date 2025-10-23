@@ -1,11 +1,12 @@
 ---
-site_name: Free Quran Distribution
+site_name: Free Quran
 default_translation: english
 order_limit_per_day: 100
 email_notifications: true
 auto_refresh_interval: 60
+dashboard_refresh_interval: 10
 max_daily_orders: 1000
 debug_mode: false
 maintenance_mode: false
-low_stock_threshold: 50
+low_stock_threshold: 10
 auto_reorder_point: 50

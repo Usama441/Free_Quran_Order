@@ -3,6 +3,37 @@
   transform: rotate(45deg);
 }
 
+/* Force FAB visibility - maximum priority */
+#fab-container {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 2147483647 !important; /* Maximum z-index value */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#fab-main-btn {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
+  background: #059669 !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+#fab-container * {
+  pointer-events: auto !important;
+}
+
 /* Fixed sidebar toggle button when sidebar is hidden */
 .sidebar-hidden .sidebar-reveal-btn {
   opacity: 1;

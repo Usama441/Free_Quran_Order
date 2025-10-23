@@ -20,8 +20,23 @@ module SettingsHelper
       app_settings['default_translation'] || 'english'
     end
 
+    def dashboard_refresh_interval
+      # Convert to integer in case it's stored as string in YAML
+      (app_settings['dashboard_refresh_interval'] || 30).to_i
+    end
+
     def auto_refresh_interval
-      app_settings['auto_refresh_interval'] || 30
+      (app_settings['auto_refresh_interval'] || 30).to_i
+    end
+
+    def dashboard_refresh_interval_options
+      [
+        ['1 second', 1],
+        ['5 seconds', 5],
+        ['10 seconds', 10],
+        ['30 seconds', 30],
+        ['60 seconds', 60]
+      ]
     end
 
     def debug_mode?
@@ -64,11 +79,19 @@ module SettingsHelper
       notification_settings['slack_notifications'] || false
     end
   
-    def update_app_settings(new_settings)
-      settings_file = Rails.root.join('config', 'app_settings.yml')
-      File.write(settings_file, new_settings.to_yaml)
-      @app_settings = nil # Clear cache to reload settings
+  def update_app_settings(new_settings)
+    settings_file = Rails.root.join('config', 'app_settings.yml')
+    # Convert settings to proper types where needed
+    processed_settings = new_settings.transform_values do |value|
+      case value
+      when 'true', '1' then true
+      when 'false', '0', '', nil then false
+      else value.is_a?(String) && value.match?(/^\d+$/) ? value.to_i : value
+      end
     end
+    File.write(settings_file, processed_settings.to_yaml)
+    @app_settings = nil # Clear cache to reload settings
+  end
   
     private
   
@@ -85,6 +108,7 @@ module SettingsHelper
           'order_limit_per_day' => 50,
           'email_notifications' => true,
           'auto_refresh_interval' => 30,
+          'dashboard_refresh_interval' => 30,
           'max_daily_orders' => 100,
           'debug_mode' => false,
           'maintenance_mode' => false,

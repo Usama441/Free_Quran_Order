@@ -6,7 +6,7 @@
   <title><%= content_for?(:title) ? yield(:title) : "Admin Dashboard - Quran Orders" %></title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <link href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" rel="stylesheet" />
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <%= stylesheet_link_tag "admin_layout", "data-turbo-track": "reload" %>
@@ -14,10 +14,11 @@
   <%= stylesheet_link_tag "themes/theme_sky", "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag "themes/theme_black", "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag "themes/theme_purple", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
   <%= javascript_include_tag "admin_layout", "data-turbo-track": "reload" %>
 </head>
 
-<body class="bg-gray-50 text-gray-800 flex flex-col h-screen">
+<body class="bg-gray-50 text-gray-800 flex flex-col h-screen" style="overflow: hidden;">
   <!-- Immediate theme loading to prevent flicker -->
   <script>
     (function() {

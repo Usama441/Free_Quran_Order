@@ -2,6 +2,82 @@
 
     <%= turbo_stream_from "dashboard_stats" %>
 
+    <!-- Dashboard refresh interval for JavaScript -->
+    <meta name="dashboard-refresh-interval" content="<%= dashboard_refresh_interval %>">
+
+    <!-- Chart data for JavaScript -->
+    <script>
+      window.dashboardLabels = <%= raw @labels.to_json %>;
+      window.dashboardOrdersData = <%= @orders_data ? raw(@orders_data.values.to_json) : raw([].to_json) %>;
+      window.dashboardStockLabels = <%= raw @stock_by_translation.keys.to_json %>;
+      window.dashboardStockData = <%= raw @stock_by_translation.values.to_json %>;
+
+      // Initialize charts on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        // Orders Chart
+        const ordersCtx = document.getElementById("ordersChart");
+        if (ordersCtx && typeof Chart !== 'undefined') {
+          window.ordersChart = new Chart(ordersCtx, {
+            type: "line",
+            data: {
+              labels: window.dashboardLabels,
+              datasets: [{
+                label: "Orders",
+                data: window.dashboardOrdersData,
+                borderColor: "#16a34a",
+                backgroundColor: "rgba(22,163,74,0.1)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5
+              }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+          });
+        }
+
+        // Stock Chart
+        const stockCtx = document.getElementById("stockChart");
+        if (stockCtx && typeof Chart !== 'undefined') {
+          window.stockChart = new Chart(stockCtx, {
+            type: "bar",
+            data: {
+              labels: window.dashboardStockLabels,
+              datasets: [{
+                label: "Stock Remaining",
+                data: window.dashboardStockData,
+                backgroundColor: "#16a34a"
+              }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+          });
+        }
+
+        // Heatmap
+        const mapElement = document.getElementById("map");
+        if (mapElement && typeof L !== 'undefined') {
+          window.mapInstance = L.map("map").setView([20, 0], 2);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "© OpenStreetMap contributors"
+          }).addTo(window.mapInstance);
+
+          const heatmapOrders = <%= raw @orders_heatmap.to_json %>;
+          heatmapOrders.forEach(order => {
+            if (order.lat && order.lng) {
+              const color = order.count > 900 ? "red" : (order.count > 600 ? "orange" : "green");
+              const radius = Math.max(8, Math.min(20, order.count / 10));
+              L.circleMarker([order.lat, order.lng], {
+                radius: radius,
+                fillColor: color,
+                color: color,
+                weight: 2,
+                fillOpacity: 0.7
+              }).addTo(window.mapInstance).bindPopup(`<b>${order.country}</b><br>Orders: ${order.count}`);
+            }
+          });
+        }
+      });
+    </script>
+
   <h2 class="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-2">
       <i class="fas fa-chart-pie"></i><span>Dashboard Overview</span>
     </h2>
@@ -31,7 +107,7 @@
         <div class="flex justify-between items-center">
           <div>
             <p class="text-gray-500 text-sm">Total Orders</p>
-            <h3 class="text-2xl font-bold"><%= @total_orders %></h3>
+            <h3 class="text-2xl font-bold" id="stats_total_orders"><%= @total_orders %></h3>
           </div>
           <i class="fas fa-receipt text-green-600 text-3xl"></i>
         </div>
@@ -40,7 +116,7 @@
         <div class="flex justify-between items-center">
           <div>
             <p class="text-gray-500 text-sm">Countries Served</p>
-            <h3 class="text-2xl font-bold"><%= @countries_served %></h3>
+            <h3 class="text-2xl font-bold" id="stats_countries_served"><%= @countries_served %></h3>
           </div>
           <i class="fas fa-globe-asia text-green-600 text-3xl"></i>
         </div>
@@ -49,7 +125,7 @@
         <div class="flex justify-between items-center">
           <div>
             <p class="text-gray-500 text-sm">Qurans Distributed</p>
-            <h3 class="text-2xl font-bold"><%= @qurans_distributed %></h3>
+            <h3 class="text-2xl font-bold" id="stats_qurans_distributed"><%= @qurans_distributed %></h3>
           </div>
           <i class="fas fa-book-quran text-green-600 text-3xl"></i>
         </div>
@@ -58,7 +134,7 @@
         <div class="flex justify-between items-center">
           <div>
             <p class="text-gray-500 text-sm">Stock Remaining</p>
-            <h3 class="text-2xl font-bold"><%= @stock_remaining %></h3>
+            <h3 class="text-2xl font-bold" id="stats_stock_remaining"><%= @stock_remaining %></h3>
           </div>
           <i class="fas fa-warehouse text-green-600 text-3xl"></i>
         </div>
@@ -205,129 +281,3 @@
         </div>
       </div>
     <% end %>
-
-<% content_for :page_scripts do %>
-
-<script>
-    // Function to update chart dynamically
-    function updateCharts(timePeriod, labels, data, stockLabels, stockData, heatmapData) {
-        // Update title
-        document.querySelector('#charts_section').querySelector('h3').textContent = timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1) + ' Orders Trend';
-
-        // Destroy existing chart if it exists
-        if (window.ordersChart) {
-            window.ordersChart.destroy();
-        }
-
-        // Create new chart
-        const ordersCtx = document.getElementById("ordersChart").getContext("2d");
-        window.ordersChart = new Chart(ordersCtx, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Orders",
-                    data: data,
-                    borderColor: "#16a34a",
-                    backgroundColor: "rgba(22,163,74,0.1)",
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 5
-                }]
-            },
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
-        });
-
-        // Update heatmap
-        updateHeatmap(heatmapData);
-    }
-
-    // Function to update heatmap
-    function updateHeatmap(orders) {
-        const mapElement = document.getElementById("map");
-        if (mapElement._leaflet_id) {
-            mapElement._leaflet_id = null;
-        }
-
-        const map = L.map("map").setView([20, 0], 2);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: "© OpenStreetMap contributors"
-        }).addTo(map);
-
-        orders.forEach(order => {
-            if (order.lat && order.lng) {
-                const color = order.count > 900 ? "red" : (order.count > 600 ? "orange" : "green");
-                const radius = Math.max(8, Math.min(20, order.count / 10)); // Scale radius based on orders
-                L.circleMarker([order.lat, order.lng], {
-                    radius: radius,
-                    fillColor: color,
-                    color: color,
-                    weight: 2,
-                    fillOpacity: 0.7
-                }).addTo(map).bindPopup(`<b>${order.country}</b><br>Orders: ${order.count}`);
-            }
-        });
-    }
-
-    // Initial chart load
-    const ordersCtx = document.getElementById("ordersChart").getContext("2d");
-    window.ordersChart = new Chart(ordersCtx, {
-        type: "line",
-        data: {
-            labels: <%= raw @labels.to_json %>,
-            datasets: [{
-                label: "Orders",
-                data: <%= @orders_data ? raw(@orders_data.values.to_json) : raw([].to_json) %>,
-                borderColor: "#16a34a",
-                backgroundColor: "rgba(22,163,74,0.1)",
-                fill: true,
-                tension: 0.4,
-                pointRadius: 5
-            }]
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-    });
-
-    // Stock Chart (static)
-    const stockCtx = document.getElementById("stockChart").getContext("2d");
-    new Chart(stockCtx, {
-        type: "bar",
-        data: {
-            labels: <%= raw @stock_by_translation.keys.to_json %>,
-            datasets: [{
-                label: "Stock Remaining",
-                data: <%= raw @stock_by_translation.values.to_json %>,
-                backgroundColor: "#16a34a"
-            }]
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-    });
-
-    // Initial Heatmap
-    const map = L.map("map").setView([20, 0], 2);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors"
-    }).addTo(map);
-
-    const heatmapOrders = <%= raw @orders_heatmap.to_json %>;
-    heatmapOrders.forEach(order => {
-        if (order.lat && order.lng) {
-            const color = order.count > 900 ? "red" : (order.count > 600 ? "orange" : "green");
-            const radius = Math.max(8, Math.min(20, order.count / 10));
-            L.circleMarker([order.lat, order.lng], {
-                radius: radius,
-                fillColor: color,
-                color: color,
-                weight: 2,
-                fillOpacity: 0.7
-            }).addTo(map).bindPopup(`<b>${order.country}</b><br>Orders: ${order.count}`);
-        }
-    });
-
-    // Auto-refresh every 30 seconds
-    setInterval(function() {
-        location.reload();
-    }, <%= auto_refresh_interval * 1000%>);
-</script>
-
-<% end %>

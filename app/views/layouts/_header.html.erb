@@ -293,15 +293,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Simulate notifications
-  function updateNotificationBadge() {
-    const count = Math.floor(Math.random() * 3);
-    const badge = document.getElementById('notification-badge');
+  // Real notifications fetching
+  async function updateNotificationBadge() {
+    try {
+      // You can implement a real notifications endpoint here
+      // For now, we'll use a simple approach - could fetch from a notification controller
+      // const response = await fetch('/admin/notifications/count', { headers: { 'Accept': 'application/json' } });
+      // const data = await response.json();
 
-    if (count > 0) {
-      badge.textContent = count;
-      badge.classList.remove('hidden');
-    } else {
+      // Placeholder - you can implement real notification counting logic
+      // For example: count pending orders, low stock items, etc.
+      const badge = document.getElementById('notification-badge');
+
+      // Temporary: hide badge until you implement real notifications
+      // You could count: pending orders + low stock alerts + other system notifications
+      badge.classList.add('hidden');
+      badge.textContent = '0';
+
+    } catch (error) {
+      console.error('Failed to update notification badge:', error);
+      const badge = document.getElementById('notification-badge');
       badge.classList.add('hidden');
     }
   }

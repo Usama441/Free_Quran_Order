@@ -2,7 +2,8 @@ class Order < ApplicationRecord
   enum status: { pending: 0, processing: 1, shipped: 2, delivered: 3, cancelled: 4 }
 
   # Association with Quran (orders belong to qurans)
-  belongs_to :quran, polymorphic: true, optional: true
+  # belongs_to :quran, polymorphic: true, optional: true
+  belongs_to :quran, optional: true
 
   # Real-time broadcasting for live updates
   after_update :broadcast_order_update, if: :saved_change_to_status?

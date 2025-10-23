@@ -25,13 +25,16 @@ Rails.application.routes.draw do
     # Admin dashboard and analytics
     root to: "dashboard#index", as: :root
     get "dashboard", to: "dashboard#index", as: :dashboard
+    get "dashboard/live_stats", to: "dashboard#live_stats", as: :live_stats
     get "analytics/orders", to: "analytics#orders", as: :order_analytics
     get "analytics/customers", to: "analytics#customers", as: :customer_analytics
     get "analytics/geography", to: "geography#show", as: :geographic_analytics
     get "analytics/reports", to: "analytics#reports", as: :reports
     post "analytics/reports/download_csv", to: "analytics#download_csv", as: :download_csv_reports
     get "settings/configuration", to: "settings#configuration", as: :configuration
+    patch "settings/configuration", to: "settings#configuration"
     get "settings/notifications", to: "settings#notifications", as: :notifications
+    patch "settings/notifications", to: "settings#notifications"
     delete "settings/clear_notification_history", to: "settings#clear_notification_history", as: :clear_notification_history
   end
 
