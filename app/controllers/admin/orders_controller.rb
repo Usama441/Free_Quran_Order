@@ -90,7 +90,6 @@ class Admin::OrdersController < ApplicationController
       end
     end
     
-
     send_data csv_data,
               filename: "orders_#{Time.zone.now.strftime('%Y%m%d_%H%M%S')}.csv",
               type: 'text/csv'
