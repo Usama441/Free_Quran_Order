@@ -46,22 +46,50 @@ class Admin::OrdersController < ApplicationController
       end_date = params[:end_date].presence || Date.today
       @orders = @orders.where(created_at: start_date.beginning_of_day..end_date.end_of_day)
     end
-
     csv_data = CSV.generate(headers: true) do |csv|
-      csv << ["ID", "Full Name", "Email", "Phone", "Address", "Status", "Quran Name", "Created At"]
+      csv << [
+        "ID",
+        "Full Name",
+        "Email",
+        "Phone",
+        "Address",
+        "Quantity",
+        "Status",
+        "Tracking Number",
+        "Email Verified",
+        "Phone Verified",
+        "City",
+        "State",
+        "Postal Code",
+        "Quran Name",
+        "Translation",
+        "Created At",
+        "Note"
+      ]
+    
       @orders.each do |order|
         csv << [
           order.id,
           order.full_name,
           order.email,
-          order.phone,
+          "#{order.country_code}#{order.phone}", # combined country code + phone
           order.address,
+          order.quantity,
           order.status ? order.status.titleize : "N/A",
+          order.tracking_number,
+          order.email_verified,
+          order.phone_verified,
+          order.city,
+          order.state,
+          order.postal_code,
           order.quran&.title, # assuming belongs_to :quran
-          order.created_at.strftime("%Y-%m-%d %H:%M")
+          order.translation,
+          order.created_at.strftime("%Y-%m-%d %H:%M"),
+          order.note
         ]
       end
     end
+    
 
     send_data csv_data,
               filename: "orders_#{Time.zone.now.strftime('%Y%m%d_%H%M%S')}.csv",
