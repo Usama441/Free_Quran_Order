@@ -96,9 +96,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_21_122933) do
     t.string "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "quran_type"
     t.bigint "quran_id"
     t.string "translation"
+    t.string "quran_type"
     t.index ["quran_type", "quran_id"], name: "index_orders_on_quran_type_and_quran_id"
   end
 
